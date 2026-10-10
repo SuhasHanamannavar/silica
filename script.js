@@ -404,7 +404,7 @@
     }
 
     function isFrontFacing(normal) {
-      return normal.z < 0;
+      return normal.z > 0;
     }
 
     // Lighting based on face normal
