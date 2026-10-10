@@ -302,6 +302,54 @@ def execute_run(pid, rtl_override=None, max_recovery=2):
     return run
 
 # ---------------------------------------------------------------------------
+# Multi-agent orchestrator integration (silica_agents package).
+# Runs the full specialist pipeline: specification -> rtl_design ->
+# functional_verification -> logic_synthesis -> physical_design (BLOCKED)
+# -> timing_verification (BLOCKED) -> signoff_report, with inline evidence-
+# based failure recovery. Output is mapped to the frontend's expected shape.
+# ---------------------------------------------------------------------------
+try:
+    from silica_agents import Orchestrator
+    HAS_AGENTS = True
+except Exception as _e:
+    HAS_AGENTS = False
+    _AGENT_IMPORT_ERR = str(_e)
+
+def execute_agent_run(pid, rtl_override=None, max_recovery=2):
+    """Run the multi-agent pipeline and persist a frontend-compatible run.json."""
+    pdir = os.path.join(DATA, pid)
+    meta = jread(os.path.join(pdir, "project.json"), {})
+    orch = Orchestrator(DATA, max_recovery=max_recovery)
+    run_state = orch.run_pipeline(pid, meta.get("spec", ""), rtl_override=rtl_override)
+    rd = run_state.to_dict()
+    # map orchestrator shape -> legacy frontend shape (stages as list)
+    stages = []
+    for aid, st in rd.get("stages", {}).items():
+        stages.append({"name": aid, "status": st.get("status", "pending"),
+                       "exit_code": 0 if st.get("status") == "passed" else 1,
+                       "duration_s": (st.get("finished_at") or 0) - (st.get("started_at") or 0)})
+    legacy = {
+        "id": rd["id"], "project": pid, "status": rd["status"],
+        "stages": stages,
+        "recovery": {"attempts": rd.get("recovery_attempts", 0),
+                     "actions": [e.get("actions", "") for e in rd.get("events", []) if e.get("kind") == "recovery_attempt"]},
+        "artifacts": rd.get("artifacts", []),
+        "tools": dict(TOOLS),
+        "agent_pipeline": True,
+        "events": rd.get("events", [])[-50:],
+    }
+    # overwrite run.json with frontend-compatible view
+    rdir = os.path.join(pdir, "runs", rd["id"])
+    jwrite(os.path.join(rdir, "run.json"), legacy)
+    runs = jread(os.path.join(pdir, "runs.json"), [])
+    runs = [r for r in runs if r.get("id") != rd["id"]] + [
+        {"id": rd["id"], "status": rd["status"], "started": rd.get("started_at"),
+         "stages": [s["name"]+":"+s["status"] for s in stages],
+         "recovered": rd.get("recovery_attempts", 0) > 0, "agent_pipeline": True}]
+    jwrite(os.path.join(pdir, "runs.json"), runs)
+    return legacy
+
+# ---------------------------------------------------------------------------
 # HTTP handler
 # ---------------------------------------------------------------------------
 class Handler(BaseHTTPRequestHandler):
@@ -329,6 +377,13 @@ class Handler(BaseHTTPRequestHandler):
         u = urlparse(self.path); p = unquote(u.path)
         if p == "/api/health":
             self._send(200, {"ok": True, "tools": TOOLS, "tools_available": TOOLS_AVAILABLE})
+        elif p == "/api/agents/health":
+            from silica_agents.hf_serving import HFServingAdapter
+            hf = HFServingAdapter()
+            self._send(200, {"ok": HAS_AGENTS, "import_error": None if HAS_AGENTS else _AGENT_IMPORT_ERR,
+                             "agents": ["specification","rtl_design","functional_verification","logic_synthesis",
+                                        "physical_design","timing_verification","failure_diagnosis","signoff_report"],
+                             "hf_serving": hf.health()})
         elif p == "/api/projects":
             self._send(200, {"projects": list_projects()})
         elif p.startswith("/api/runs/"):
@@ -378,8 +433,9 @@ class Handler(BaseHTTPRequestHandler):
             rtl = payload.get("rtl")
             use_broken = payload.get("demo_broken", False)
             if use_broken: rtl = BROKEN_RTL
-            threading.Thread(target=execute_run, args=(pid, rtl), daemon=True).start()
-            self._send(200, {"status": "started", "project": pid})
+            _run_fn = execute_agent_run if HAS_AGENTS else execute_run
+            threading.Thread(target=_run_fn, args=(pid, rtl), daemon=True).start()
+            self._send(200, {"status": "started", "project": pid, "agent_pipeline": HAS_AGENTS})
         else:
             self._send(404, {"error": "unknown endpoint"})
 

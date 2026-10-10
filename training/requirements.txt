@@ -1,0 +1,8 @@
+# Training host requirements (GPU environment; NOT installed on this CPU-only VM)
+torch>=2.1
+transformers>=4.40
+peft>=0.10
+datasets>=2.18
+accelerate>=0.29
+huggingface_hub>=0.22
+trl>=0.8

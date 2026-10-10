@@ -57,6 +57,19 @@ to the recorded-transcript demo.
 - `GET  /api/artifacts/<rid>/<name>` — download artifact.
 - `GET  /api/logs/<rid>/<name>` — stage log.
 
+## Specialist multi-agent system (silica_agents/)
+Silica now runs an 8-agent specialist pipeline with typed contracts, versioned
+domain prompts, sandboxed EDA execution, HF model-serving adapter, evidence-based
+failure recovery, and an honest signoff agent. Vertical slice (real EDA):
+`specification → rtl_design → functional_verification → logic_synthesis`, with
+`physical_design` and `timing_verification` honestly labeled BLOCKED.
+- `python3 eval/benchmark.py` — 6-case regression suite (all pass with real Verilator+Yosys).
+- `python3 smoke_test.py` — end-to-end clean + broken-RTL recovery test.
+- `training/` — model-eval matrix, dataset prep, and reproducible LoRA script (GPU required; not run here).
+- See `STATUS_REPORT.md` for what works, what is blocked, and next priorities.
+- LLM augmentation: set `HF_TOKEN` and `SILICA_ALLOW_EXTERNAL_LLM=1`; otherwise the
+  deterministic baseline is used and the fallback is recorded in every audit trail.
+
 ## Deliberate limitations (honestly labeled)
 
 - **No physical design.** No OpenROAD floorplan/place/route, no timing signoff, no
