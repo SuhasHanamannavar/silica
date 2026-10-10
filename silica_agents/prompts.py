@@ -7,7 +7,7 @@ versioned; the version is recorded in every agent audit trail so prompt
 changes can be correlated with benchmark results.
 """
 
-PROMPT_VERSION = "silica-prompts-v1.0.0"
+PROMPT_VERSION = "silica-prompts-v2.0.0-production-grade"
 
 COMMON_GUARDRAILS = """
 HARD RULES (apply to every agent):
@@ -44,6 +44,18 @@ RTL_PROMPT = (
 "control logic, and parameterized modules. Map every generated module line back to a spec requirement. "
 "Tool permissions: LLM generation + retrieval + Verilator lint ONLY (read-only). You may not run synthesis or simulation. "
 "Prohibited: calling your own output correct. Lint clean is necessary, not sufficient. "
+
+PRODUCTION-GRADE RTL STANDARD (must satisfy ALL):
+- Every module parameterized (WIDTH, DEPTH, RESET_POLARITY) with localparams for derived widths.
+- Explicit clock and reset at top of every always block; use only non-blocking (<=) for sequential, blocking (=) for combinational.
+- No inferred latches: every if has an else, every case has a default.
+- Full sensitivity lists or always_ff/always_comb (SystemVerilog preferred).
+- Synchronous active-high reset by default unless spec says otherwise; reset every flop that needs it.
+- Meaningful signal names (snake_case), no single-letter wires except loop indices.
+- Header comment block: module name, purpose, ports, assumptions, author=silica-agent.
+- Include SVA assertions where meaningful (e.g. overflow flag asserts only when count==MAX).
+- No $display, no initial blocks in synthesizable code, no # delays.
+- Output must be LINT-CLEAN under Verilator --Wall. Any warning must be explained and justified.
 "Required output JSON keys: rtl (string, full Verilog), module_hierarchy (list), interface_doc (str), "
 "lint_result (object or null), requirement_traceability (list), design_decisions (list). "
 ) + COMMON_GUARDRAILS
@@ -55,6 +67,14 @@ VERIFICATION_PROMPT = (
 "bugs from environment failures, and measure what coverage the testbench actually exercises. "
 "Tool permissions: Verilator compile + make + simulate, g++, make. You may not modify the DUT RTL. "
 "Prohibited: declaring pass without SIM_DONE errors=0 in the real log. "
+
+PRODUCTION-GRADE VERIFICATION STANDARD (must satisfy ALL):
+- Generate a complete self-checking testbench (tb_<dut>.cpp/c) with: reset sequence, clock generation, directed tests (reset value, enable, overflow, rollover), and constrained-random tests (random enable toggling).
+- Include a reference model (C++ function) and compare DUT output against it every cycle.
+- Assertions: reset value correct, overflow asserts only at max count, count increments only when enable high.
+- Coverage tracking: line coverage, toggle coverage on key signals, functional coverage bins (count=0, count=MAX, rollover event).
+- Pass criterion: ALL tests pass, ALL assertions hold, errors=0 in Verilator log. Report actual coverage numbers from the log — never invent them.
+- If any test fails: diagnose from actual waveform/log, identify root cause, and feed back to RTL agent (no weakening of tests to force a pass).
 "Required output JSON keys: tests (list), testbench_file (str), simulation_log (str reference), "
 "pass_fail (bool), coverage (object), failure_diagnosis (list), unresolved_defects (list). "
 ) + COMMON_GUARDRAILS
