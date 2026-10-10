@@ -432,7 +432,7 @@
       const perspective = 600;
       const angles = getRotationAngles(smoothScrollProgress);
       const layerReveal = getLayerReveal(smoothScrollProgress);
-      const baseScale = Math.min(W, H) * 0.0045 * angles.chipScale;
+      const baseScale = Math.min(W, H) * 0.0055 * angles.chipScale;
       const zOff = angles.zOffset;
 
       // Collect all faces with depth for painter's algorithm
@@ -633,7 +633,7 @@
               const cp4 = transformPoint(cell.x, cell.y + cell.h, topZ + 0.02, angles, cx, cy, baseScale, perspective, zOff);
               
               if (cell.type === 'gate') {
-                ctx.fillStyle = shadeRGBA(191, 109, 21, patternAlpha * cell.density * 0.5, l);
+                ctx.fillStyle = shadeRGBA(210, 150, 70, patternAlpha * cell.density * 0.8, l);
                 ctx.beginPath();
                 ctx.moveTo(cp1.x, cp1.y);
                 ctx.lineTo(cp2.x, cp2.y);
@@ -642,9 +642,9 @@
                 ctx.closePath();
                 ctx.fill();
               } else if (cell.type === 'block') {
-                ctx.fillStyle = shadeRGBA(160, 165, 175, patternAlpha * 0.35, l);
-                ctx.strokeStyle = shadeRGBA(191, 109, 21, patternAlpha * 0.3, l);
-                ctx.lineWidth = 0.3 * cp1.scale;
+                ctx.fillStyle = shadeRGBA(180, 185, 195, patternAlpha * 0.5, l);
+                ctx.strokeStyle = shadeRGBA(210, 150, 70, patternAlpha * 0.6, l);
+                ctx.lineWidth = 0.5 * cp1.scale;
                 ctx.beginPath();
                 ctx.moveTo(cp1.x, cp1.y);
                 ctx.lineTo(cp2.x, cp2.y);
@@ -816,14 +816,14 @@
         }
       }
 
-      // --- Ambient glow behind chip ---
+      // --- Strong ambient glow behind chip ---
       {
         faces.push({ depth: 9999, draw: () => {
-          const glowR = Math.min(W, H) * (0.25 + smoothScrollProgress * 0.15);
-          const glowAlpha = 0.12 + smoothScrollProgress * 0.1;
+          const glowR = Math.min(W, H) * (0.3 + smoothScrollProgress * 0.2);
+          const glowAlpha = 0.2 + smoothScrollProgress * 0.2;
           const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
           grad.addColorStop(0, `rgba(191, 109, 21, ${glowAlpha})`);
-          grad.addColorStop(0.4, `rgba(191, 109, 21, ${glowAlpha * 0.4})`);
+          grad.addColorStop(0.3, `rgba(191, 109, 21, ${glowAlpha * 0.5})`);
           grad.addColorStop(1, 'rgba(191, 109, 21, 0)');
           ctx.fillStyle = grad;
           ctx.fillRect(0, 0, W, H);
@@ -851,6 +851,51 @@
             ctx.fillRect(0, 0, W, H);
           }});
         }
+      }
+
+      // --- Strong wireframe outline on top of everything ---
+      {
+        const hw = CHIP.w / 2, hh = CHIP.h / 2, t = CHIP.thickness;
+        const outlineAlpha = 0.5 + smoothScrollProgress * 0.4;
+        
+        // Get all 8 corners
+        const corners = [
+          transformPoint(-hw, -hh, -t/2, angles, cx, cy, baseScale, perspective, zOff), // 0: BLB
+          transformPoint( hw, -hh, -t/2, angles, cx, cy, baseScale, perspective, zOff), // 1: BRB
+          transformPoint( hw,  hh, -t/2, angles, cx, cy, baseScale, perspective, zOff), // 2: FRB
+          transformPoint(-hw,  hh, -t/2, angles, cx, cy, baseScale, perspective, zOff), // 3: FLB
+          transformPoint(-hw, -hh,  t/2, angles, cx, cy, baseScale, perspective, zOff), // 4: BLT
+          transformPoint( hw, -hh,  t/2, angles, cx, cy, baseScale, perspective, zOff), // 5: BRT
+          transformPoint( hw,  hh,  t/2, angles, cx, cy, baseScale, perspective, zOff), // 6: FRT
+          transformPoint(-hw,  hh,  t/2, angles, cx, cy, baseScale, perspective, zOff), // 7: FLT
+        ];
+        
+        const edges = [
+          [0,1],[1,2],[2,3],[3,0], // bottom
+          [4,5],[5,6],[6,7],[7,4], // top
+          [0,4],[1,5],[2,6],[3,7], // vertical
+        ];
+        
+        faces.push({ depth: -100, draw: () => {
+          ctx.strokeStyle = `rgba(191, 109, 21, ${outlineAlpha})`;
+          ctx.lineWidth = 1.2;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.beginPath();
+          edges.forEach(([a, b]) => {
+            ctx.moveTo(corners[a].x, corners[a].y);
+            ctx.lineTo(corners[b].x, corners[b].y);
+          });
+          ctx.stroke();
+          
+          // Corner dots
+          ctx.fillStyle = `rgba(220, 180, 120, ${outlineAlpha})`;
+          corners.forEach(c => {
+            ctx.beginPath();
+            ctx.arc(c.x, c.y, 1.8, 0, Math.PI * 2);
+            ctx.fill();
+          });
+        }});
       }
 
       // --- Sort by depth (painter's algorithm) and draw ---
