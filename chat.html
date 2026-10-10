@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Silica — AI Engineering Chat</title>
+<style>
+  :root{--bg:#0A0B0E;--surface:#13161C;--ink:#EDEFF4;--dim:#8E94A3;--line:rgba(237,239,244,.1);--accent:#6C8CFF;--ok:#7FB98B;--fail:#C96B5E;--warn:#C9A45E;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:'Instrument Sans',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+  header{padding:18px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+  header .logo{font-weight:700;letter-spacing:.14em;font-size:15px}
+  header .badge{margin-left:auto;font-size:11px;padding:4px 10px;border:1px solid var(--line);border-radius:20px;color:var(--dim)}
+  #chat{flex:1;overflow-y:auto;padding:24px;max-width:860px;width:100%;margin:0 auto}
+  .msg{margin-bottom:18px;padding:14px 16px;border-radius:10px;max-width:92%;line-height:1.6;font-size:14px;white-space:pre-wrap;word-break:break-word}
+  .user{background:var(--accent);color:#fff;margin-left:auto}
+  .assistant{background:var(--surface);border:1px solid var(--line)}
+  .stage{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;color:var(--dim)}
+  .stage .dot{width:8px;height:8px;border-radius:50%;background:var(--dim)}
+  .stage.passed .dot{background:var(--ok)}.stage.failed .dot{background:var(--fail)}.stage.running .dot{background:var(--warn);animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.3}}
+  pre{background:#0E1014;border:1px solid var(--line);border-radius:8px;padding:12px;overflow-x:auto;font-size:12px;margin-top:8px;color:var(--ink)}
+  .composer{border-top:1px solid var(--line);padding:16px 24px;max-width:860px;width:100%;margin:0 auto;display:flex;gap:10px}
+  textarea{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:8px;color:var(--ink);padding:12px;font-size:14px;resize:none;min-height:56px;font-family:inherit}
+  button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:0 20px;font-weight:600;cursor:pointer;font-size:14px}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .meta{font-size:11px;color:var(--dim);margin-top:6px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header><div class="logo">SILICA</div><div>AI Semiconductor Engineering</div><div class="badge" id="badge">connecting…</div></header>
+<div id="chat"></div>
+<div class="composer">
+  <textarea id="prompt" placeholder="Describe the chip you want to build, e.g. 'Design a 4-bit up-counter with clock enable and overflow flag.'"></textarea>
+  <button id="send">Run</button>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+fetch('/api/health').then(r=>r.json()).then(d=>{$('#badge').textContent=d.tools_available?'LIVE EDA BACKEND':'frontend-only';$('#badge').style.color=d.tools_available?'var(--ok)':'var(--warn)';}).catch(()=>{$('#badge').textContent='backend offline';$('#badge').style.color='var(--fail)';});
+function addMsg(role,html){const d=document.createElement('div');d.className='msg '+role;d.innerHTML=html;$('#chat').appendChild(d);$('#chat').scrollTop=1e9;return d;}
+$('#send').onclick=async()=>{
+  const p=$('#prompt').value.trim();if(!p)return;
+  $('#send').disabled=true;
+  addMsg('user',p);
+  const status=addMsg('assistant','<div class="stage running"><span class="dot"></span>dispatching to orchestrator…</div>');
+  try{
+    const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})});
+    const j=await r.json();
+    if(j.error){status.innerHTML='<span style="color:var(--fail)">Error: '+j.error+'</span>';$('#send').disabled=false;return;}
+    const cid=j.chat_id;let last='';
+    const iv=setInterval(async()=>{
+      const s=await fetch('/api/chat/'+cid).then(x=>x.json());
+      const html=(s.stages||[]).map(st=>'<div class="stage '+st.status+'"><span class="dot"></span>'+st.name+(st.actions?' — '+st.actions.join('; '):'')+'</div>').join('');
+      const summary='<div class="meta">model: '+(s.model||'—')+' · source: '+(s.source||'—')+(s.blocker?' · <span style="color:var(--fail)">blocker: '+s.blocker+'</span>':'')+'</div>';
+      if(html!==last){status.innerHTML=html+summary;last=html;$('#chat').scrollTop=1e9;}
+      if(s.status!=='running'){
+        clearInterval(iv);$('#send').disabled=false;
+        if(s.report){addMsg('assistant','<b>Engineering report</b>\nDisposition: '+s.report.disposition+'\nMissing signoff checks: '+s.report.missing_signoff_checks.join(', ')+'\nArtifacts: '+(s.artifacts||[]).join(', '));}
+      }
+    },1500);
+  }catch(e){status.innerHTML='<span style="color:var(--fail)">Request failed: '+e+' — is server.py running locally?</span>';$('#send').disabled=false;}
+};
+$('#prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('#send').click();}});
+</script>
+</body>
+</html>

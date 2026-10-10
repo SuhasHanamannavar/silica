@@ -417,13 +417,41 @@ class Handler(BaseHTTPRequestHandler):
         else:
             self._static(p)
 
+
+    CHAT_RUNS = {}
+    def _handle_chat(self, body):
+        import threading
+        prompt = (body or {}).get("prompt", "")
+        if not prompt or len(prompt) < 5:
+            return self._send(400, {"error": "prompt too short"})
+        pid, meta = create_project("chat: " + prompt[:30], prompt, None)
+        _run_fn = execute_agent_run if HAS_AGENTS else execute_run
+        threading.Thread(target=_run_fn, args=(pid, None), daemon=True).start()
+        self.CHAT_RUNS[pid] = {"status": "running", "prompt": prompt}
+        return self._send(200, {"chat_id": pid, "status": "running", "poll": "/api/chat/"+pid})
+
     def do_POST(self):
         u = urlparse(self.path); p = unquote(u.path)
         length = int(self.headers.get("Content-Length", 0))
         body = self.rfile.read(length) if length else b"{}"
         try: payload = json.loads(body or b"{}")
         except Exception: payload = {}
-        if p == "/api/projects":
+        if p == "/api/chat":
+            return self._handle_chat(body)
+        elif p.startswith("/api/chat/"):
+            cid = p.split("/")[-1]
+            projs = list_projects()
+            proj = next((x for x in projs if x.get("id")==cid), None)
+            if not proj:
+                return self._send(404, {"error": "chat run not found"})
+            run = {}
+            rdir = os.path.join(DATA, cid, "runs")
+            if os.path.isdir(rdir):
+                rids = sorted(os.listdir(rdir))
+                if rids:
+                    run = jread(os.path.join(rdir, rids[-1], "run.json"), {})
+            return self._send(200, {"status": proj.get("last_status"), "prompt": proj.get("spec",""), "run": run})
+        elif p == "/api/projects":
             pid, meta = create_project(payload.get("name","untitled"), payload.get("spec",""), payload.get("rtl"))
             self._send(200, {"id": pid, **meta})
         elif p.startswith("/api/projects/") and p.endswith("/run"):
