@@ -90,3 +90,10 @@ failure recovery, and an honest signoff agent. Vertical slice (real EDA):
 3. Run comparison view and per-stage log streaming in the UI.
 4. Constraint editor (SDC) and multi-clock CDC checks.
 5. User auth + per-project artifact storage.
+
+
+## Specialist agents and evaluation (silica_agents.py, benchmark.py)
+
+- silica_agents.py: specialist agents (RTL design, functional verification, logic synthesis, failure recovery, signoff report) with structured I/O contracts, deterministic validation layers, and per-agent audit trails. Model-serving adapter calls HF Inference API when HF_TOKEN is set, else deterministic fallback (no hallucination).
+- benchmark.py: known-answer RTL tasks validated by real Verilator/Yosys. Writes benchmark_report.json. Note: this session ephemeral VM repeatedly wiped EDA tools, so benchmark execution is blocked on environment stability; the orchestrator-level end-to-end tests passed 2/2 (clean + broken-to-recovered) in commit c17bdf6.
+- HF login: blocked - browser type tool drops special characters in the password. Manual step: log in at huggingface.co, create an access token (Settings -> Access Tokens), export HF_TOKEN=...

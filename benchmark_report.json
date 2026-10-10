@@ -1,0 +1,52 @@
+{
+  "tasks": 3,
+  "overall_pass": 0,
+  "lint_pass": 0,
+  "sim_pass": 0,
+  "synth_pass": 0,
+  "recovered": 0,
+  "hf_token_set": false,
+  "model": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+  "results": [
+    {
+      "task": "counter4",
+      "source": "deterministic_fallback",
+      "model": "silica-deterministic-v1",
+      "lint_pass": false,
+      "sim_pass": false,
+      "synth_pass": false,
+      "recovered": false,
+      "recovery_attempts": 0,
+      "duration_s": 0.0,
+      "blocker": "[Errno 2] No such file or directory: 'verilator'",
+      "overall_pass": false
+    },
+    {
+      "task": "fsm_101",
+      "source": "deterministic_fallback",
+      "model": "silica-deterministic-v1",
+      "lint_pass": false,
+      "sim_pass": false,
+      "synth_pass": false,
+      "recovered": false,
+      "recovery_attempts": 0,
+      "duration_s": 0.0,
+      "blocker": "[Errno 2] No such file or directory: 'verilator'",
+      "overall_pass": false
+    },
+    {
+      "task": "fifo8x4",
+      "source": "deterministic_fallback",
+      "model": "silica-deterministic-v1",
+      "lint_pass": false,
+      "sim_pass": false,
+      "synth_pass": false,
+      "recovered": false,
+      "recovery_attempts": 0,
+      "duration_s": 0.0,
+      "blocker": "[Errno 2] No such file or directory: 'verilator'",
+      "overall_pass": false
+    }
+  ],
+  "note": "Pass/fail determined by real Verilator/Yosys execution, not by model self-report. Physical design/timing/DRC/LVS not evaluated (blocked: no OpenROAD/PDK/GPU)."
+}
