@@ -414,7 +414,7 @@
       const ldir = { x: lightDir.x, y: lightDir.y, z: lightDir.z };
       const llen = Math.sqrt(ldir.x*ldir.x + ldir.y*ldir.y + ldir.z*ldir.z);
       const dot = (normal.x/len * ldir.x/llen + normal.y/len * ldir.y/llen + normal.z/len * ldir.z/llen);
-      return clamp(baseLight + dot * 0.4, 0.15, 1.0);
+      return clamp(baseLight + dot * 0.5, 0.35, 1.15);
     }
 
     function shadeColor(r, g, b, intensity) {
@@ -432,7 +432,7 @@
       const perspective = 600;
       const angles = getRotationAngles(smoothScrollProgress);
       const layerReveal = getLayerReveal(smoothScrollProgress);
-      const baseScale = Math.min(W, H) * 0.0035 * angles.chipScale;
+      const baseScale = Math.min(W, H) * 0.0045 * angles.chipScale;
       const zOff = angles.zOffset;
 
       // Collect all faces with depth for painter's algorithm
@@ -447,7 +447,7 @@
       // --- SUBSTRATE (bottom bulk silicon) ---
       const subTop = -t/2;
       const subBot = -t/2 + subH;
-      const subColor = { r: 40, g: 45, b: 55 };
+      const subColor = { r: 70, g: 78, b: 95 };
       
       // Substrate bottom face
       {
@@ -457,9 +457,9 @@
         const p4 = transformPoint(-hw,  hh, subBot, angles, cx, cy, baseScale, perspective, zOff);
         const n = faceNormal(p1, p2, p3);
         if (isFrontFacing(n)) {
-          const l = calcLighting(n, 0.35);
+          const l = calcLighting(n, 0.6);
           faces.push({ depth: (p1.z+p2.z+p3.z+p4.z)/4, draw: () => {
-            drawQuad(p1, p2, p3, p4, shadeColor(subColor.r, subColor.g, subColor.b, l), shadeColor(20, 25, 35, l * 0.8), 0.5);
+            drawQuad(p1, p2, p3, p4, shadeColor(subColor.r, subColor.g, subColor.b, l), shadeColor(50, 58, 75, l * 0.9), 0.8);
           }});
         }
       }
@@ -478,9 +478,9 @@
         const p4 = transformPoint(side.d.x, side.d.y, side.d.z, angles, cx, cy, baseScale, perspective, zOff);
         const n = faceNormal(p1, p2, p3);
         if (isFrontFacing(n)) {
-          const l = calcLighting(n, 0.45);
+          const l = calcLighting(n, 0.7);
           faces.push({ depth: (p1.z+p2.z+p3.z+p4.z)/4, draw: () => {
-            drawQuad(p1, p2, p3, p4, shadeColor(subColor.r+10, subColor.g+10, subColor.b+15, l), shadeColor(30, 35, 45, l * 0.6), 0.3);
+            drawQuad(p1, p2, p3, p4, shadeColor(subColor.r+15, subColor.g+15, subColor.b+20, l), shadeColor(60, 68, 85, l * 0.7), 0.5);
             // Subtle horizontal striations on substrate edge
             ctx.strokeStyle = shadeColor(subColor.r+20, subColor.g+25, subColor.b+35, l * 0.3);
             ctx.lineWidth = 0.3;
@@ -498,14 +498,14 @@
       // --- METAL LAYERS (stacked above substrate) ---
       const metalBaseZ = subTop;
       const metalColors = [
-        { r: 180, g: 120, b: 50 },   // M1 - darker copper
-        { r: 190, g: 130, b: 55 },   // M2
-        { r: 200, g: 140, b: 60 },   // M3
-        { r: 205, g: 145, b: 65 },   // M4
-        { r: 210, g: 150, b: 70 },   // M5
-        { r: 215, g: 155, b: 75 },   // M6
-        { r: 220, g: 160, b: 80 },   // M7
-        { r: 225, g: 165, b: 85 },   // M8 - top metal, brightest
+        { r: 200, g: 140, b: 60 },   // M1
+        { r: 210, g: 150, b: 65 },   // M2
+        { r: 215, g: 155, b: 70 },   // M3
+        { r: 220, g: 160, b: 75 },   // M4
+        { r: 225, g: 165, b: 80 },   // M5
+        { r: 230, g: 170, b: 85 },   // M6
+        { r: 235, g: 175, b: 90 },   // M7
+        { r: 240, g: 185, b: 100 },  // M8 - top metal, brightest
       ];
 
       for (let layer = 0; layer < CHIP.metalLayers; layer++) {
@@ -525,7 +525,7 @@
           const n = faceNormal(p1, p2, p3);
           if (isFrontFacing(n)) {
             const l = calcLighting(n, 0.55);
-            const alpha = 0.35 + layerFrac * 0.4;
+            const alpha = 0.55 + layerFrac * 0.35;
             faces.push({ depth: (p1.z+p2.z+p3.z+p4.z)/4, draw: () => {
               // Dielectric base
               drawQuad(p1, p2, p3, p4, shadeRGBA(50, 55, 70, alpha * 0.15, l), null);
@@ -615,10 +615,10 @@
         const p4 = transformPoint(-hw,  hh, topZ, angles, cx, cy, baseScale, perspective, zOff);
         const n = faceNormal(p1, p2, p3);
         if (isFrontFacing(n)) {
-          const l = calcLighting(n, 0.6);
+          const l = calcLighting(n, 0.75);
           faces.push({ depth: (p1.z+p2.z+p3.z+p4.z)/4, draw: () => {
             // Base silicon tone
-            drawQuad(p1, p2, p3, p4, shadeColor(45, 50, 60, l * 0.9), shadeColor(80, 85, 95, l * 0.5), 0.8);
+            drawQuad(p1, p2, p3, p4, shadeColor(75, 82, 98, l * 0.95), shadeColor(120, 128, 145, l * 0.7), 1.0);
             
             // Transistor grid pattern
             ctx.save();
@@ -734,18 +734,18 @@
         const p4 = transformPoint(side.d.x, side.d.y, side.d.z, angles, cx, cy, baseScale, perspective, zOff);
         const n = faceNormal(p1, p2, p3);
         if (isFrontFacing(n)) {
-          const l = calcLighting(n, 0.5);
+          const l = calcLighting(n, 0.7);
           faces.push({ depth: (p1.z+p2.z+p3.z+p4.z)/4 - 0.2, draw: () => {
             // Metallic edge
             const grad = ctx.createLinearGradient(p1.x, p1.y, p4.x, p4.y);
-            grad.addColorStop(0, shadeColor(140, 145, 155, l * 0.9));
-            grad.addColorStop(0.5, shadeColor(180, 185, 195, l));
-            grad.addColorStop(1, shadeColor(120, 125, 135, l * 0.8));
-            drawQuad(p1, p2, p3, p4, grad, shadeColor(90, 95, 105, l * 0.5), 0.4);
+            grad.addColorStop(0, shadeColor(170, 175, 185, l * 0.95));
+            grad.addColorStop(0.5, shadeColor(210, 215, 225, l));
+            grad.addColorStop(1, shadeColor(150, 155, 165, l * 0.85));
+            drawQuad(p1, p2, p3, p4, grad, shadeColor(120, 125, 135, l * 0.7), 0.6);
             
             // Edge highlight line
-            ctx.strokeStyle = shadeRGBA(220, 225, 235, 0.4 * l, 1);
-            ctx.lineWidth = 0.6;
+            ctx.strokeStyle = shadeRGBA(240, 245, 255, 0.6 * l, 1);
+            ctx.lineWidth = 1.0;
             ctx.beginPath();
             ctx.moveTo(p4.x, p4.y);
             ctx.lineTo(p3.x, p3.y);
@@ -768,11 +768,11 @@
         const inner = transformPoint(px, py, pz, angles, cx, cy, baseScale, perspective, zOff);
         const outer = transformPoint(px + dx * pinLen, py + dy * pinLen, pz - 2, angles, cx, cy, baseScale, perspective, zOff);
         const n = { x: dx, y: dy, z: 0 };
-        const l = calcLighting(n, 0.6);
+        const l = calcLighting(n, 0.8);
         
         faces.push({ depth: (inner.z + outer.z) / 2 - 1, draw: () => {
-          ctx.strokeStyle = shadeColor(180, 150, 90, l);
-          ctx.lineWidth = Math.max(1, 2 * inner.scale);
+          ctx.strokeStyle = shadeColor(210, 175, 100, l);
+          ctx.lineWidth = Math.max(1.2, 2.5 * inner.scale);
           ctx.lineCap = 'round';
           ctx.beginPath();
           ctx.moveTo(inner.x, inner.y);
@@ -780,9 +780,9 @@
           ctx.stroke();
           
           // Pin tip highlight
-          ctx.fillStyle = shadeRGBA(230, 200, 140, 0.8, l);
+          ctx.fillStyle = shadeRGBA(255, 230, 170, 0.95, l);
           ctx.beginPath();
-          ctx.arc(outer.x, outer.y, Math.max(0.8, 1.2 * outer.scale), 0, Math.PI * 2);
+          ctx.arc(outer.x, outer.y, Math.max(1.2, 2 * outer.scale), 0, Math.PI * 2);
           ctx.fill();
         }});
       });
@@ -816,7 +816,21 @@
         }
       }
 
-      // --- Subtle ambient glow / reflection ---
+      // --- Ambient glow behind chip ---
+      {
+        faces.push({ depth: 9999, draw: () => {
+          const glowR = Math.min(W, H) * (0.25 + smoothScrollProgress * 0.15);
+          const glowAlpha = 0.12 + smoothScrollProgress * 0.1;
+          const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
+          grad.addColorStop(0, `rgba(191, 109, 21, ${glowAlpha})`);
+          grad.addColorStop(0.4, `rgba(191, 109, 21, ${glowAlpha * 0.4})`);
+          grad.addColorStop(1, 'rgba(191, 109, 21, 0)');
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, W, H);
+        }});
+      }
+
+      // --- Subtle specular reflection on top surface ---
       {
         const p1 = transformPoint(-hw, -hh, topZ, angles, cx, cy, baseScale, perspective, zOff);
         const p2 = transformPoint( hw, -hh, topZ, angles, cx, cy, baseScale, perspective, zOff);
@@ -831,8 +845,8 @@
             const hy = lerp(p1.y, p3.y, 0.25);
             const hr = Math.min(W, H) * 0.15 * baseScale;
             const grad = ctx.createRadialGradient(hx, hy, 0, hx, hy, hr);
-            grad.addColorStop(0, shadeRGBA(255, 240, 220, 0.08 * l, 1));
-            grad.addColorStop(1, shadeRGBA(255, 240, 220, 0, 1));
+            grad.addColorStop(0, shadeRGBA(255, 245, 225, 0.15 * l, 1));
+            grad.addColorStop(1, shadeRGBA(255, 245, 225, 0, 1));
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, W, H);
           }});
@@ -861,7 +875,7 @@
       const size = (60 + smoothScrollProgress * 80) * Math.min(W, H) / 800;
       const b = size / 2;
       const bracketLen = size * 0.2;
-      const alpha = 0.08 + smoothScrollProgress * 0.08;
+      const alpha = 0.15 + smoothScrollProgress * 0.12;
       
       ctx.strokeStyle = `rgba(191, 109, 21, ${alpha})`;
       ctx.lineWidth = 0.8;
