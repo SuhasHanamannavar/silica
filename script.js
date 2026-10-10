@@ -268,17 +268,23 @@
       const cy = H / 2;
       const tf = getTransform(smoothScrollProgress);
       const layerReveal = getLayerReveal(smoothScrollProgress);
-      const baseSize = Math.min(W, H) * 0.32 * tf.scale;
+      const baseSize = Math.min(W, H) * 0.42 * tf.scale;
       
       ctx.save();
       ctx.translate(cx, cy + tf.yShift);
 
+      // DEBUG: Strong visible test
+      ctx.fillStyle = 'rgba(255, 100, 50, 0.8)';
+      ctx.beginPath();
+      ctx.arc(0, 0, 30, 0, Math.PI * 2);
+      ctx.fill();
+
       // Ambient glow
-      const glowR = baseSize * (1.2 + smoothScrollProgress * 0.4);
-      const glowAlpha = 0.18 + smoothScrollProgress * 0.22;
+      const glowR = baseSize * (1.5 + smoothScrollProgress * 0.5);
+      const glowAlpha = 0.4 + smoothScrollProgress * 0.35;
       const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, glowR);
-      glow.addColorStop(0, `rgba(191, 109, 21, ${glowAlpha})`);
-      glow.addColorStop(0.35, `rgba(191, 109, 21, ${glowAlpha * 0.4})`);
+      glow.addColorStop(0, `rgba(255, 140, 40, ${glowAlpha})`);
+      glow.addColorStop(0.3, `rgba(191, 109, 21, ${glowAlpha * 0.6})`);
       glow.addColorStop(1, 'rgba(191, 109, 21, 0)');
       ctx.fillStyle = glow;
       ctx.fillRect(-glowR, -glowR, glowR * 2, glowR * 2);
