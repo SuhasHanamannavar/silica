@@ -174,48 +174,6 @@ ul {
   margin-bottom: calc(var(--s) * 24);
 }
 
-/* --- Site Badge (like "Site of the Day") --- */
-.site-badge {
-  position: fixed;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 99;
-  background: #fff;
-  color: #141414;
-  padding: calc(var(--s) * 16) calc(var(--s) * 10);
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
-  font-size: calc(var(--s) * 11);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: calc(var(--s) * 12);
-  pointer-events: none;
-}
-
-.badge-top {
-  font-size: calc(var(--s) * 18);
-  font-weight: 700;
-  line-height: 1;
-}
-
-.badge-text {
-  font-size: calc(var(--s) * 10);
-  font-weight: 600;
-  letter-spacing: 0.15em;
-}
-
-@media (max-width: 767px) {
-  .site-badge {
-    display: none;
-  }
-}
-
 /* --- Fixed UI Overlay --- */
 .fixed-overlay {
   position: fixed;
