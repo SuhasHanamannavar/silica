@@ -1,809 +1,634 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23141414'/><path d='M8 8h16v16H8z' fill='none' stroke='%23BF6D15' stroke-width='1.5'/><path d='M12 12h8v8h-8z' fill='none' stroke='%23C8C8C8' stroke-width='1'/><line x1='4' y1='16' x2='8' y2='16' stroke='%23555' stroke-width='1'/><line x1='24' y1='16' x2='28' y2='16' stroke='%23555' stroke-width='1'/><line x1='16' y1='4' x2='16' y2='8' stroke='%23555' stroke-width='1'/><line x1='16' y1='24' x2='16' y2='28' stroke='%23555' stroke-width='1'/></svg>">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>SILICA — Semiconductor Design Platform</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=B612+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SILICA — Silicon Crafted</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0c0a;
+    --bg-2:#12110e;
+    --ink:#e6e1d6;
+    --ink-dim:#8a857a;
+    --ink-faint:#4a4740;
+    --line:rgba(230,225,214,.14);
+    --line-strong:rgba(230,225,214,.28);
+    --amber:#e07a3a;
+    --amber-dim:rgba(224,122,58,.5);
+    --serif:'Cormorant Garamond', Georgia, serif;
+    --sans:'Inter', -apple-system, sans-serif;
+    --mono:'JetBrains Mono', ui-monospace, Menlo, monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-weight:300;
+    line-height:1.6;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--amber);color:var(--bg)}
+
+  /* ---------- TELEMETRY OVERLAY ---------- */
+  .tele{
+    position:fixed; inset:0; pointer-events:none; z-index:100;
+    font-family:var(--mono); font-size:10px; letter-spacing:.12em;
+    color:var(--ink-dim); text-transform:uppercase;
+    transition:opacity .8s ease;
+  }
+  .tele .corner{position:absolute; width:22px; height:22px; border:1px solid var(--line-strong)}
+  .tele .c-tl{top:18px; left:18px; border-right:none; border-bottom:none}
+  .tele .c-tr{top:18px; right:18px; border-left:none; border-bottom:none}
+  .tele .c-bl{bottom:18px; left:18px; border-right:none; border-top:none}
+  .tele .c-br{bottom:18px; right:18px; border-left:none; border-top:none}
+  .tele .tl{position:absolute; top:58px; left:48px; line-height:1.7}
+  .tele .tr{position:absolute; top:58px; right:48px; text-align:right; line-height:1.7; display:flex; align-items:center; gap:8px; justify-content:flex-end}
+  .tele .bl{position:absolute; bottom:26px; left:48px}
+  .tele .br{position:absolute; bottom:26px; right:48px; text-align:right}
+  .rec-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);display:inline-block; animation:blink 1.6s steps(2) infinite}
+  @keyframes blink{50%{opacity:.2}}
+  .crosshair{position:fixed; top:50%; left:50%; width:26px; height:26px; transform:translate(-50%,-50%); pointer-events:none; z-index:99; opacity:.5; transition:opacity 1.2s ease}
+  .crosshair::before,.crosshair::after{content:'';position:absolute;background:var(--line-strong)}
+  .crosshair::before{left:50%;top:0;width:1px;height:100%;transform:translateX(-50%)}
+  .crosshair::after{top:50%;left:0;height:1px;width:100%;transform:translateY(-50%)}
+  body.loaded .crosshair{opacity:0}
+  body.loaded .tele{opacity:.85}
+
+  /* ---------- INTRO ---------- */
+  #intro{
+    position:fixed; inset:0; z-index:200; background:var(--bg);
+    display:flex; align-items:center; justify-content:center; flex-direction:column;
+    transition:opacity 1.1s ease, visibility 1.1s;
+  }
+  #intro.done{opacity:0; visibility:hidden}
+  #intro .mark{
+    font-family:var(--serif); font-weight:300; font-size:clamp(40px,9vw,110px);
+    letter-spacing:.32em; text-indent:.32em; color:var(--ink);
+    opacity:0; transform:translateY(24px); transition:opacity 1.4s ease .3s, transform 1.4s ease .3s;
+  }
+  #intro .sub{
+    font-family:var(--mono); font-size:10px; letter-spacing:.4em; text-transform:uppercase;
+    color:var(--ink-dim); margin-top:22px; opacity:0; transition:opacity 1.4s ease 1s;
+  }
+  #intro.on .mark{opacity:1; transform:translateY(0)}
+  #intro.on .sub{opacity:1}
+
+  /* ---------- LAYOUT ---------- */
+  .wrap{max-width:1280px; margin:0 auto; padding:0 48px}
+  .mono{font-family:var(--mono); font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--ink-dim)}
+  .rule{height:1px; background:var(--line); border:none; margin:0}
+  .reveal{opacity:0; transform:translateY(28px); transition:opacity 1s cubic-bezier(.2,.7,.2,1), transform 1s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1; transform:translateY(0)}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:90;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:22px 48px; font-family:var(--mono); font-size:10px; letter-spacing:.22em; text-transform:uppercase;
+    mix-blend-mode:difference; color:#fff;
+  }
+  nav .logo{font-family:var(--serif); font-size:18px; letter-spacing:.4em; text-indent:.4em; font-weight:500}
+  nav ul{display:flex; gap:36px; list-style:none}
+  nav a{color:inherit; text-decoration:none; opacity:.7; transition:opacity .3s}
+  nav a:hover{opacity:1}
+  @media(max-width:720px){nav ul{display:none}}
+
+  /* ---------- HERO ---------- */
+  #hero{min-height:100vh; position:relative; display:flex; align-items:center; overflow:hidden; padding:120px 0 80px}
+  .hero-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:60px; align-items:center; width:100%}
+  @media(max-width:900px){.hero-grid{grid-template-columns:1fr; gap:40px}}
+  .hero-kicker{display:flex; align-items:center; gap:14px; margin-bottom:34px}
+  .hero-kicker .bar{width:40px; height:1px; background:var(--amber)}
+  .hero-title{font-family:var(--serif); font-weight:300; line-height:.95; font-size:clamp(56px,10vw,130px); letter-spacing:-.01em}
+  .hero-title .line{display:block; overflow:hidden}
+  .hero-title .line span{display:inline-block; transform:translateY(110%); transition:transform 1.1s cubic-bezier(.2,.7,.2,1)}
+  .hero-title.in .line span{transform:translateY(0)}
+  .hero-title .line:nth-child(2) span{transition-delay:.12s}
+  .hero-title em{font-style:italic; color:var(--amber); font-weight:400}
+  .hero-badge{
+    display:inline-flex; align-items:center; gap:10px; margin-top:36px;
+    border:1px solid var(--line-strong); padding:10px 18px; font-family:var(--mono);
+    font-size:10px; letter-spacing:.3em; text-transform:uppercase; color:var(--ink);
+  }
+  .hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--amber)}
+  .hero-copy{max-width:440px; margin-top:34px; color:var(--ink-dim); font-size:15px; line-height:1.8}
+  .hero-meta{display:flex; gap:48px; margin-top:48px; flex-wrap:wrap}
+  .hero-meta .m .v{font-family:var(--serif); font-size:34px; font-weight:400; color:var(--ink)}
+  .hero-meta .m .l{font-family:var(--mono); font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-dim); margin-top:4px}
+
+  /* CSS 3D chip */
+  .chip-stage{perspective:1400px; display:flex; align-items:center; justify-content:center; height:460px; position:relative}
+  .chip{
+    position:relative; width:280px; height:280px; transform-style:preserve-3d;
+    transform:rotateX(58deg) rotateZ(-32deg);
+    transition:transform .2s linear;
+  }
+  .chip .layer{
+    position:absolute; inset:0; border:1px solid var(--line-strong);
+    background:rgba(224,122,58,.04);
+  }
+  .chip .layer::before{
+    content:''; position:absolute; inset:14px; border:1px solid var(--line);
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:18px 18px;
+  }
+  .chip .l1{transform:translateZ(0px); border-color:var(--amber-dim)}
+  .chip .l2{transform:translateZ(14px); background:rgba(230,225,214,.03)}
+  .chip .l3{transform:translateZ(28px)}
+  .chip .l4{transform:translateZ(42px); background:rgba(224,122,58,.06)}
+  .chip .l5{transform:translateZ(56px); border-color:var(--amber)}
+  .chip .core{
+    position:absolute; top:50%; left:50%; width:90px; height:90px; transform:translate(-50%,-50%) translateZ(62px);
+    border:1px solid var(--amber); background:radial-gradient(circle, rgba(224,122,58,.25), transparent 70%);
+  }
+  .chip-label{position:absolute; font-family:var(--mono); font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-dim)}
+  .chip-label.a{top:8%; left:-6%}
+  .chip-label.b{bottom:10%; right:-4%}
+  .chip-label::after{content:''; display:block; width:30px; height:1px; background:var(--line-strong); margin-top:6px}
+
+  /* ---------- SECTION SHELL ---------- */
+  section{padding:140px 0; position:relative}
+  .sec-head{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:70px; padding-bottom:22px; border-bottom:1px solid var(--line)}
+  .sec-head h2{font-family:var(--serif); font-weight:400; font-size:clamp(32px,5vw,56px); line-height:1.05; letter-spacing:-.01em}
+  .sec-head h2 em{font-style:italic; color:var(--amber)}
+  .sec-head .idx{font-family:var(--mono); font-size:11px; color:var(--ink-dim); letter-spacing:.2em}
+
+  /* ---------- WORKFLOW ---------- */
+  .stage{
+    display:grid; grid-template-columns:80px 1fr 1.4fr; gap:40px; align-items:baseline;
+    padding:34px 0; border-bottom:1px solid var(--line); transition:background .4s;
+  }
+  .stage:hover{background:rgba(230,225,214,.02)}
+  .stage .num{font-family:var(--serif); font-size:44px; font-weight:300; color:var(--ink-faint); font-style:italic}
+  .stage:hover .num{color:var(--amber)}
+  .stage h3{font-family:var(--serif); font-size:26px; font-weight:400; letter-spacing:.01em}
+  .stage p{color:var(--ink-dim); font-size:14px; line-height:1.7; max-width:520px}
+  .stage .tag{font-family:var(--mono); font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:var(--amber); display:block; margin-bottom:8px}
+  @media(max-width:720px){.stage{grid-template-columns:50px 1fr; gap:18px}.stage p{grid-column:2}}
+
+  /* ---------- ANATOMY (interactive) ---------- */
+  .anat-grid{display:grid; grid-template-columns:1.2fr .8fr; gap:60px; align-items:center}
+  @media(max-width:900px){.anat-grid{grid-template-columns:1fr}}
+  .die-svg{width:100%; max-width:520px; display:block; margin:0 auto}
+  .die-svg .region{fill:rgba(230,225,214,.03); stroke:var(--line-strong); stroke-width:1; transition:fill .35s, stroke .35s; cursor:pointer}
+  .die-svg .region:hover, .die-svg .region.active{fill:rgba(224,122,58,.14); stroke:var(--amber)}
+  .die-svg text{font-family:var(--mono); font-size:9px; letter-spacing:.14em; text-transform:uppercase; fill:var(--ink-dim); pointer-events:none}
+  .anat-info{min-height:220px}
+  .anat-info .t{font-family:var(--serif); font-size:30px; font-weight:400; margin-bottom:14px; transition:opacity .3s}
+  .anat-info .d{color:var(--ink-dim); font-size:14px; line-height:1.8; max-width:400px; transition:opacity .3s}
+  .anat-info .spec{margin-top:22px; font-family:var(--mono); font-size:10px; letter-spacing:.14em; color:var(--amber); text-transform:uppercase}
+  .anat-parts{display:flex; flex-wrap:wrap; gap:10px; margin-top:30px}
+  .anat-parts button{
+    background:transparent; border:1px solid var(--line); color:var(--ink-dim);
+    font-family:var(--mono); font-size:9px; letter-spacing:.18em; text-transform:uppercase;
+    padding:8px 14px; cursor:pointer; transition:all .3s;
+  }
+  .anat-parts button:hover, .anat-parts button.active{border-color:var(--amber); color:var(--ink)}
+
+  /* ---------- CONFIG (film-stock style list) ---------- */
+  .cfg-head{display:grid; grid-template-columns:60px 1.6fr 1fr 1fr; gap:24px; padding:14px 0; border-bottom:1px solid var(--line-strong); font-family:var(--mono); font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:var(--ink-dim)}
+  .cfg-row{display:grid; grid-template-columns:60px 1.6fr 1fr 1fr; gap:24px; padding:26px 0; border-bottom:1px solid var(--line); align-items:baseline; transition:background .3s; cursor:pointer}
+  .cfg-row:hover{background:rgba(230,225,214,.02)}
+  .cfg-row .n{font-family:var(--mono); font-size:12px; color:var(--ink-faint)}
+  .cfg-row:hover .n{color:var(--amber)}
+  .cfg-row .name{font-family:var(--serif); font-size:24px; font-weight:400}
+  .cfg-row .name small{display:block; font-family:var(--mono); font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-dim); margin-top:6px}
+  .cfg-row .val{font-family:var(--mono); font-size:12px; color:var(--ink); letter-spacing:.08em}
+  .cfg-note{margin-top:26px; font-family:var(--mono); font-size:10px; letter-spacing:.14em; color:var(--ink-faint); text-transform:uppercase}
+  @media(max-width:720px){.cfg-head,.cfg-row{grid-template-columns:40px 1fr 1fr}.cfg-head .h3,.cfg-row .val:last-child{display:none}}
+
+  /* ---------- LAYERS (film layers cross-section) ---------- */
+  .layers-wrap{display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center}
+  @media(max-width:900px){.layers-wrap{grid-template-columns:1fr}}
+  .layer-stack{position:relative; padding:30px 0}
+  .lyr{
+    height:44px; border:1px solid var(--line); border-left:3px solid var(--amber);
+    margin-bottom:8px; display:flex; align-items:center; padding:0 20px;
+    font-family:var(--mono); font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-dim);
+    background:linear-gradient(90deg, rgba(224,122,58,.05), transparent 60%);
+    transition:transform .4s cubic-bezier(.2,.7,.2,1), border-color .4s, color .4s;
+  }
+  .lyr:hover{transform:translateX(10px); border-left-color:var(--amber); color:var(--ink)}
+  .lyr .th{margin-left:auto; color:var(--ink-faint); font-size:9px}
+  .layers-copy h3{font-family:var(--serif); font-size:32px; font-weight:400; margin-bottom:20px; line-height:1.15}
+  .layers-copy h3 em{font-style:italic; color:var(--amber)}
+  .layers-copy p{color:var(--ink-dim); font-size:14px; line-height:1.85; margin-bottom:16px}
+
+  /* ---------- ANALYSIS ---------- */
+  .metrics{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line)}
+  @media(max-width:720px){.metrics{grid-template-columns:repeat(2,1fr)}}
+  .metric{background:var(--bg); padding:34px 28px; transition:background .3s}
+  .metric:hover{background:var(--bg-2)}
+  .metric .v{font-family:var(--serif); font-size:44px; font-weight:300; line-height:1; color:var(--ink)}
+  .metric .v small{font-size:16px; color:var(--ink-dim); font-family:var(--mono); letter-spacing:.05em}
+  .metric .l{font-family:var(--mono); font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-dim); margin-top:14px}
+  .metric .bar{height:2px; background:var(--line); margin-top:18px; overflow:hidden}
+  .metric .bar i{display:block; height:100%; background:var(--amber); width:0; transition:width 1.4s cubic-bezier(.2,.7,.2,1) .2s}
+  .metric.in .bar i{width:var(--w,60%)}
+  .analysis-note{margin-top:30px; font-family:var(--mono); font-size:10px; letter-spacing:.14em; color:var(--ink-faint); text-transform:uppercase; display:flex; align-items:center; gap:10px}
+  .analysis-note::before{content:''; width:24px; height:1px; background:var(--ink-faint)}
+
+  /* ---------- TAPEOUT ---------- */
+  #tapeout{border-top:1px solid var(--line); background:linear-gradient(180deg, var(--bg) 0%, #080706 100%)}
+  .tape-grid{display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center}
+  @media(max-width:900px){.tape-grid{grid-template-columns:1fr}}
+  .tape-files{border:1px solid var(--line)}
+  .tape-files .f{
+    display:flex; justify-content:space-between; align-items:center; padding:18px 24px;
+    border-bottom:1px solid var(--line); font-family:var(--mono); font-size:11px; letter-spacing:.08em;
+    transition:background .3s;
+  }
+  .tape-files .f:last-child{border-bottom:none}
+  .tape-files .f:hover{background:rgba(224,122,58,.05)}
+  .tape-files .f .nm{color:var(--ink)}
+  .tape-files .f .sz{color:var(--ink-faint); font-size:10px}
+  .tape-files .f .st{color:var(--amber); font-size:9px; letter-spacing:.2em; text-transform:uppercase}
+  .tape-copy h2{font-family:var(--serif); font-size:clamp(34px,5vw,58px); font-weight:300; line-height:1.05; margin-bottom:24px}
+  .tape-copy h2 em{font-style:italic; color:var(--amber)}
+  .tape-copy p{color:var(--ink-dim); font-size:15px; line-height:1.85; max-width:440px; margin-bottom:18px}
+  .tape-fab{margin-top:30px; padding:20px 24px; border:1px dashed var(--line-strong); font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-dim); line-height:1.9}
+  .tape-fab b{color:var(--amber); font-weight:400}
+
+  /* ---------- FOOTER ---------- */
+  footer{padding:90px 0 40px; border-top:1px solid var(--line)}
+  .foot-grid{display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:40px; margin-bottom:70px}
+  @media(max-width:720px){.foot-grid{grid-template-columns:1fr 1fr}}
+  footer .brand{font-family:var(--serif); font-size:44px; font-weight:300; letter-spacing:.3em; text-indent:.3em}
+  footer .tag{font-family:var(--mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-dim); margin-top:14px}
+  footer h4{font-family:var(--mono); font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--ink-dim); margin-bottom:20px; font-weight:400}
+  footer ul{list-style:none}
+  footer li{margin-bottom:12px}
+  footer a{color:var(--ink); text-decoration:none; font-size:14px; font-weight:300; opacity:.7; transition:opacity .3s}
+  footer a:hover{opacity:1; color:var(--amber)}
+  .foot-bottom{display:flex; justify-content:space-between; padding-top:30px; border-top:1px solid var(--line); font-family:var(--mono); font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-faint); flex-wrap:wrap; gap:12px}
+
+  /* scroll progress */
+  #progress{position:fixed; bottom:26px; left:50%; transform:translateX(-50%); z-index:95; font-family:var(--mono); font-size:10px; letter-spacing:.2em; color:var(--ink-dim); pointer-events:none}
+  #progress b{color:var(--amber); font-weight:400}
+</style>
 </head>
 <body>
-  <div id="scroll-container">
-    <div id="scroll-content">
-      <div data-scrollable-content>
 
-        <!-- Fixed UI Overlay -->
-        <div class="fixed-overlay">
-          <div class="overlay-inner">
-            <div class="telemetry-left">
-              <p id="fps-count">00fps</p>
-              <p id="resolution">0x0</p>
-            </div>
-            <div class="telemetry-right">
-              <div class="status-dot"></div>
-              <p id="timer">00:00:00</p>
-            </div>
-            <div class="corner corner-tl"></div>
-            <div class="corner corner-tr"></div>
-            <div class="corner corner-bl"></div>
-            <div class="corner corner-br"></div>
-            <div class="center-crosshair">
-              <span class="ch-h"></span>
-              <span class="ch-v"></span>
-            </div>
-            <div id="scroller" class="scroll-indicator">
-              <div class="scroll-track">
-                <span id="scroller-cursor" class="scroll-cursor"></span>
-              </div>
-              <div class="scroll-pins">
-                <span class="pin tall"></span>
-                <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
-                <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
-                <span class="pin tall"></span>
-                <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
-                <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
-                <span class="pin tall"></span>
-                <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
-                <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
-                <span class="pin tall"></span>
-                <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
-                <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
-              </div>
-            </div>
-          </div>
+<!-- TELEMETRY -->
+<div class="tele">
+  <div class="corner c-tl"></div><div class="corner c-tr"></div>
+  <div class="corner c-bl"></div><div class="corner c-br"></div>
+  <div class="tl"><span id="fps">60</span>fps<br><span id="res">1920x1080</span></div>
+  <div class="tr"><span class="rec-dot"></span><span id="timer">00:00:00</span></div>
+  <div class="bl">SILICA / v2.4.1</div>
+  <div class="br">NODE <span id="node-read">7nm</span> · READY</div>
+</div>
+<div class="crosshair"></div>
+<div id="progress"><b id="pct">00</b>%</div>
+
+<!-- INTRO -->
+<div id="intro">
+  <div class="mark">SILICA</div>
+  <div class="sub">Silicon Crafted · A Semiconductor Design Environment</div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">SILICA</div>
+  <ul>
+    <li><a href="#workflow">Workflow</a></li>
+    <li><a href="#anatomy">Anatomy</a></li>
+    <li><a href="#config">Configuration</a></li>
+    <li><a href="#analysis">Analysis</a></li>
+    <li><a href="#tapeout">Tapeout</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-kicker reveal"><span class="bar"></span><span class="mono">A Semiconductor Design Environment</span></div>
+        <h1 class="hero-title reveal">
+          <span class="line"><span>Silicon</span></span>
+          <span class="line"><span><em>Crafted</em> with Precision.</span></span>
+        </h1>
+        <div class="hero-badge reveal"><span class="dot"></span>S · Silicon Crafted</div>
+        <p class="hero-copy reveal">Silica takes a digital chip from specification through tapeout — an engineered workflow of ten stages, each measured, verified, and handed to the next with the care of an instrument maker. No fabrication happens here. The design does.</p>
+        <div class="hero-meta reveal">
+          <div class="m"><div class="v" data-count="10">0</div><div class="l">Design Stages</div></div>
+          <div class="m"><div class="v" data-count="11">0</div><div class="l">Metal Layers</div></div>
+          <div class="m"><div class="v" data-count="99.2" data-dec="1">0</div><div class="l">% DRC Clean</div></div>
         </div>
-
-        <!-- HERO SECTION - 700vh tall for scroll experience -->
-        <div class="hero-section">
-          <div class="hero-inner">
-            <div class="hero-canvas-container">
-              <canvas id="silica-canvas"></canvas>
-            </div>
-            <div class="hero-content">
-              <h1 class="hero-title" data-animation="title">
-                <span class="title-word word-left">Silicon</span>
-                <span class="title-word word-right">Craft</span>
-              </h1>
-              
-              <div class="hero-parts-section">
-                <!-- Hover instruction -->
-                <p class="hover-instruction font-inter">Hover on a die region</p>
-
-                <!-- Part label 1 - right aligned -->
-                <div class="design-grid part-row">
-                  <div class="part-text col-2-6" data-reveal>
-                    <p>Silica is a precision semiconductor design environment that guides a digital specification through every stage of physical implementation — from RTL to tapeout. Built for engineers who require absolute control over every transistor, every connection, and every square micron of silicon.</p>
-                  </div>
-                  <div class="part-label col-7-12">
-                    <span data-part-label="die" class="part-label-item">
-                      <span class="dashed-line"></span>
-                      <span class="label-text">silicon die</span>
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Part label 2 - left aligned -->
-                <div class="design-grid part-row">
-                  <div class="part-text col-8-12 right" data-reveal>
-                    <p>The platform transforms abstract hardware descriptions into manufacturable geometry. Each stage of the flow is instrumented, verified, and visually traceable — giving design teams the transparency needed to close timing, meet power budgets, and achieve yield targets on advanced process nodes.</p>
-                  </div>
-                  <div class="part-label col-1-7 left">
-                    <span data-part-label="transistor" class="part-label-item">
-                      <span class="label-text">transistor array</span>
-                      <span class="dashed-line"></span>
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Part label 3 -->
-                <div class="design-grid part-row">
-                  <div class="part-label col-1-7 left">
-                    <span data-part-label="interconnect" class="part-label-item">
-                      <span class="label-text">metal interconnect</span>
-                      <span class="dashed-line"></span>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      </div>
+      <div class="chip-stage reveal">
+        <div class="chip" id="chip3d">
+          <div class="layer l1"></div>
+          <div class="layer l2"></div>
+          <div class="layer l3"></div>
+          <div class="layer l4"></div>
+          <div class="layer l5"></div>
+          <div class="core"></div>
         </div>
-
-        <!-- Spacer -->
-        <div class="vh-100"></div>
-
-        <!-- SECTION B: SEMICONDUCTOR STORYTELLING - Workflow -->
-        <section class="section-workflow px-grid">
-          <div class="design-grid workflow-grid">
-            <div class="workflow-intro col-2-5" data-reveal>
-              <p class="section-label">— Design Flow</p>
-              <p>A semiconductor design progresses through a meticulously ordered sequence of transformations. Each stage refines the representation from abstract intent toward physical reality, with verification gates ensuring correctness at every boundary. Silica instruments this entire pipeline, making the invisible visible.</p>
-            </div>
-            <div class="workflow-intro col-9-12" data-reveal>
-              <p>The journey from specification to silicon demands both algorithmic rigor and engineering judgment. Silica provides the environment where these two disciplines converge — offering automated implementation alongside the manual controls that experienced designers rely upon for critical-path optimization.</p>
-            </div>
-
-            <!-- Workflow stages list -->
-            <div class="workflow-stages col-1-13">
-              <div class="stages-header grid-5">
-                <p class="col-2-5">Stage</p>
-                <p class="col-5-6 end">Node</p>
-              </div>
-              <div class="stages-divider"></div>
-              
-              <div class="stage-row grid-5" data-reveal>
-                <p class="col-1-2 stage-num">01.</p>
-                <p class="col-2-5 stage-name">Specification</p>
-                <p class="col-5-6 end stage-node">—</p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5" data-reveal>
-                <p class="col-1-2 stage-num">02.</p>
-                <p class="col-2-5 stage-name">RTL Design</p>
-                <p class="col-5-6 end stage-node">HDL</p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5" data-reveal>
-                <p class="col-1-2 stage-num">03.</p>
-                <p class="col-2-5 stage-name">Functional Verification</p>
-                <p class="col-5-6 end stage-node">UVM</p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5" data-reveal>
-                <p class="col-1-2 stage-num">04.</p>
-                <p class="col-2-5 stage-name">Synthesis</p>
-                <p class="col-5-6 end stage-node">Gate</p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5" data-reveal>
-                <p class="col-1-2 stage-num">05.</p>
-                <p class="col-2-5 stage-name">Floorplanning</p>
-                <p class="col-5-6 end stage-node">Die</p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5" data-reveal>
-                <p class="col-1-2 stage-num">06.</p>
-                <p class="col-2-5 stage-name">Placement</p>
-                <p class="col-5-6 end stage-node">μm</p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5" data-reveal>
-                <p class="col-1-2 stage-num">07.</p>
-                <p class="col-2-5 stage-name">Routing</p>
-                <p class="col-5-6 end stage-node">Metal</p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5" data-reveal>
-                <p class="col-1-2 stage-num">08.</p>
-                <p class="col-2-5 stage-name">Timing Analysis</p>
-                <p class="col-5-6 end stage-node">ps</p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5" data-reveal>
-                <p class="col-1-2 stage-num">09.</p>
-                <p class="col-2-5 stage-name">Physical Verification</p>
-                <p class="col-5-6 end stage-node">DRC</p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5" data-reveal>
-                <p class="col-1-2 stage-num">10.</p>
-                <p class="col-2-5 stage-name">Tapeout Preparation</p>
-                <p class="col-5-6 end stage-node">GDSII</p>
-                <div class="stage-line"></div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- SECTION C: CHIP ANATOMY - Interactive Layer Exploration -->
-        <section class="section-anatomy">
-          <div class="design-grid anatomy-grid px-grid">
-            <div class="anatomy-title col-2-6" data-reveal>
-              <p class="section-label">— Die Architecture</p>
-              <h2 class="anatomy-heading">Layered<br/>Silicon</h2>
-            </div>
-            <div class="anatomy-desc col-8-12" data-reveal>
-              <p>A modern semiconductor die is a vertically stacked system of extraordinary complexity. Beneath the surface, multiple layers of patterned metal interconnect form a dense transportation network, routing signals between billions of transistors arranged in standard-cell rows. Power distribution grids, clock trees, and I/O structures complete the architecture — each layer precisely engineered to meet timing, power, and signal integrity constraints.</p>
-            </div>
-
-            <!-- Interactive Layer Exploration (matching reference's film layer section) -->
-            <div class="layer-exploration col-1-13">
-              <div class="design-grid layer-explore-grid">
-                <!-- Left: Layer labels -->
-                <div class="layer-labels col-2-5">
-                  <div class="layer-label-item active" data-film-layer="film_negative">
-                    <span class="film-label-name">Die Cross-section</span>
-                    <span class="film-label-line"></span>
-                  </div>
-                  <div class="layer-label-item" data-film-layer="white_balanced">
-                    <span class="film-label-name">Metal Layers</span>
-                    <span class="film-label-line"></span>
-                  </div>
-                  <div class="layer-label-item" data-film-layer="film_positive">
-                    <span class="film-label-name">Transistor Plane</span>
-                    <span class="film-label-line"></span>
-                  </div>
-                  <div class="layer-label-item" data-film-layer="colors_corrected">
-                    <span class="film-label-name">Power Distribution</span>
-                    <span class="film-label-line"></span>
-                  </div>
-                </div>
-
-                <!-- Right: Layer visualization image -->
-                <div class="layer-visualization col-6-12">
-                  <div class="film-image-container">
-                    <!-- Base die image - all layers -->
-                    <svg class="film-image active" data-film-image="film_negative" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid meet">
-                      <defs>
-                        <linearGradient id="dieGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stop-color="rgba(30,30,30,1)"/>
-                          <stop offset="100%" stop-color="rgba(15,15,15,1)"/>
-                        </linearGradient>
-                        <pattern id="baseGrid" x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse">
-                          <path d="M 12 0 L 0 0 0 12" fill="none" stroke="rgba(191,109,21,0.08)" stroke-width="0.3"/>
-                        </pattern>
-                      </defs>
-                      <rect width="600" height="400" fill="url(#dieGrad)"/>
-                      <rect width="600" height="400" fill="url(#baseGrid)"/>
-                      <!-- Die outline -->
-                      <rect x="60" y="40" width="480" height="320" fill="none" stroke="rgba(200,200,200,0.3)" stroke-width="1"/>
-                      <!-- Seal ring -->
-                      <rect x="70" y="50" width="460" height="300" fill="none" stroke="rgba(191,109,21,0.25)" stroke-width="0.5" stroke-dasharray="4,4"/>
-                      <!-- Blocks -->
-                      <rect x="90" y="70" width="140" height="100" fill="rgba(191,109,21,0.2)" stroke="rgba(191,109,21,0.4)" stroke-width="0.5"/>
-                      <rect x="250" y="70" width="140" height="100" fill="rgba(191,109,21,0.15)" stroke="rgba(191,109,21,0.3)" stroke-width="0.5"/>
-                      <rect x="410" y="70" width="110" height="100" fill="rgba(200,200,200,0.08)" stroke="rgba(200,200,200,0.2)" stroke-width="0.5"/>
-                      <rect x="90" y="190" width="200" height="140" fill="rgba(200,200,200,0.05)" stroke="rgba(200,200,200,0.15)" stroke-width="0.5"/>
-                      <rect x="310" y="190" width="210" height="140" fill="rgba(191,109,21,0.08)" stroke="rgba(191,109,21,0.2)" stroke-width="0.5"/>
-                      <!-- Metal lines overlay -->
-                      <g stroke="rgba(191,109,21,0.3)" stroke-width="0.5" fill="none">
-                        <line x1="60" y1="120" x2="540" y2="120"/>
-                        <line x1="60" y1="180" x2="540" y2="180"/>
-                        <line x1="60" y1="240" x2="540" y2="240"/>
-                        <line x1="60" y1="300" x2="540" y2="300"/>
-                        <line x1="160" y1="40" x2="160" y2="360"/>
-                        <line x1="320" y1="40" x2="320" y2="360"/>
-                        <line x1="460" y1="40" x2="460" y2="360"/>
-                      </g>
-                      <!-- I/O pins -->
-                      <g fill="rgba(200,200,200,0.3)">
-                        <rect x="60" y="30" width="8" height="10"/><rect x="80" y="30" width="8" height="10"/>
-                        <rect x="100" y="30" width="8" height="10"/><rect x="120" y="30" width="8" height="10"/>
-                        <rect x="140" y="30" width="8" height="10"/><rect x="160" y="30" width="8" height="10"/>
-                        <rect x="180" y="30" width="8" height="10"/><rect x="200" y="30" width="8" height="10"/>
-                        <rect x="220" y="30" width="8" height="10"/><rect x="240" y="30" width="8" height="10"/>
-                        <rect x="260" y="30" width="8" height="10"/><rect x="280" y="30" width="8" height="10"/>
-                        <rect x="300" y="30" width="8" height="10"/><rect x="320" y="30" width="8" height="10"/>
-                        <rect x="340" y="30" width="8" height="10"/><rect x="360" y="30" width="8" height="10"/>
-                        <rect x="380" y="30" width="8" height="10"/><rect x="400" y="30" width="8" height="10"/>
-                        <rect x="420" y="30" width="8" height="10"/><rect x="440" y="30" width="8" height="10"/>
-                        <rect x="460" y="30" width="8" height="10"/><rect x="480" y="30" width="8" height="10"/>
-                        <rect x="500" y="30" width="8" height="10"/><rect x="520" y="30" width="8" height="10"/>
-                      </g>
-                      <text x="300" y="385" text-anchor="middle" fill="rgba(85,85,85,0.6)" font-size="9" font-family="B612 Mono, monospace">FULL DIE CROSS-SECTION</text>
-                    </svg>
-
-                    <!-- Metal layers only -->
-                    <svg class="film-image" data-film-image="white_balanced" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid meet">
-                      <rect width="600" height="400" fill="rgba(20,20,20,1)"/>
-                      <!-- Horizontal metal layers (orange tint) -->
-                      <g fill="rgba(191,109,21,0.35)">
-                        <rect x="0" y="40" width="600" height="6"/>
-                        <rect x="0" y="70" width="600" height="5"/>
-                        <rect x="0" y="100" width="600" height="4"/>
-                        <rect x="0" y="130" width="600" height="4"/>
-                        <rect x="0" y="160" width="600" height="3"/>
-                        <rect x="0" y="190" width="600" height="3"/>
-                        <rect x="0" y="220" width="600" height="2.5"/>
-                        <rect x="0" y="250" width="600" height="2"/>
-                        <rect x="0" y="280" width="600" height="2"/>
-                        <rect x="0" y="310" width="600" height="1.5"/>
-                      </g>
-                      <!-- Vertical vias -->
-                      <g stroke="rgba(191,109,21,0.2)" stroke-width="0.5">
-                        <line x1="80" y1="40" x2="80" y2="310"/><line x1="120" y1="40" x2="120" y2="310"/>
-                        <line x1="160" y1="40" x2="160" y2="310"/><line x1="200" y1="40" x2="200" y2="310"/>
-                        <line x1="240" y1="40" x2="240" y2="310"/><line x1="280" y1="40" x2="280" y2="310"/>
-                        <line x1="320" y1="40" x2="320" y2="310"/><line x1="360" y1="40" x2="360" y2="310"/>
-                        <line x1="400" y1="40" x2="400" y2="310"/><line x1="440" y1="40" x2="440" y2="310"/>
-                        <line x1="480" y1="40" x2="480" y2="310"/><line x1="520" y1="40" x2="520" y2="310"/>
-                      </g>
-                      <!-- Layer labels -->
-                      <g fill="rgba(191,109,21,0.7)" font-size="8" font-family="B612 Mono, monospace">
-                        <text x="550" y="45">M8</text>
-                        <text x="550" y="75">M7</text>
-                        <text x="550" y="105">M6</text>
-                        <text x="550" y="135">M5</text>
-                        <text x="550" y="165">M4</text>
-                        <text x="550" y="195">M3</text>
-                        <text x="550" y="225">M2</text>
-                        <text x="550" y="255">M1</text>
-                        <text x="550" y="285">Poly</text>
-                        <text x="550" y="315">Diff</text>
-                      </g>
-                      <text x="300" y="385" text-anchor="middle" fill="rgba(191,109,21,0.5)" font-size="9" font-family="B612 Mono, monospace">METAL INTERCONNECT STACK — 10 LAYERS</text>
-                    </svg>
-
-                    <!-- Transistor plane -->
-                    <svg class="film-image" data-film-image="film_positive" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid meet">
-                      <defs>
-                        <pattern id="txPattern2" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                          <ellipse cx="10" cy="10" rx="7" ry="4" fill="rgba(191,109,21,0.35)" stroke="rgba(191,109,21,0.6)" stroke-width="0.3"/>
-                          <line x1="0" y1="10" x2="3" y2="10" stroke="rgba(200,200,200,0.4)" stroke-width="0.8"/>
-                          <line x1="17" y1="10" x2="20" y2="10" stroke="rgba(200,200,200,0.4)" stroke-width="0.8"/>
-                          <line x1="10" y1="0" x2="10" y2="6" stroke="rgba(191,109,21,0.5)" stroke-width="0.6"/>
-                        </pattern>
-                      </defs>
-                      <rect width="600" height="400" fill="rgba(20,20,20,1)"/>
-                      <rect x="60" y="40" width="480" height="320" fill="url(#txPattern2)"/>
-                      <rect x="60" y="40" width="480" height="320" fill="none" stroke="rgba(200,200,200,0.2)" stroke-width="1"/>
-                      <!-- Standard cell rows -->
-                      <g stroke="rgba(200,200,200,0.15)" stroke-width="0.3">
-                        <line x1="60" y1="80" x2="540" y2="80"/>
-                        <line x1="60" y1="120" x2="540" y2="120"/>
-                        <line x1="60" y1="160" x2="540" y2="160"/>
-                        <line x1="60" y1="200" x2="540" y2="200"/>
-                        <line x1="60" y1="240" x2="540" y2="240"/>
-                        <line x1="60" y1="280" x2="540" y2="280"/>
-                        <line x1="60" y1="320" x2="540" y2="320"/>
-                      </g>
-                      <!-- Row labels -->
-                      <g fill="rgba(85,85,85,0.5)" font-size="7" font-family="B612 Mono, monospace">
-                        <text x="45" y="84">ROW 01</text>
-                        <text x="45" y="124">ROW 02</text>
-                        <text x="45" y="164">ROW 03</text>
-                        <text x="45" y="204">ROW 04</text>
-                        <text x="45" y="244">ROW 05</text>
-                        <text x="45" y="284">ROW 06</text>
-                        <text x="45" y="324">ROW 07</text>
-                      </g>
-                      <text x="300" y="385" text-anchor="middle" fill="rgba(200,200,200,0.4)" font-size="9" font-family="B612 Mono, monospace">TRANSISTOR ARRAY — STANDARD CELL ROWS</text>
-                    </svg>
-
-                    <!-- Power distribution -->
-                    <svg class="film-image" data-film-image="colors_corrected" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid meet">
-                      <rect width="600" height="400" fill="rgba(20,20,20,1)"/>
-                      <!-- Power grid stripes -->
-                      <g fill="rgba(191,109,21,0.4)">
-                        <rect x="0" y="20" width="600" height="12"/>
-                        <rect x="0" y="80" width="600" height="10"/>
-                        <rect x="0" y="140" width="600" height="10"/>
-                        <rect x="0" y="200" width="600" height="10"/>
-                        <rect x="0" y="260" width="600" height="10"/>
-                        <rect x="0" y="320" width="600" height="12"/>
-                      </g>
-                      <!-- Vertical power straps -->
-                      <g fill="rgba(200,200,200,0.2)">
-                        <rect x="50" y="0" width="6" height="400"/>
-                        <rect x="150" y="0" width="6" height="400"/>
-                        <rect x="250" y="0" width="6" height="400"/>
-                        <rect x="350" y="0" width="6" height="400"/>
-                        <rect x="450" y="0" width="6" height="400"/>
-                        <rect x="550" y="0" width="6" height="400"/>
-                      </g>
-                      <!-- Power rings around blocks -->
-                      <g stroke="rgba(191,109,21,0.5)" stroke-width="1" fill="none">
-                        <rect x="80" y="50" width="120" height="80"/>
-                        <rect x="220" y="50" width="160" height="80"/>
-                        <rect x="400" y="50" width="120" height="80"/>
-                        <rect x="80" y="160" width="200" height="120"/>
-                        <rect x="300" y="160" width="220" height="120"/>
-                      </g>
-                      <!-- VDD/VSS labels -->
-                      <g font-size="8" font-family="B612 Mono, monospace">
-                        <text x="20" y="30" fill="rgba(191,109,21,0.7)">VDD</text>
-                        <text x="20" y="90" fill="rgba(191,109,21,0.7)">VSS</text>
-                        <text x="20" y="150" fill="rgba(191,109,21,0.7)">VDD</text>
-                        <text x="20" y="210" fill="rgba(191,109,21,0.7)">VSS</text>
-                        <text x="20" y="270" fill="rgba(191,109,21,0.7)">VDD</text>
-                        <text x="20" y="330" fill="rgba(191,109,21,0.7)">VSS</text>
-                      </g>
-                      <text x="300" y="385" text-anchor="middle" fill="rgba(191,109,21,0.5)" font-size="9" font-family="B612 Mono, monospace">POWER DISTRIBUTION NETWORK — VDD/VSS GRID</text>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Explanatory text below -->
-              <div class="film-explanation col-2-6" data-reveal>
-                <p class="section-label">— Layer Stack</p>
-                <p>A semiconductor die is composed of a complex series of stacked materials, each meticulously engineered to perform a specific function in the electronic system. At the foundation lies the silicon substrate, doped to create transistor channels. Above this, polysilicon gates and diffusion regions form the active devices. Multiple layers of metal interconnect — separated by dielectric — route signals vertically and horizontally. The uppermost layers carry global power and clock distribution, while a final passivation layer protects the delicate structure beneath.</p>
-              </div>
-            </div>
-
-            <!-- Anatomy callouts -->
-            <div class="anatomy-callouts col-1-13 design-grid">
-              <div class="callout col-2-4" data-reveal>
-                <p class="callout-label">Standard Cells</p>
-                <p class="callout-text">Pre-characterized logic gates (NAND, NOR, flip-flops) arranged in uniform-height rows, the fundamental building blocks of digital implementation.</p>
-              </div>
-              <div class="callout col-5-7" data-reveal>
-                <p class="callout-label">I/O Structures</p>
-                <p class="callout-text">Perimeter circuits that translate internal voltage levels to external interface standards, with ESD protection and signal conditioning.</p>
-              </div>
-              <div class="callout col-8-10" data-reveal>
-                <p class="callout-label">Clock Distribution</p>
-                <p class="callout-text">Balanced H-tree or mesh networks delivering the timing reference with controlled skew across billions of sequential elements.</p>
-              </div>
-              <div class="callout col-11-12" data-reveal>
-                <p class="callout-label">Power Grid</p>
-                <p class="callout-text">Multi-layer mesh of wide metal straps distributing VDD and VSS with controlled IR drop and electromigration margins.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- SECTION D: DESIGN CONFIGURATION (Process Technologies) -->
-        <section class="section-config px-grid">
-          <div class="design-grid config-grid">
-            <div class="config-title col-2-6" data-reveal>
-              <p class="section-label">— Process Technologies</p>
-              <h2 class="config-heading">Target<br/>Nodes</h2>
-            </div>
-            <div class="config-desc col-8-12" data-reveal>
-              <p>Silica supports design implementation across a range of process technologies, from mature nodes to advanced FinFET geometries. Each technology node carries its own design rules, layer stack, device characteristics, and extraction models. The following configurations are available as design targets within the platform. These are illustrative technology profiles — actual fabrication is performed by external foundry partners.</p>
-            </div>
-
-            <div class="config-list col-1-13">
-              <div class="config-header grid-5">
-                <p class="col-2-5">Process Node</p>
-                <p class="col-5-6 end">Pitch</p>
-              </div>
-              <div class="config-divider"></div>
-
-              <div class="config-row grid-5" data-reveal>
-                <p class="col-1-2 config-num">01.</p>
-                <p class="col-2-5 config-name">TSMC 16nm FinFET</p>
-                <p class="col-5-6 end config-pitch">48nm</p>
-                <div class="config-line"></div>
-              </div>
-              <div class="config-row grid-5" data-reveal>
-                <p class="col-1-2 config-num">02.</p>
-                <p class="col-2-5 config-name">TSMC 7nm FinFET</p>
-                <p class="col-5-6 end config-pitch">36nm</p>
-                <div class="config-line"></div>
-              </div>
-              <div class="config-row grid-5" data-reveal>
-                <p class="col-1-2 config-num">03.</p>
-                <p class="col-2-5 config-name">TSMC 5nm FinFET</p>
-                <p class="col-5-6 end config-pitch">28nm</p>
-                <div class="config-line"></div>
-              </div>
-              <div class="config-row grid-5" data-reveal>
-                <p class="col-1-2 config-num">04.</p>
-                <p class="col-2-5 config-name">Samsung 3nm GAA</p>
-                <p class="col-5-6 end config-pitch">21nm</p>
-                <div class="config-line"></div>
-              </div>
-              <div class="config-row grid-5" data-reveal>
-                <p class="col-1-2 config-num">05.</p>
-                <p class="col-2-5 config-name">Intel 18A</p>
-                <p class="col-5-6 end config-pitch">18nm</p>
-                <div class="config-line"></div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- SECTION E: DESIGN ANALYSIS AND RESULTS -->
-        <section class="section-analysis">
-          <div class="design-grid analysis-grid px-grid">
-            <div class="analysis-title col-2-6" data-reveal>
-              <p class="section-label">— Implementation Metrics</p>
-              <h2 class="analysis-heading">Design<br/>Telemetry</h2>
-            </div>
-            <div class="analysis-desc col-8-12" data-reveal>
-              <p class="analysis-note">Illustrative data — shown for demonstration of the visualization system. These values represent a reference design profile and are not the output of a live synthesis or routing run.</p>
-            </div>
-
-            <!-- Metrics cards -->
-            <div class="metrics-grid col-1-13 design-grid">
-              <div class="metric-card col-1-4" data-reveal>
-                <div class="metric-value">
-                  <span class="metric-num" data-count="12.47">0</span>
-                  <span class="metric-unit">mm²</span>
-                </div>
-                <p class="metric-label">Total Die Area</p>
-                <p class="metric-sub">Core utilization: 78.3%</p>
-                <div class="metric-bar">
-                  <div class="metric-bar-fill" style="width: 78.3%"></div>
-                </div>
-              </div>
-              <div class="metric-card col-4-7" data-reveal>
-                <div class="metric-value">
-                  <span class="metric-num" data-count="1.87">0</span>
-                  <span class="metric-unit">W</span>
-                </div>
-                <p class="metric-label">Estimated Power</p>
-                <p class="metric-sub">Typical corner, 0.85V</p>
-                <div class="metric-bar">
-                  <div class="metric-bar-fill" style="width: 62%"></div>
-                </div>
-              </div>
-              <div class="metric-card col-7-10" data-reveal>
-                <div class="metric-value">
-                  <span class="metric-num" data-count="2.14">0</span>
-                  <span class="metric-unit">GHz</span>
-                </div>
-                <p class="metric-label">Maximum Frequency</p>
-                <p class="metric-sub">Setup slack: +12ps</p>
-                <div class="metric-bar">
-                  <div class="metric-bar-fill" style="width: 85%"></div>
-                </div>
-              </div>
-              <div class="metric-card col-10-13" data-reveal>
-                <div class="metric-value">
-                  <span class="metric-num" data-count="99.98">0</span>
-                  <span class="metric-unit">%</span>
-                </div>
-                <p class="metric-label">Verification Coverage</p>
-                <p class="metric-sub">Functional + Formal</p>
-                <div class="metric-bar">
-                  <div class="metric-bar-fill" style="width: 99.98%"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Detailed analysis panels -->
-            <div class="analysis-panels col-1-13 design-grid">
-              <div class="analysis-panel col-1-7" data-reveal>
-                <div class="panel-header">
-                  <p class="panel-title">Timing Path Distribution</p>
-                  <p class="panel-sub">Setup slack histogram</p>
-                </div>
-                <div class="timing-chart">
-                  <svg viewBox="0 0 500 200" preserveAspectRatio="none" class="timing-svg">
-                    <g stroke="rgba(85,85,85,0.2)" stroke-width="0.5">
-                      <line x1="0" y1="50" x2="500" y2="50"/>
-                      <line x1="0" y1="100" x2="500" y2="100"/>
-                      <line x1="0" y1="150" x2="500" y2="150"/>
-                    </g>
-                    <g fill="rgba(191,109,21,0.6)">
-                      <rect x="10" y="160" width="18" height="30"/>
-                      <rect x="35" y="140" width="18" height="50"/>
-                      <rect x="60" y="115" width="18" height="75"/>
-                      <rect x="85" y="85" width="18" height="105"/>
-                      <rect x="110" y="55" width="18" height="135"/>
-                      <rect x="135" y="30" width="18" height="160"/>
-                      <rect x="160" y="15" width="18" height="175"/>
-                      <rect x="185" y="25" width="18" height="165"/>
-                      <rect x="210" y="45" width="18" height="145"/>
-                      <rect x="235" y="70" width="18" height="120"/>
-                      <rect x="260" y="95" width="18" height="95"/>
-                      <rect x="285" y="120" width="18" height="70"/>
-                      <rect x="310" y="140" width="18" height="50"/>
-                      <rect x="335" y="155" width="18" height="35"/>
-                      <rect x="360" y="168" width="18" height="22"/>
-                      <rect x="385" y="178" width="18" height="12"/>
-                      <rect x="410" y="185" width="18" height="5"/>
-                    </g>
-                    <line x1="169" y1="0" x2="169" y2="200" stroke="rgba(191,109,21,0.8)" stroke-width="1" stroke-dasharray="4,4"/>
-                    <text x="175" y="15" fill="rgba(200,200,200,0.7)" font-size="10" font-family="B612 Mono, monospace">TNS = -42ps</text>
-                  </svg>
-                  <div class="chart-labels">
-                    <span>Violating</span>
-                    <span class="label-center">Zero Slack</span>
-                    <span>Positive Slack</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="analysis-panel col-7-13" data-reveal>
-                <div class="panel-header">
-                  <p class="panel-title">Implementation Progress</p>
-                  <p class="panel-sub">Flow stage completion</p>
-                </div>
-                <div class="progress-list">
-                  <div class="progress-item">
-                    <div class="progress-info">
-                      <span class="progress-name">Synthesis</span>
-                      <span class="progress-pct">100%</span>
-                    </div>
-                    <div class="progress-track"><div class="progress-fill" style="width: 100%"></div></div>
-                  </div>
-                  <div class="progress-item">
-                    <div class="progress-info">
-                      <span class="progress-name">Floorplanning</span>
-                      <span class="progress-pct">100%</span>
-                    </div>
-                    <div class="progress-track"><div class="progress-fill" style="width: 100%"></div></div>
-                  </div>
-                  <div class="progress-item">
-                    <div class="progress-info">
-                      <span class="progress-name">Placement</span>
-                      <span class="progress-pct">100%</span>
-                    </div>
-                    <div class="progress-track"><div class="progress-fill" style="width: 100%"></div></div>
-                  </div>
-                  <div class="progress-item">
-                    <div class="progress-info">
-                      <span class="progress-name">Clock Tree Synthesis</span>
-                      <span class="progress-pct">100%</span>
-                    </div>
-                    <div class="progress-track"><div class="progress-fill" style="width: 100%"></div></div>
-                  </div>
-                  <div class="progress-item">
-                    <div class="progress-info">
-                      <span class="progress-name">Global Routing</span>
-                      <span class="progress-pct">94%</span>
-                    </div>
-                    <div class="progress-track"><div class="progress-fill" style="width: 94%"></div></div>
-                  </div>
-                  <div class="progress-item">
-                    <div class="progress-info">
-                      <span class="progress-name">Detailed Routing</span>
-                      <span class="progress-pct">87%</span>
-                    </div>
-                    <div class="progress-track"><div class="progress-fill" style="width: 87%"></div></div>
-                  </div>
-                  <div class="progress-item">
-                    <div class="progress-info">
-                      <span class="progress-name">DRC Clean</span>
-                      <span class="progress-pct">72%</span>
-                    </div>
-                    <div class="progress-track"><div class="progress-fill" style="width: 72%"></div></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- SECTION F: TAPEOUT PREPARATION -->
-        <section class="section-tapeout px-grid">
-          <div class="design-grid tapeout-grid">
-            <div class="tapeout-title col-2-7" data-reveal>
-              <p class="section-label">— Final Handoff</p>
-              <h2 class="tapeout-heading">Tapeout<br/>Preparation</h2>
-            </div>
-            <div class="tapeout-desc col-8-12" data-reveal>
-              <p>Silica prepares the final design database for external manufacturing. The platform assembles the verified layout into industry-standard stream formats, generates all required signoff reports, and packages the complete handoff kit for foundry submission. Silica itself does not fabricate silicon wafers — manufacturing is performed by third-party foundry partners under their own process controls and quality standards.</p>
-            </div>
-
-            <div class="tapeout-visual col-1-13" data-reveal>
-              <div class="gds-visualization">
-                <svg viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid meet">
-                  <!-- Die outline -->
-                  <rect x="100" y="50" width="800" height="300" fill="none" stroke="rgba(200,200,200,0.3)" stroke-width="1"/>
-                  
-                  <!-- Scribe lines -->
-                  <g stroke="rgba(85,85,85,0.2)" stroke-width="0.5" stroke-dasharray="4,4">
-                    <line x1="100" y1="150" x2="900" y2="150"/>
-                    <line x1="100" y1="250" x2="900" y2="250"/>
-                    <line x1="300" y1="50" x2="300" y2="350"/>
-                    <line x1="500" y1="50" x2="500" y2="350"/>
-                    <line x1="700" y1="50" x2="700" y2="350"/>
-                  </g>
-
-                  <!-- Block 1 - CPU -->
-                  <g>
-                    <rect x="110" y="60" width="180" height="80" fill="rgba(191,109,21,0.15)" stroke="rgba(191,109,21,0.4)" stroke-width="0.5"/>
-                    <defs>
-                      <pattern id="cpuPattern" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
-                        <rect width="6" height="6" fill="none" stroke="rgba(191,109,21,0.15)" stroke-width="0.2"/>
-                      </pattern>
-                    </defs>
-                    <rect x="110" y="60" width="180" height="80" fill="url(#cpuPattern)"/>
-                    <text x="200" y="105" text-anchor="middle" fill="rgba(200,200,200,0.6)" font-size="9" font-family="B612 Mono, monospace">CORE 0</text>
-                  </g>
-
-                  <!-- Block 2 -->
-                  <g>
-                    <rect x="310" y="60" width="180" height="80" fill="rgba(191,109,21,0.12)" stroke="rgba(191,109,21,0.3)" stroke-width="0.5"/>
-                    <rect x="310" y="60" width="180" height="80" fill="url(#cpuPattern)"/>
-                    <text x="400" y="105" text-anchor="middle" fill="rgba(200,200,200,0.6)" font-size="9" font-family="B612 Mono, monospace">CORE 1</text>
-                  </g>
-
-                  <!-- Block 3 -->
-                  <g>
-                    <rect x="510" y="60" width="180" height="80" fill="rgba(200,200,200,0.08)" stroke="rgba(200,200,200,0.2)" stroke-width="0.5"/>
-                    <text x="600" y="105" text-anchor="middle" fill="rgba(200,200,200,0.6)" font-size="9" font-family="B612 Mono, monospace">L3 CACHE</text>
-                  </g>
-
-                  <!-- Block 4 -->
-                  <g>
-                    <rect x="710" y="60" width="180" height="80" fill="rgba(200,200,200,0.06)" stroke="rgba(200,200,200,0.15)" stroke-width="0.5"/>
-                    <text x="800" y="105" text-anchor="middle" fill="rgba(200,200,200,0.6)" font-size="9" font-family="B612 Mono, monospace">GPU</text>
-                  </g>
-
-                  <!-- Memory blocks -->
-                  <g fill="rgba(200,200,200,0.05)" stroke="rgba(200,200,200,0.15)" stroke-width="0.3">
-                    <rect x="110" y="160" width="80" height="80"/>
-                    <rect x="200" y="160" width="80" height="80"/>
-                    <rect x="310" y="160" width="80" height="80"/>
-                    <rect x="400" y="160" width="80" height="80"/>
-                    <rect x="510" y="160" width="80" height="80"/>
-                    <rect x="600" y="160" width="80" height="80"/>
-                    <rect x="710" y="160" width="80" height="80"/>
-                    <rect x="800" y="160" width="80" height="80"/>
-                  </g>
-                  <g fill="rgba(200,200,200,0.4)" font-size="8" font-family="B612 Mono, monospace">
-                    <text x="150" y="205" text-anchor="middle">MEM</text>
-                    <text x="240" y="205" text-anchor="middle">MEM</text>
-                    <text x="350" y="205" text-anchor="middle">MEM</text>
-                    <text x="440" y="205" text-anchor="middle">MEM</text>
-                    <text x="550" y="205" text-anchor="middle">MEM</text>
-                    <text x="640" y="205" text-anchor="middle">MEM</text>
-                    <text x="750" y="205" text-anchor="middle">MEM</text>
-                    <text x="840" y="205" text-anchor="middle">MEM</text>
-                  </g>
-
-                  <!-- Bottom blocks - I/O and peripherals -->
-                  <g>
-                    <rect x="110" y="260" width="380" height="80" fill="rgba(191,109,21,0.05)" stroke="rgba(191,109,21,0.2)" stroke-width="0.5"/>
-                    <text x="300" y="305" text-anchor="middle" fill="rgba(200,200,200,0.5)" font-size="9" font-family="B612 Mono, monospace">PERIPHERAL INTERCONNECT &amp; I/O RING</text>
-                  </g>
-                  <g>
-                    <rect x="510" y="260" width="380" height="80" fill="rgba(191,109,21,0.05)" stroke="rgba(191,109,21,0.2)" stroke-width="0.5"/>
-                    <text x="700" y="305" text-anchor="middle" fill="rgba(200,200,200,0.5)" font-size="9" font-family="B612 Mono, monospace">SERDES / PCIe / DDR PHY</text>
-                  </g>
-
-                  <!-- Seal ring -->
-                  <rect x="105" y="55" width="790" height="290" fill="none" stroke="rgba(191,109,21,0.3)" stroke-width="0.5" stroke-dasharray="2,2"/>
-                </svg>
-              </div>
-            </div>
-
-            <!-- Deliverables list -->
-            <div class="tapeout-deliverables col-1-13 design-grid">
-              <div class="deliverable col-2-5" data-reveal>
-                <p class="deliv-label">GDSII Stream</p>
-                <p class="deliv-text">Full hierarchical layout database in Caltech Intermediate Format derivative, ready for mask generation.</p>
-              </div>
-              <div class="deliverable col-5-8" data-reveal>
-                <p class="deliv-label">OASIS</p>
-                <p class="deliv-text">Open Artwork System Interchange Standard — compressed layout representation for efficient foundry transfer.</p>
-              </div>
-              <div class="deliverable col-8-11" data-reveal>
-                <p class="deliv-label">Signoff Reports</p>
-                <p class="deliv-text">Timing (STA), power, IR drop, electromigration, DRC, LVS, and antenna rule verification summaries.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- FOOTER -->
-        <footer class="site-footer px-grid">
-          <div class="design-grid footer-grid">
-            <div class="footer-brand col-2-6">
-              <h3 class="footer-logo">SILICA</h3>
-              <p class="footer-tagline">Precision semiconductor design environment. From RTL to tapeout, engineered for transparency and control.</p>
-            </div>
-            <div class="footer-nav col-7-9">
-              <p class="footer-nav-label">Platform</p>
-              <ul>
-                <li><a href="#">Design Flow</a></li>
-                <li><a href="#">Die Architecture</a></li>
-                <li><a href="#">Process Nodes</a></li>
-                <li><a href="#">Telemetry</a></li>
-              </ul>
-            </div>
-            <div class="footer-nav col-9-11">
-              <p class="footer-nav-label">Resources</p>
-              <ul>
-                <li><a href="#">Documentation</a></li>
-                <li><a href="#">Methodology</a></li>
-                <li><a href="#">Foundry Partners</a></li>
-                <li><a href="#">Contact</a></li>
-              </ul>
-            </div>
-            <div class="footer-bottom col-1-13">
-              <div class="footer-line"></div>
-              <div class="footer-meta">
-                <p>© 2026 Silica Design Systems</p>
-                <p>External fabrication — Silica prepares designs for foundry manufacturing</p>
-              </div>
-            </div>
-          </div>
-        </footer>
-
+        <div class="chip-label a">M5 — Top Metal</div>
+        <div class="chip-label b">Substrate · Bulk Si</div>
       </div>
     </div>
   </div>
+</section>
 
-  <script src="script.js"></script>
+<hr class="rule">
+
+<!-- WORKFLOW -->
+<section id="workflow">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>The Design <em>Journey</em></h2>
+      <span class="idx">01 / Workflow</span>
+    </div>
+    <div class="stage reveal"><div class="num">01</div><div><span class="tag">Frontend</span><h3>Specification</h3></div><p>Architecture, performance targets, power budget, and die-area envelope defined. The contract every downstream stage is measured against.</p></div>
+    <div class="stage reveal"><div class="num">02</div><div><span class="tag">Frontend</span><h3>RTL Design</h3></div><p>Behavioral description in hardware-description language — registers, datapaths, and finite state machines captured as synthesizable logic.</p></div>
+    <div class="stage reveal"><div class="num">03</div><div><span class="tag">Frontend</span><h3>Functional Verification</h3></div><p>Testbenches, assertions, and coverage closure prove the RTL does what the specification requires, before a single gate is placed.</p></div>
+    <div class="stage reveal"><div class="num">04</div><div><span class="tag">Frontend</span><h3>Synthesis</h3></div><p>RTL mapped to a technology library of standard cells. The design becomes a netlist of gates, sized for timing, area, and power.</p></div>
+    <div class="stage reveal"><div class="num">05</div><div><span class="tag">Backend</span><h3>Floorplanning</h3></div><p>Macro blocks, I/O rings, and power domains arranged on the die. The skeleton on which every later stage is built.</p></div>
+    <div class="stage reveal"><div class="num">06</div><div><span class="tag">Backend</span><h3>Placement</h3></div><p>Standard cells positioned legal-row by legal-row, optimized for wirelength, timing, and routability across the core area.</p></div>
+    <div class="stage reveal"><div class="num">07</div><div><span class="tag">Backend</span><h3>Routing</h3></div><p>Metal interconnect drawn across stacked layers — signals, clock tree, and power grid connected without design-rule violation.</p></div>
+    <div class="stage reveal"><div class="num">08</div><div><span class="tag">Signoff</span><h3>Timing Analysis</h3></div><p>Static timing closure across all process, voltage, and temperature corners. Setup and hold margins verified before signoff.</p></div>
+    <div class="stage reveal"><div class="num">09</div><div><span class="tag">Signoff</span><h3>Physical Verification</h3></div><p>Design-rule check, layout-versus-schematic, and antenna checks confirm the drawn geometry is manufacturable and electrically correct.</p></div>
+    <div class="stage reveal"><div class="num">10</div><div><span class="tag">Signoff</span><h3>Tapeout Preparation</h3></div><p>Final GDSII/OASIS database, signoff reports, and fabrication handoff package assembled for external foundry manufacture.</p></div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ANATOMY -->
+<section id="anatomy">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Die <em>Anatomy</em></h2>
+      <span class="idx">02 / Anatomy</span>
+    </div>
+    <div class="anat-grid">
+      <div class="reveal">
+        <svg class="die-svg" viewBox="0 0 400 400" id="dieSvg">
+          <rect x="10" y="10" width="380" height="380" fill="none" stroke="var(--line-strong)" stroke-width="1"/>
+          <!-- I/O ring -->
+          <rect class="region" data-part="io" x="10" y="10" width="380" height="40" fill="rgba(230,225,214,.04)"/>
+          <rect class="region" data-part="io" x="10" y="350" width="380" height="40"/>
+          <rect class="region" data-part="io" x="10" y="50" width="40" height="300"/>
+          <rect class="region" data-part="io" x="350" y="50" width="40" height="300"/>
+          <!-- Power grid stripe -->
+          <rect class="region" data-part="power" x="50" y="50" width="300" height="14"/>
+          <rect class="region" data-part="power" x="50" y="336" width="300" height="14"/>
+          <!-- Standard cell core -->
+          <rect class="region active" data-part="cells" x="50" y="64" width="190" height="272"/>
+          <!-- SRAM macros -->
+          <rect class="region" data-part="sram" x="240" y="64" width="110" height="80"/>
+          <rect class="region" data-part="sram" x="240" y="154" width="110" height="80"/>
+          <!-- PLL / analog -->
+          <rect class="region" data-part="pll" x="240" y="244" width="110" height="92"/>
+          <!-- labels -->
+          <text x="70" y="34">I/O Ring</text>
+          <text x="70" y="130" style="fill:var(--ink)">Standard-Cell Core</text>
+          <text x="252" y="108">SRAM Macro</text>
+          <text x="252" y="296">PLL · Analog</text>
+          <text x="70" y="60" style="fill:var(--amber)">Power Grid</text>
+        </svg>
+      </div>
+      <div class="anat-info reveal">
+        <div class="t" id="anatT">Standard Cells &amp; Logic Gates</div>
+        <div class="d" id="anatD">The bulk of the die is filled with rows of standard cells — NAND, NOR, flip-flops, and multiplexers drawn from the foundry library, placed in legal rows and interconnected by routed metal.</div>
+        <div class="spec" id="anatS">Density · 82% utilization · 7-track height</div>
+        <div class="anat-parts" id="anatBtns">
+          <button data-part="cells" class="active">Standard Cells</button>
+          <button data-part="sram">SRAM Macros</button>
+          <button data-part="power">Power Grid</button>
+          <button data-part="pll">PLL / Analog</button>
+          <button data-part="io">I/O Structures</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- CONFIG (film stock style) -->
+<section id="config">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Process <em>Configurations</em></h2>
+      <span class="idx">03 / Configuration</span>
+    </div>
+    <div class="cfg-head reveal"><div class="h1">No.</div><div class="h2">Process Node</div><div class="h3">V<sub>dd</sub> / Gate</div><div class="h4">Target Use</div></div>
+    <div class="cfg-row reveal" data-node="7nm"><div class="n">01.</div><div class="name">7nm FinFET<small>High-performance compute</small></div><div class="val">0.75V · 9.5T</div><div class="val">CPU · GPU · AI</div></div>
+    <div class="cfg-row reveal" data-node="12nm"><div class="n">02.</div><div class="name">12nm FinFET<small>Performance / cost balance</small></div><div class="val">0.80V · 7.5T</div><div class="val">Networking · SoC</div></div>
+    <div class="cfg-row reveal" data-node="28nm"><div class="n">03.</div><div class="name">28nm HKMG<small>Mature high-volume</small></div><div class="val">0.90V · 6T</div><div class="val">IoT · Consumer</div></div>
+    <div class="cfg-row reveal" data-node="45nm"><div class="n">04.</div><div class="name">45nm CMOS<small>Legacy &amp; analog-rich</small></div><div class="val">1.00V · 5T</div><div class="val">Automotive · Mixed</div></div>
+    <div class="cfg-row reveal" data-node="180nm"><div class="n">05.</div><div class="name">180nm BCD<small>Power &amp; HV integration</small></div><div class="val">3.3V · 3.3T</div><div class="val">Power Mgmt · Sensor</div></div>
+    <div class="cfg-note">* Illustrative configuration set — sample data for prototype demonstration, not a commitment of foundry availability.</div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- LAYERS -->
+<section id="layers">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Interconnect <em>Stack</em></h2>
+      <span class="idx">04 / Layers</span>
+    </div>
+    <div class="layers-wrap">
+      <div class="layer-stack reveal">
+        <div class="lyr">M11 — Ultra-thick top metal<span class="th">4.8µm</span></div>
+        <div class="lyr">M10 — Thick power strap<span class="th">2.4µm</span></div>
+        <div class="lyr">M9–M6 — Global routing<span class="th">0.9µm</span></div>
+        <div class="lyr">M5–M3 — Intermediate<span class="th">0.32µm</span></div>
+        <div class="lyr">M2 — Local interconnect<span class="th">0.14µm</span></div>
+        <div class="lyr">M0 / Contact — Cell-level<span class="th">0.07µm</span></div>
+        <div class="lyr">Gate / Diffusion — Transistor<span class="th">Fin · 7nm</span></div>
+        <div class="lyr">Bulk Silicon Substrate<span class="th">750µm</span></div>
+      </div>
+      <div class="layers-copy reveal">
+        <h3>Eleven layers of <em>metal</em>, one substrate of silicon.</h3>
+        <p>Like the stacked emulsion layers of a film negative, a modern chip is a vertical stack. Lower layers are dense and fine, wiring transistors together. Upper layers grow thick and wide, distributing clock and power across the die.</p>
+        <p>Each layer is patterned by photolithography, etched, and filled with copper — the same care of alignment, layer after layer, until the last metal is capped and the design is ready to leave the building.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ANALYSIS -->
+<section id="analysis">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Signoff <em>Telemetry</em></h2>
+      <span class="idx">05 / Analysis</span>
+    </div>
+    <div class="metrics reveal">
+      <div class="metric" style="--w:78%"><div class="v">4.82<small> mm²</small></div><div class="l">Die Area</div><div class="bar"><i></i></div></div>
+      <div class="metric" style="--w:62%"><div class="v">1.24<small> W</small></div><div class="l">Est. Power @ TYP</div><div class="bar"><i></i></div></div>
+      <div class="metric" style="--w:91%"><div class="v">2.1<small> GHz</small></div><div class="l">Setup Closure Fmax</div><div class="bar"><i></i></div></div>
+      <div class="metric" style="--w:99%"><div class="v">0<small> DRC</small></div><div class="l">Violations Remaining</div><div class="bar"><i></i></div></div>
+      <div class="metric" style="--w:96%"><div class="v">98.4<small> %</small></div><div class="l">Functional Coverage</div><div class="bar"><i></i></div></div>
+      <div class="metric" style="--w:84%"><div class="v">100<small> %</small></div><div class="l">Routed Nets</div><div class="bar"><i></i></div></div>
+      <div class="metric" style="--w:70%"><div class="v">+120<small> ps</small></div><div class="l">Worst Hold Slack</div><div class="bar"><i></i></div></div>
+      <div class="metric" style="--w:88%"><div class="v">LVS<small> CLEAN</small></div><div class="l">Layout vs Schematic</div><div class="bar"><i></i></div></div>
+    </div>
+    <div class="analysis-note">Illustrative signoff data — representative values for visual prototype, not output of an executed tool run.</div>
+  </div>
+</section>
+
+<!-- TAPEOUT -->
+<section id="tapeout">
+  <div class="wrap">
+    <div class="tape-grid">
+      <div class="tape-copy reveal">
+        <h2>From design to <em>handoff.</em></h2>
+        <p>When every check is clean and every corner is closed, Silica assembles the final package: layout database, signoff reports, and fabrication notes — everything an external foundry needs to turn drawn geometry into silicon.</p>
+        <p>Silica does not manufacture wafers. It prepares the design so that those who do, can.</p>
+        <div class="tape-fab"><b>External Fabrication</b> · GDSII / OASIS handoff · Foundry NDA · Mask generation · Wafer fab · Packaging &amp; test — performed by partners, not by Silica.</div>
+      </div>
+      <div class="tape-files reveal">
+        <div class="f"><span class="nm">top_final.gds</span><span class="sz">184.2 MB</span><span class="st">Ready</span></div>
+        <div class="f"><span class="nm">top_final.oas</span><span class="sz">41.7 MB</span><span class="st">Ready</span></div>
+        <div class="f"><span class="nm">signoff_timing.rpt</span><span class="sz">2.1 MB</span><span class="st">Ready</span></div>
+        <div class="f"><span class="nm">dvc_summary.rpt</span><span class="sz">0.8 MB</span><span class="st">Ready</span></div>
+        <div class="f"><span class="nm">lvs_clean.rpt</span><span class="sz">0.4 MB</span><span class="st">Ready</span></div>
+        <div class="f"><span class="nm">fab_notes.pdf</span><span class="sz">3.6 MB</span><span class="st">Ready</span></div>
+        <div class="f"><span class="nm">tapeout_manifest.json</span><span class="sz">12 KB</span><span class="st">Sealed</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="brand">SILICA</div>
+        <div class="tag">Silicon Crafted · A Semiconductor Design Environment</div>
+      </div>
+      <div>
+        <h4>Platform</h4>
+        <ul><li><a href="#workflow">Workflow</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#config">Configuration</a></li></ul>
+      </div>
+      <div>
+        <h4>Signoff</h4>
+        <ul><li><a href="#analysis">Analysis</a></li><li><a href="#tapeout">Tapeout</a></li><li><a href="#layers">Interconnect</a></li></ul>
+      </div>
+      <div>
+        <h4>Reference</h4>
+        <ul><li><a href="#">Documentation</a></li><li><a href="#">Process Libraries</a></li><li><a href="#">Contact</a></li></ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Silica · Design Environment</span>
+      <span>Prepared for external fabrication · Not a foundry</span>
+      <span>v2.4.1 · Build stable</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // ---- intro ----
+  var intro = document.getElementById('intro');
+  intro.classList.add('on');
+  setTimeout(function(){ intro.classList.add('done'); document.body.classList.add('loaded'); document.querySelector('.hero-title').classList.add('in'); }, 2200);
+
+  // ---- telemetry timer ----
+  var t0 = Date.now(), timerEl = document.getElementById('timer'), fpsEl = document.getElementById('fps');
+  setInterval(function(){
+    var s = Math.floor((Date.now()-t0)/1000);
+    var h = String(Math.floor(s/3600)).padStart(2,'0'), m = String(Math.floor((s%3600)/60)).padStart(2,'0'), ss = String(s%60).padStart(2,'0');
+    timerEl.textContent = h+':'+m+':'+ss;
+  }, 1000);
+  // fps jitter
+  setInterval(function(){ fpsEl.textContent = (56 + Math.floor(Math.random()*6)); }, 1500);
+  // resolution
+  document.getElementById('res').textContent = window.innerWidth+'x'+window.innerHeight;
+  window.addEventListener('resize', function(){ document.getElementById('res').textContent = window.innerWidth+'x'+window.innerHeight; });
+
+  // ---- scroll progress + chip rotation + counters ----
+  var pct = document.getElementById('pct'), chip = document.getElementById('chip3d');
+  var counted = false;
+  window.addEventListener('scroll', function(){
+    var h = document.documentElement;
+    var sc = h.scrollTop / (h.scrollHeight - h.clientHeight);
+    pct.textContent = String(Math.round(sc*100)).padStart(2,'0');
+    // chip rotates with scroll in hero
+    var ry = -32 + sc * 60, rx = 58 - sc * 20;
+    chip.style.transform = 'rotateX('+rx+'deg) rotateZ('+ry+'deg)';
+    if(sc > 0.05 && !counted){ counted = true; runCounters(); }
+  }, {passive:true});
+
+  function runCounters(){
+    document.querySelectorAll('[data-count]').forEach(function(el){
+      var target = parseFloat(el.getAttribute('data-count')), dec = parseInt(el.getAttribute('data-dec')||'0');
+      var start = null, dur = 1600;
+      function step(ts){
+        if(!start) start = ts;
+        var p = Math.min((ts-start)/dur, 1), e = 1-Math.pow(1-p,3);
+        el.textContent = (target*e).toFixed(dec);
+        if(p<1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  // ---- reveal on scroll ----
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+    });
+  }, {threshold:0.12});
+  document.querySelectorAll('.reveal, .metric').forEach(function(el){ io.observe(el); });
+
+  // ---- anatomy interaction ----
+  var ANAT = {
+    cells:{t:'Standard Cells & Logic Gates', d:'The bulk of the die is filled with rows of standard cells — NAND, NOR, flip-flops, and multiplexers drawn from the foundry library, placed in legal rows and interconnected by routed metal.', s:'Density · 82% utilization · 7-track height'},
+    sram:{t:'SRAM Compiler Macros', d:'Dense memory arrays generated by the foundry SRAM compiler, tiled across the upper-right quadrant. Each macro is a hardened block with its own power domain and sense amplifiers.', s:'6 macros · 512KB total · dual-port'},
+    power:{t:'Power Distribution Grid', d:'Horizontal and vertical metal straps forming a grid across the core, delivering Vdd and Vss to every standard cell. IR-drop and electromigration verified at signoff.', s:'M9/M10 straps · 1.2µm pitch · IR-drop < 2%'},
+    pll:{t:'PLL & Analog Blocks', d:'Phase-locked loop, clock generators, and mixed-signal circuits placed in their own guarded region, isolated from switching noise of the digital core.', s:'1 PLL · 2 DLL · guard-ring isolated'},
+    io:{t:'I/O Ring & Pad Structures', d:'Perimeter ring of input/output cells — drivers, ESD protection, and bond pads — interfacing the core to the package and the board beyond.', s:'128 pads · 1.8V/3.3V · ESD 2kV HBM'}
+  };
+  var anatT = document.getElementById('anatT'), anatD = document.getElementById('anatD'), anatS = document.getElementById('anatS');
+  function setPart(p){
+    var d = ANAT[p]; if(!d) return;
+    anatT.style.opacity = 0; anatD.style.opacity = 0;
+    setTimeout(function(){
+      anatT.textContent = d.t; anatD.textContent = d.d; anatS.textContent = d.s;
+      anatT.style.opacity = 1; anatD.style.opacity = 1;
+    }, 200);
+    document.querySelectorAll('.die-svg .region').forEach(function(r){ r.classList.toggle('active', r.getAttribute('data-part')===p); });
+    document.querySelectorAll('#anatBtns button').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-part')===p); });
+    document.getElementById('node-read').textContent = document.querySelector('.cfg-row.active') ? document.querySelector('.cfg-row.active').getAttribute('data-node') : '7nm';
+  }
+  document.querySelectorAll('.die-svg .region').forEach(function(r){
+    r.addEventListener('mouseenter', function(){ setPart(r.getAttribute('data-part')); });
+  });
+  document.querySelectorAll('#anatBtns button').forEach(function(b){
+    b.addEventListener('click', function(){ setPart(b.getAttribute('data-part')); });
+  });
+
+  // ---- config row hover updates node readout ----
+  document.querySelectorAll('.cfg-row').forEach(function(r){
+    r.addEventListener('mouseenter', function(){
+      document.getElementById('node-read').textContent = r.getAttribute('data-node');
+      document.querySelectorAll('.cfg-row').forEach(function(x){x.classList.remove('active')});
+      r.classList.add('active');
+    });
+  });
+})();
+</script>
 </body>
 </html>
