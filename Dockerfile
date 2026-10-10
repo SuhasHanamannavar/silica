@@ -6,6 +6,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip3 install --no-cache-dir huggingface_hub
 WORKDIR /app
 COPY . /app
-ENV PORT=8000 HF_TOKEN="" SILICA_HF_MODEL="Qwen/Qwen2.5-Coder-1.5B-Instruct"
+ENV PORT=8000 HF_TOKEN="" SILICA_HF_MODEL="Qwen/Qwen2.5-Coder-7B-Instruct"
 EXPOSE 8000
 CMD ["python3", "server.py"]

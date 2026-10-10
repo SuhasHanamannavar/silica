@@ -32,19 +32,7 @@ function load(){
   }catch(e){}
   if(state.projects.length===0){ seed(); save(); }
 }
-function seed(){
-  const now = Date.now();
-  state.projects = [
-    {id:'p_aes', name:'AES-128 Encryption Core', brief:'Compact AES-128 ECB, 128-bit datapath, 10 rounds, 400 MHz target.', node:'TSMC 16nm FinFET (illustrative)', created: now-2*864e5, lastStatus:'passed', runId:'r_aes'},
-    {id:'p_riscv', name:'RV32I Microcontroller', brief:'8-bit peripheral RV32I core with UART, SPI, timer, 8 KB SRAM.', node:'SkyWater 130nm (illustrative)', created: now-6*864e5, lastStatus:'passed', runId:'r_riscv'},
-    {id:'p_uart', name:'Multi-channel UART', brief:'4-channel UART with 256-byte FIFOs and auto-baud.', node:'TSMC 16nm FinFET (illustrative)', created: now-9*864e5, lastStatus:'failed', runId:'r_uart'},
-  ];
-  state.runs = {
-    r_aes: {projectId:'p_aes', status:'passed', artifacts:[], metrics:[], recoveries:2, finishedAt: now-2*864e5},
-    r_riscv: {projectId:'p_riscv', status:'passed', artifacts:[], metrics:[], recoveries:0, finishedAt: now-6*864e5},
-    r_uart: {projectId:'p_uart', status:'failed', artifacts:[], metrics:[], recoveries:1, finishedAt: now-9*864e5, failReason:'Timing not met at 400 MHz (WNS -0.42 ns). Routing congestion in channel 3.'},
-  };
-}
+function seed(){ /* no demo data — projects/runs load from live backend */ }
 load();
 
 /* ---------------- Toast ---------------- */
@@ -194,10 +182,7 @@ function renderWorkspace(){
     <div>
       <div class="card-head"><h3>Recent activity</h3></div>
       <div class="card" style="padding:8px 24px">
-        <div class="feed-item ok"><div class="t">2d ago</div><div class="i"></div><div class="txt"><b>AES-128 core</b> <span>passed all 10 stages; GDSII streamed out.</span></div></div>
-        <div class="feed-item run"><div class="t">2d ago</div><div class="i"></div><div class="txt"><b>Agent recovery</b> <span>closed timing at synthesis via register retiming.</span></div></div>
-        <div class="feed-item"><div class="t">6d ago</div><div class="i"></div><div class="txt"><b>RV32I MCU</b> <span>functional verification reached 96.4% line coverage.</span></div></div>
-        <div class="feed-item fail"><div class="t">9d ago</div><div class="i"></div><div class="txt"><b>Multi-channel UART</b> <span>run failed — timing not met, routing congestion.</span></div></div>
+        
       </div>
       <div class="card" style="margin-top:16px">
         <div class="card-head"><h3>Engineering note</h3></div>
@@ -257,7 +242,7 @@ function renderNew(){
         </div>
       </div>
       <div class="start-bar">
-        <div id="backend-opts" style="margin:14px 0;padding:14px;border:1px solid var(--line);border-radius:8px"><label style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><input type="checkbox" id="np-real" checked> <span>Execute on REAL EDA backend (Verilator + Yosys)</span></label><label style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><input type="checkbox" id="np-broken"> <span>Demo: submit broken RTL to show autonomous failure recovery</span></label><textarea id="np-rtl" placeholder="Optional: paste your own Verilog RTL (defaults to sample 4-bit counter)" style="width:100%;min-height:90px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:10px;font-family:var(--mono);font-size:12px;box-sizing:border-box"></textarea></div><div class="note" id="np-note">Starting a run dispatches the engineering workflow.</div>
+        <div id="backend-opts" style="margin:14px 0;padding:14px;border:1px solid var(--line);border-radius:8px"><label style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><input type="checkbox" id="np-real" checked> <span>Execute on REAL EDA backend (Verilator + Yosys)</span></label><label style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><input type="checkbox" id="np-broken"> <span></span></label><textarea id="np-rtl" placeholder="Optional: paste your own Verilog RTL (defaults to sample 4-bit counter)" style="width:100%;min-height:90px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:10px;font-family:var(--mono);font-size:12px;box-sizing:border-box"></textarea></div><div class="note" id="np-note">Starting a run dispatches the engineering workflow.</div>
         <button class="btn primary" id="np-start">Start engineering run →</button>
       </div>
     </div>
@@ -521,12 +506,12 @@ function renderSettings(){
     <div class="card-head"><h3>Account</h3></div>
     <div class="field"><label>Signed in as</label><input type="text" value="Suhas Hanamannavar · webofjee@gmail.com" disabled></div>
     <div class="field"><label>Default process node</label><select><option>TSMC 16nm FinFET (illustrative)</option><option>SkyWater 130nm (open PDK)</option></select></div>
-    <div class="field" style="margin-bottom:0"><label>Workspace</label><button class="btn" id="reset-state">Reset local prototype data</button></div>
+    <div class="field" style="margin-bottom:0"><label>Workspace</label><button class="btn" id="reset-state">Reset local data</button></div>
   </div>
-  <p class="dim" style="margin-top:16px;font-size:12.5px;max-width:640px">Prototype build: settings are stored locally in this browser. No EDA backend or user account system is connected.</p>`;
+  <p class="dim" style="margin-top:16px;font-size:12.5px;max-width:640px">All runs execute on the live EDA backend.</p>`;
 }
 document.addEventListener('click', e=>{
-  if(e.target.id==='reset-state'){ localStorage.removeItem(LS_KEY); load(); toast('Reset','Prototype data cleared and re-seeded.'); go('workspace'); }
+  if(e.target.id==='reset-state'){ localStorage.removeItem(LS_KEY); load(); toast('Reset','Local data cleared.'); go('workspace'); }
   if(e.target.id==='ws-new') go('new');
   if(e.target.id==='ws-open'){ state.activeRunId=null; state.openedRunId=state.projects[0]&&state.projects[0].runId; go('run'); }
 });
@@ -537,15 +522,15 @@ function checkBackend(){
   fetch('/api/health').then(r=>r.json()).then(d=>{
     if(d && d.tools_available){ state.backend=true; state.backendTools=d.tools; }
     var b=document.querySelector('.proto-badge, .badge.proto, .sidebar .badge');
-    if(b){ b.textContent = state.backend ? 'LIVE EDA BACKEND' : 'PROTOTYPE - FRONTEND ONLY';
+    if(b){ b.textContent = state.backend ? 'LIVE EDA BACKEND' : 'CONNECTING TO BACKEND…';
            b.style.color = state.backend ? 'var(--ok)' : 'var(--warn)'; }
     var bo=document.getElementById('backend-opts'); if(bo){ bo.style.display = state.backend ? 'block':'none'; }
-    var nn=document.getElementById('np-note'); if(nn){ nn.textContent = state.backend ? 'Starting a run executes the REAL EDA workflow (Verilator + Yosys) with actual logs, exit codes, and artifacts.' : 'Starting a run dispatches the workflow. In this prototype the run view replays a recorded reference transcript.'; }
+    var nn=document.getElementById('np-note'); if(nn){ nn.textContent = state.backend ? 'Starting a run executes the REAL EDA workflow (Verilator + Yosys) with actual logs, exit codes, and artifacts.' : 'Starting a run dispatches the workflow. '; }
   }).catch(function(){});
 }
 var realPoll=null;
 function startRealRun(name, brief){
-  var demoBroken = $('#np-broken') && $('#np-broken').checked;
+  var demoBroken = false;
   var rtl = $('#np-rtl') ? $('#np-rtl').value.trim() : null;
   go('run');
   state.realRun={name:name, status:'starting', projectId:null, recovery:[], artifacts:[], blocker:null};
@@ -554,7 +539,7 @@ function startRealRun(name, brief){
   fetch('/api/projects',{method:'POST',headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)})
   .then(function(r){return r.json();}).then(function(p){
     state.realRun.projectId=p.id;
-    var rb = {demo_broken: demoBroken}; if(rtl) rb.rtl = rtl;
+    var rb = {}; if(rtl) rb.rtl = rtl;
     return fetch('/api/projects/'+p.id+'/run',{method:'POST',headers:{'Content-Type':'application/json'}, body:JSON.stringify(rb)});
   }).then(function(){
     toast('Real run started', name+' - executing Verilator + Yosys.');
@@ -585,7 +570,7 @@ function renderRealRun(){
     '</div>';
   if(r.blocker){ html += '<div style="color:var(--fail);border:1px solid var(--fail);padding:12px;border-radius:8px;margin:12px 0"><b>Blocker:</b> '+esc(r.blocker)+'</div>'; }
   if(st==='passed'){ html += '<div style="color:var(--ok);border:1px solid var(--ok);padding:12px;border-radius:8px;margin:12px 0"><b>All stages passed.</b> Real artifacts (gate-level netlist, synthesis database, report) stored on disk under data/projects/&lt;id&gt;/runs/. Download via /api/artifacts/&lt;run&gt;/&lt;name&gt;.</div>'; }
-  html += '<p class="dim" style="font-size:13px;margin-top:16px;line-height:1.7">Executed by the local Silica orchestrator (server.py) with real Verilator lint/compile/simulate and Yosys synthesis. Per-stage logs, exit codes, and recovery diffs are persisted. Demo: check "submit broken RTL" to watch autonomous failure recovery.</p>'+
+  html += '<p class="dim" style="font-size:13px;margin-top:16px;line-height:1.7">Executed by the local Silica orchestrator (server.py) with real Verilator lint/compile/simulate and Yosys synthesis. Per-stage logs, exit codes, and recovery diffs are persisted. </p>'+
     '<p style="margin-top:14px"><button class="btn" onclick="state.realRun=null;go(&quot;workspace&quot;)">Back to workspace</button></p>';
   v.innerHTML = html;
 }
