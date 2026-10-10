@@ -13,6 +13,31 @@ import json, os, re, shutil, subprocess, threading, time, uuid, traceback
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, unquote
 
+# ---------------------------------------------------------------------------
+# Authentication (opt-in via SILICA_REQUIRE_AUTH=1). Production: replace
+# USERS dict + in-memory tokens with AWS DynamoDB (table silica-users).
+# ---------------------------------------------------------------------------
+import hashlib, secrets as _secrets
+AUTH_ENABLED = os.environ.get("SILICA_REQUIRE_AUTH", "") == "1"
+AUTH_USERS = {"webofjee@gmail.com": "Suhas@2007"}  # seeded admin user
+AUTH_TOKENS = {}  # token -> email
+def _auth_check(path, headers):
+    if not AUTH_ENABLED: return True, None
+    if path in ("/api/health", "/api/login", "/api/agents/health"): return True, None
+    h = headers.get("Authorization", "")
+    if h.startswith("Bearer "):
+        tok = h[7:]
+        if tok in AUTH_TOKENS: return True, AUTH_TOKENS[tok]
+    return False, None
+def _auth_login(email, password):
+    if AUTH_USERS.get(email) == password:
+        tok = _secrets.token_hex(24)
+        AUTH_TOKENS[tok] = email
+        return tok
+    return None
+
+
+
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(ROOT, "data", "projects")
 os.makedirs(DATA, exist_ok=True)
@@ -375,6 +400,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         u = urlparse(self.path); p = unquote(u.path)
+        ok, who = _auth_check(p, self.headers)
+        if not ok:
+            self._send(401, {"error": "unauthorized", "login": "/api/login"}); return
         if p == "/api/health":
             self._send(200, {"ok": True, "tools": TOOLS, "tools_available": TOOLS_AVAILABLE})
         elif p == "/api/agents/health":
@@ -431,6 +459,10 @@ class Handler(BaseHTTPRequestHandler):
         return self._send(200, {"chat_id": pid, "status": "running", "poll": "/api/chat/"+pid})
 
     def do_POST(self):
+        u = urlparse(self.path); p = unquote(u.path)
+        ok, who = _auth_check(p, self.headers)
+        if not ok:
+            self._send(401, {"error": "unauthorized", "login": "/api/login"}); return
         u = urlparse(self.path); p = unquote(u.path)
         length = int(self.headers.get("Content-Length", 0))
         body = self.rfile.read(length) if length else b"{}"

@@ -1,3 +1,22 @@
+
+// ---- Auth: attach token to every fetch, redirect to /login on 401 ----
+(function(){
+  const _of = window.fetch.bind(window);
+  window.fetch = function(url, opts){
+    opts = opts || {}; opts.headers = opts.headers || {};
+    const t = localStorage.getItem('silica_token');
+    if(t) opts.headers['Authorization'] = 'Bearer ' + t;
+    return _of(url, opts).then(function(r){
+      if(r.status === 401){ location.href = '/login'; }
+      return r;
+    });
+  };
+  // Gate: if no token, bounce to login (only on app pages, not login itself)
+  if(!localStorage.getItem('silica_token') && !location.pathname.startsWith('/login')){
+    location.href = '/login';
+  }
+})();
+
 /* ============================================================
    SILICA — Enterprise Workspace (frontend, prototype build)
    Client-side router + state + run engine. Run events are replayed
@@ -561,16 +580,16 @@ function pollRealRun(){
 }
 function renderRealRun(){
   var r=state.realRun; var v=$('#view-inner');
-  var stageNames=['lint','compile','make','simulate','synthesis'];
+  var stageNames=['lint','compile','make','simulate','synthesis','floorplan','placement','cts','routing','tapeout (GDSII)'];
   var st = r.status;
   var html = '<div class="run-head"><div><div class="eyebrow">REAL EDA EXECUTION - ORCHESTRATOR</div><h2>'+esc(r.name)+'</h2></div>'+
     '<div class="status-pill '+st+'">'+st+'</div></div>'+
     '<div class="pipeline" style="margin:18px 0">'+
-      stageNames.map(function(s){ return '<div class="stage"><div class="dot"></div><div class="sname">'+s+'</div></div>'; }).join('')+
+      stageNames.map(function(s,i){ var soon = i>=5; return '<div class="stage" style="'+(soon?'opacity:.45;':'')+'"><div class="dot"></div><div class="sname">'+s+(soon?' <span style="font-size:9px;color:#c49a5e;border:1px solid #c49a5e;border-radius:8px;padding:1px 5px;margin-left:4px">SOON</span>':'')+'</div></div>'; }).join('')+
     '</div>';
   if(r.blocker){ html += '<div style="color:var(--fail);border:1px solid var(--fail);padding:12px;border-radius:8px;margin:12px 0"><b>Blocker:</b> '+esc(r.blocker)+'</div>'; }
   if(st==='passed'){ html += '<div style="color:var(--ok);border:1px solid var(--ok);padding:12px;border-radius:8px;margin:12px 0"><b>All stages passed.</b> Real artifacts (gate-level netlist, synthesis database, report) stored on disk under data/projects/&lt;id&gt;/runs/. Download via /api/artifacts/&lt;run&gt;/&lt;name&gt;.</div>'; }
-  html += '<p class="dim" style="font-size:13px;margin-top:16px;line-height:1.7">Executed by the local Silica orchestrator (server.py) with real Verilator lint/compile/simulate and Yosys synthesis. Per-stage logs, exit codes, and recovery diffs are persisted. </p>'+
+  html += '<p class="dim" style="font-size:13px;margin-top:16px;line-height:1.7">Stages 1–5 execute on real EDA tools (Verilator + Yosys) with actual logs, exit codes, and artifacts. Stages 6–10 (floorplan through GDSII tapeout via OpenROAD + SkyWater PDK) are on the roadmap and will activate in a future release. </p>'+
     '<p style="margin-top:14px"><button class="btn" onclick="state.realRun=null;go(&quot;workspace&quot;)">Back to workspace</button></p>';
   v.innerHTML = html;
 }

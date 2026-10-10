@@ -36,6 +36,26 @@
   <button id="send">Run</button>
 </div>
 <script>
+
+// ---- Auth: attach token to every fetch, redirect to /login on 401 ----
+(function(){
+  const _of = window.fetch.bind(window);
+  window.fetch = function(url, opts){
+    opts = opts || {}; opts.headers = opts.headers || {};
+    const t = localStorage.getItem('silica_token');
+    if(t) opts.headers['Authorization'] = 'Bearer ' + t;
+    return _of(url, opts).then(function(r){
+      if(r.status === 401){ location.href = '/login'; }
+      return r;
+    });
+  };
+  // Gate: if no token, bounce to login (only on app pages, not login itself)
+  if(!localStorage.getItem('silica_token') && !location.pathname.startsWith('/login')){
+    location.href = '/login';
+  }
+})();
+
+
 const $=s=>document.querySelector(s);
 fetch('/api/health').then(r=>r.json()).then(d=>{$('#badge').textContent=d.tools_available?'LIVE EDA BACKEND':'frontend-only';$('#badge').style.color=d.tools_available?'var(--ok)':'var(--warn)';}).catch(()=>{$('#badge').textContent='backend offline';$('#badge').style.color='var(--fail)';});
 function addMsg(role,html){const d=document.createElement('div');d.className='msg '+role;d.innerHTML=html;$('#chat').appendChild(d);$('#chat').scrollTop=1e9;return d;}

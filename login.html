@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Silica — Sign in</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0c0a;color:#e6e1d6;font-family:'Instrument Sans',system-ui,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{background:#161411;border:1px solid #2a2722;border-radius:12px;padding:40px;width:380px}
+h1{font-size:22px;margin-bottom:6px;letter-spacing:.5px}
+.sub{color:#8a857a;font-size:13px;margin-bottom:28px}
+label{display:block;font-size:12px;color:#8a857a;margin:14px 0 6px}
+input{width:100%;padding:11px 12px;background:#0d0c0a;border:1px solid #2a2722;border-radius:6px;color:#e6e1d6;font-size:14px}
+input:focus{outline:none;border-color:#e07a3a}
+button{width:100%;margin-top:24px;padding:12px;background:#e07a3a;color:#0d0c0a;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer}
+button:hover{background:#ea8a4a}
+.err{color:#c46a5e;font-size:13px;margin-top:14px;display:none}
+.badge{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;background:#1c3a2a;color:#8fae6e;margin-bottom:16px}
+</style></head><body>
+<div class="card">
+  <span class="badge">LIVE EDA BACKEND</span>
+  <h1>Sign in to Silica</h1>
+  <p class="sub">AI Semiconductor Engineering Workspace</p>
+  <label>Email</label><input id="email" type="email" placeholder="you@company.com" value="webofjee@gmail.com">
+  <label>Password</label><input id="password" type="password" placeholder="••••••••">
+  <button id="btn">Sign in</button>
+  <div class="err" id="err">Invalid credentials. Try again.</div>
+</div>
+<script>
+document.getElementById('btn').onclick = async () => {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const r = await fetch('/api/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password})});
+  if (r.ok) { const d = await r.json(); localStorage.setItem('silica_token', d.token); localStorage.setItem('silica_email', d.email); location.href = '/app'; }
+  else { document.getElementById('err').style.display = 'block'; }
+};
+document.getElementById('password').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('btn').click(); });
+</script></body></html>
