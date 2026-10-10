@@ -16,8 +16,8 @@
   --color-dark-2: 85, 85, 85;
   --color-dark-3: 150, 150, 150;
   --color-light-1: 200, 200, 200;
-  --color-orange-1: 191, 109, 21;
-  --color-orange-2: 100, 50, 0;
+  --color-orange-1: 108, 140, 255;
+  --color-orange-2: 40, 55, 120;
   
   --bg-dark: rgb(var(--color-dark-1));
   --text-light: rgb(var(--color-light-1));
@@ -50,7 +50,7 @@
 }
 
 html, body {
-  font-family: 'B612 Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   background: var(--bg-dark);
   color: var(--text-light);
   font-synthesis: none !important;
@@ -146,7 +146,7 @@ ul {
 
 /* --- Typography --- */
 .font-inter {
-  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
 }
 
 .text-body {
@@ -165,7 +165,7 @@ ul {
 }
 
 .section-label {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
   font-size: calc(var(--s) * 11);
   font-weight: 600;
   color: var(--accent);
@@ -181,7 +181,7 @@ ul {
   padding: calc(var(--s) * 20);
   z-index: 100;
   pointer-events: none;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
 }
 
 .overlay-inner {
@@ -406,7 +406,7 @@ ul {
   letter-spacing: 0.08em;
   opacity: 0;
   animation: fadeIn 1s ease 1.5s forwards;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
 }
 
 @keyframes fadeIn {
@@ -455,7 +455,7 @@ ul {
 }
 
 .part-label {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
   font-size: calc(var(--s) * 12);
   font-weight: 600;
   color: var(--accent);
@@ -543,7 +543,7 @@ ul {
 
 .stages-header {
   padding: calc(var(--s) * 20) 0;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
   font-weight: 600;
   font-size: calc(var(--s) * 12);
   color: var(--text-light);
@@ -587,7 +587,7 @@ ul {
 .stage-node {
   font-size: calc(var(--s) * 12);
   color: var(--text-dim);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
 }
 
 .stage-line {
@@ -698,7 +698,7 @@ ul {
 }
 
 .film-label-name {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
   font-size: calc(var(--s) * 12);
   font-weight: 500;
   color: inherit;
@@ -782,7 +782,7 @@ ul {
 }
 
 .callout-label {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
   font-size: calc(var(--s) * 11);
   font-weight: 600;
   color: var(--accent);
@@ -815,7 +815,7 @@ ul {
 
 .config-header {
   padding: calc(var(--s) * 20) 0;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
   font-weight: 600;
   font-size: calc(var(--s) * 12);
   color: var(--text-light);
@@ -859,7 +859,7 @@ ul {
 .config-pitch {
   font-size: calc(var(--s) * 12);
   color: var(--text-dim);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
 }
 
 .config-line {
@@ -884,7 +884,7 @@ ul {
   font-size: calc(var(--s) * 11);
   line-height: 1.6;
   color: var(--text-muted);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
   font-style: italic;
   opacity: 0;
   transform: translateY(20px);
@@ -938,12 +938,12 @@ ul {
 .metric-unit {
   font-size: calc(var(--s) * 14);
   color: var(--accent);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
   font-weight: 500;
 }
 
 .metric-label {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
   font-size: calc(var(--s) * 12);
   font-weight: 600;
   color: var(--text-light);
@@ -1000,7 +1000,7 @@ ul {
 }
 
 .panel-title {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
   font-size: calc(var(--s) * 14);
   font-weight: 600;
   color: var(--text-light);
@@ -1027,7 +1027,7 @@ ul {
   margin-top: calc(var(--s) * 12);
   font-size: calc(var(--s) * 10);
   color: var(--text-muted);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
   position: relative;
 }
 
@@ -1076,7 +1076,7 @@ ul {
 
 .progress-pct {
   color: var(--accent);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
   font-weight: 500;
 }
 
@@ -1158,7 +1158,7 @@ ul {
 }
 
 .deliv-label {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
   font-size: calc(var(--s) * 11);
   font-weight: 600;
   color: var(--accent);
@@ -1200,7 +1200,7 @@ ul {
 }
 
 .footer-nav-label {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
   font-size: calc(var(--s) * 11);
   font-weight: 600;
   color: var(--accent);
@@ -1244,7 +1244,7 @@ ul {
   gap: calc(var(--s) * 16);
   font-size: calc(var(--s) * 11);
   color: var(--text-muted);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
 }
 
 /* --- Responsive --- */

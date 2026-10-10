@@ -186,7 +186,7 @@ function renderWorkspace(){
             <div class="p-node">${esc(p.node)}</div>
             <div class="p-time">${timeAgo(p.created)}</div>
             <div><span class="status ${p.lastStatus}"><span class="d"></span>${p.lastStatus}</span></div>
-            <div><span class="kicker" style="color:var(--amber)">Open →</span></div>
+            <div><span class="kicker" style="color:var(--accent)">Open →</span></div>
           </div>`).join('')}
       </div>
     </div>
@@ -257,7 +257,7 @@ function renderNew(){
       </div>
       <div class="start-bar">
         <div class="note">Starting a run dispatches the 10-stage engineering workflow. In this prototype the run view replays a recorded reference transcript.</div>
-        <button class="btn amber" id="np-start">Start engineering run →</button>
+        <button class="btn primary" id="np-start">Start engineering run →</button>
       </div>
     </div>
   </div>`;
@@ -480,7 +480,7 @@ function renderHistory(){
         <div class="p-node">${esc(p.node)}</div>
         <div class="p-time">${r.finishedAt?timeAgo(r.finishedAt):'—'}</div>
         <div><span class="status ${r.status}"><span class="d"></span>${r.status}</span></div>
-        <div><span class="kicker" style="color:var(--amber)">Inspect →</span></div>
+        <div><span class="kicker" style="color:var(--accent)">Inspect →</span></div>
       </div>`;
     }).join('')}
   </div>`;

@@ -274,7 +274,7 @@
       ctx.translate(cx, cy + tf.yShift);
 
       // DEBUG: Strong visible test
-      ctx.fillStyle = 'rgba(255, 100, 50, 0.8)';
+      ctx.fillStyle = 'rgba(255, 40, 55, 120.8)';
       ctx.beginPath();
       ctx.arc(0, 0, 30, 0, Math.PI * 2);
       ctx.fill();
@@ -283,9 +283,9 @@
       const glowR = baseSize * (1.5 + smoothScrollProgress * 0.5);
       const glowAlpha = 0.4 + smoothScrollProgress * 0.35;
       const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, glowR);
-      glow.addColorStop(0, `rgba(255, 140, 40, ${glowAlpha})`);
-      glow.addColorStop(0.3, `rgba(191, 109, 21, ${glowAlpha * 0.6})`);
-      glow.addColorStop(1, 'rgba(191, 109, 21, 0)');
+      glow.addColorStop(0, `rgba(140, 170, 255, ${glowAlpha})`);
+      glow.addColorStop(0.3, `rgba(108, 140, 255, ${glowAlpha * 0.6})`);
+      glow.addColorStop(1, 'rgba(108, 140, 255, 0)');
       ctx.fillStyle = glow;
       ctx.fillRect(-glowR, -glowR, glowR * 2, glowR * 2);
 
@@ -461,7 +461,7 @@
       ctx.strokeStyle = '#a0a8b8';
       ctx.lineWidth = 2;
       ctx.stroke();
-      ctx.strokeStyle = 'rgba(191, 109, 21, 0.5)';
+      ctx.strokeStyle = 'rgba(108, 140, 255, 0.5)';
       ctx.lineWidth = 1;
       ctx.stroke();
 
@@ -483,9 +483,9 @@
           
           if (rand > 0.75) {
             // Functional block - larger
-            ctx.fillStyle = `rgba(191, 109, 21, ${0.25 + rand * 0.15})`;
+            ctx.fillStyle = `rgba(108, 140, 255, ${0.25 + rand * 0.15})`;
             ctx.fillRect(x, y, cw, ch);
-            ctx.strokeStyle = `rgba(191, 109, 21, ${0.3 + rand * 0.2})`;
+            ctx.strokeStyle = `rgba(108, 140, 255, ${0.3 + rand * 0.2})`;
             ctx.lineWidth = 0.5;
             ctx.strokeRect(x, y, cw, ch);
           } else if (rand > 0.5) {
@@ -506,8 +506,8 @@
 
       blocks.forEach(block => {
         if (block.type === 'core') {
-          ctx.fillStyle = 'rgba(191, 109, 21, 0.35)';
-          ctx.strokeStyle = 'rgba(191, 109, 21, 0.7)';
+          ctx.fillStyle = 'rgba(108, 140, 255, 0.35)';
+          ctx.strokeStyle = 'rgba(108, 140, 255, 0.7)';
         } else {
           ctx.fillStyle = 'rgba(150, 155, 170, 0.2)';
           ctx.strokeStyle = 'rgba(180, 185, 200, 0.4)';
@@ -518,7 +518,7 @@
         
         // Internal grid
         ctx.strokeStyle = block.type === 'core' 
-          ? 'rgba(191, 109, 21, 0.2)' 
+          ? 'rgba(108, 140, 255, 0.2)' 
           : 'rgba(150, 155, 170, 0.15)';
         ctx.lineWidth = 0.5;
         ctx.beginPath();
@@ -533,7 +533,7 @@
       });
 
       // Seal ring (dashed near edge)
-      ctx.strokeStyle = 'rgba(191, 109, 21, 0.5)';
+      ctx.strokeStyle = 'rgba(108, 140, 255, 0.5)';
       ctx.lineWidth = 1;
       ctx.setLineDash([4, 3]);
       ctx.strokeRect(-halfW + 6, -halfH + 6, halfW * 2 - 12, halfH * 2 - 12);
@@ -593,7 +593,7 @@
       }
 
       // --- Wireframe outline on top ---
-      ctx.strokeStyle = `rgba(191, 109, 21, ${0.4 + smoothScrollProgress * 0.4})`;
+      ctx.strokeStyle = `rgba(108, 140, 255, ${0.4 + smoothScrollProgress * 0.4})`;
       ctx.lineWidth = 1.2;
       ctx.strokeRect(-halfW, -halfH, halfW * 2, halfH * 2);
       
@@ -614,7 +614,7 @@
       const b = bracketSize / 2;
       const bl = bracketSize * 0.2;
       const alpha = 0.12 + smoothScrollProgress * 0.1;
-      ctx.strokeStyle = `rgba(191, 109, 21, ${alpha})`;
+      ctx.strokeStyle = `rgba(108, 140, 255, ${alpha})`;
       ctx.lineWidth = 0.8;
       ctx.beginPath();
       ctx.moveTo(-b, -b + bl); ctx.lineTo(-b, -b); ctx.lineTo(-b + bl, -b);
