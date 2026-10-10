@@ -437,7 +437,7 @@ class Handler(BaseHTTPRequestHandler):
         try: payload = json.loads(body or b"{}")
         except Exception: payload = {}
         if p == "/api/chat":
-            return self._handle_chat(body)
+            return self._handle_chat(payload)
         elif p.startswith("/api/chat/"):
             cid = p.split("/")[-1]
             projs = list_projects()
