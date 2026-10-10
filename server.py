@@ -1,0 +1,393 @@
+#!/usr/bin/env python3
+"""
+SILICA — Autonomous Semiconductor Engineering Platform (backend orchestrator).
+
+Zero-dependency Python stdlib server. Serves the static frontend and executes a
+real EDA workflow with Verilator (lint / compile / simulate) and Yosys
+(synthesis), capturing actual commands, versions, exit codes, logs, artifacts,
+and autonomous failure-recovery evidence.
+
+Run:  python3 server.py   →  http://localhost:3000
+"""
+import json, os, re, shutil, subprocess, threading, time, uuid, traceback
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from urllib.parse import urlparse, unquote
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
+DATA = os.path.join(ROOT, "data", "projects")
+os.makedirs(DATA, exist_ok=True)
+
+# ---------------------------------------------------------------------------
+# Tool detection
+# ---------------------------------------------------------------------------
+def tool_version(cmd, args):
+    try:
+        out = subprocess.run([cmd]+args, capture_output=True, text=True, timeout=15)
+        return (out.stdout+out.stderr).strip().splitlines()[0]
+    except Exception as e:
+        return f"unavailable: {e}"
+
+TOOLS = {
+    "verilator": tool_version("verilator", ["--version"]),
+    "yosys": tool_version("yosys", ["-V"]),
+    "g++": tool_version("g++", ["--version"]),
+}
+TOOLS_AVAILABLE = all("unavailable" not in v for v in TOOLS.values())
+
+# ---------------------------------------------------------------------------
+# Sample RTL: a 4-bit up-counter with synchronous reset (working baseline)
+# ---------------------------------------------------------------------------
+SAMPLE_RTL = """// Silica sample design: 4-bit synchronous up-counter
+module counter #(parameter WIDTH=4) (
+  input  wire             clk,
+  input  wire             rst_n,
+  input  wire             en,
+  output reg  [WIDTH-1:0] count,
+  output wire             overflow
+);
+  assign overflow = & count;
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n)    count <= {WIDTH{1'b0}};
+    else if (en)   count <= count + 1'b1;
+  end
+endmodule
+"""
+
+# Broken variant: missing semicolon on line 8 + undeclared signal 'cnt' used.
+# Used to demonstrate real failure detection + autonomous recovery.
+BROKEN_RTL = """// Silica sample design (intentionally broken for recovery demo)
+module counter #(parameter WIDTH=4) (
+  input  wire             clk,
+  input  wire             rst_n,
+  input  wire             en,
+  output reg  [WIDTH-1:0] count,
+  output wire             overflow
+);
+  assign overflow = & cnt
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n)    count <= {WIDTH{1'b0}};
+    else if (en)   count <= count + 1'b1;
+  end
+endmodule
+"""
+
+TB = r"""// Silica auto-generated testbench
+#include "Vcounter.h"
+#include "verilated.h"
+int main(int argc, char** argv) {
+  Verilated::commandArgs(argc, argv);
+  Vcounter* top = new Vcounter;
+  top->rst_n = 0; top->clk = 0; top->en = 1;
+  int errors = 0; unsigned int expected = 0; int released = 0;
+  for (int cycle = 0; cycle < 48; cycle++) {
+    if (cycle == 4) { top->rst_n = 1; released = 1; expected = 1; }
+    top->clk = !top->clk; top->eval();
+    if (top->clk == 0 && released && cycle > 4) {
+      if (top->count != expected) {
+        printf("FAIL cycle %d: count=%d expected=%d\n", cycle, top->count, expected);
+        errors++;
+      }
+      expected = (expected + 1) & 0xF;
+    }
+  }
+  top->final(); delete top;
+  printf("SIM_DONE errors=%d\n", errors);
+  return errors ? 1 : 0;
+}
+"""
+
+YOSYS_SCRIPT = """# Silica synthesis script
+read_verilog {rtl}
+hierarchy -check -top counter
+synth -top counter
+stat
+write_verilog {netlist}
+write_json {json}
+"""
+
+# ---------------------------------------------------------------------------
+# Project / run persistence
+# ---------------------------------------------------------------------------
+def jread(p, default):
+    try:
+        with open(p) as f: return json.load(f)
+    except Exception: return default
+
+def jwrite(p, obj):
+    with open(p, "w") as f: json.dump(obj, f, indent=2)
+
+def list_projects():
+    out = []
+    for pid in sorted(os.listdir(DATA)) if os.path.isdir(DATA) else []:
+        meta = jread(os.path.join(DATA, pid, "project.json"), {})
+        runs = jread(os.path.join(DATA, pid, "runs.json"), [])
+        out.append({"id": pid, **meta, "runs": len(runs),
+                    "last_status": runs[-1]["status"] if runs else "none"})
+    return out
+
+def create_project(name, spec, rtl=None):
+    pid = uuid.uuid4().hex[:8]
+    pdir = os.path.join(DATA, pid); os.makedirs(pdir, exist_ok=True)
+    meta = {"name": name, "spec": spec, "created": time.time(),
+            "rtl": rtl if rtl is not None else SAMPLE_RTL}
+    jwrite(os.path.join(pdir, "project.json"), meta)
+    jwrite(os.path.join(pdir, "runs.json"), [])
+    return pid, meta
+
+# ---------------------------------------------------------------------------
+# RTL recovery agent: reads real Verilator error evidence, applies controlled
+# fixes in an isolated working copy, records what changed.
+# ---------------------------------------------------------------------------
+def diagnose_and_fix(rtl_text, error_log):
+    """Return (fixed_text or None, list_of_actions). Evidence-based only."""
+    import re as _re
+    actions = []
+    fixed = rtl_text.splitlines(keepends=True)
+    # 1. Missing semicolon on assign statements.
+    for i, ln in enumerate(fixed):
+        s = ln.strip()
+        if s.startswith("assign") and not s.endswith(";") and "//" not in s.split("assign")[0]:
+            fixed[i] = ln.rstrip("\n") + ";\n"
+            actions.append("line %d: inserted missing semicolon on assign statement" % (i+1))
+    cur = "".join(fixed)
+    # 2. Undeclared variable. Verilator 4.x: "Can't find definition of variable: 'cnt'"
+    #    often followed by "Suggested alternative: 'count'". Prefer the suggested rename.
+    undeclared = set(_re.findall(r"Can't find definition of variable:\s*'(\w+)'", error_log))
+    undeclared |= set(_re.findall(r"Undeclared signal:\s*'?(\w+)'?", error_log))
+    undeclared |= set(_re.findall(r"(\w+)\s+is not declared", error_log))
+    suggestions = _re.findall(r"Suggested alternative:\s*'(\w+)'", error_log)
+    if undeclared and suggestions:
+        for sig, sug in zip(sorted(undeclared), suggestions):
+            after = _re.sub(r"\b" + _re.escape(sig) + r"\b", sug, cur)
+            if after != cur:
+                cur = after
+                actions.append("replaced undeclared signal '%s' with Verilator-suggested '%s'" % (sig, sug))
+        fixed = cur.splitlines(keepends=True)
+    elif undeclared:
+        insert = []
+        for sig in undeclared:
+            insert.append("  wire [3:0] %s; // recovery: declared for undeclared signal\n" % sig)
+            actions.append("declared missing wire '%s' to resolve undeclared-signal error" % sig)
+        for i, ln in enumerate(fixed):
+            if ln.strip().endswith(");"):
+                for j, ins in enumerate(insert):
+                    fixed.insert(i+1+j, ins)
+                break
+    if not actions:
+        return None, []
+    return "".join(fixed), actions
+
+def run_stage(name, cmd, cwd, timeout=120):
+    t0 = time.time()
+    try:
+        p = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout)
+        dur = round(time.time()-t0, 2)
+        log = (p.stdout or "") + (p.stderr or "")
+        return {"name": name, "cmd": " ".join(cmd), "exit_code": p.returncode,
+                "duration_s": dur, "log": log, "status": "passed" if p.returncode == 0 else "failed"}
+    except subprocess.TimeoutExpired:
+        return {"name": name, "cmd": " ".join(cmd), "exit_code": -1, "duration_s": timeout,
+                "log": f"TIMEOUT after {timeout}s", "status": "failed"}
+    except Exception as e:
+        return {"name": name, "cmd": " ".join(cmd), "exit_code": -2, "duration_s": 0,
+                "log": f"exec error: {e}\n{traceback.format_exc()}", "status": "failed"}
+
+def execute_run(pid, rtl_override=None, max_recovery=2):
+    pdir = os.path.join(DATA, pid)
+    meta = jread(os.path.join(pdir, "project.json"), {})
+    rid = uuid.uuid4().hex[:8]
+    rdir = os.path.join(pdir, "runs", rid); os.makedirs(os.path.join(rdir, "logs"), exist_ok=True)
+    os.makedirs(os.path.join(rdir, "artifacts"), exist_ok=True)
+    run = {"id": rid, "project": pid, "started": time.time(), "status": "running",
+           "stages": [], "recovery": {"attempts": 0, "actions": [], "original_rtl": None},
+           "artifacts": [], "tools": dict(TOOLS)}
+    rtl = rtl_override if rtl_override is not None else meta.get("rtl", SAMPLE_RTL)
+    original_rtl = rtl
+    run["recovery"]["original_rtl"] = original_rtl
+
+    def save():
+        jwrite(os.path.join(rdir, "run.json"), run)
+        runs = jread(os.path.join(pdir, "runs.json"), [])
+        runs = [r for r in runs if r.get("id") != rid] + [
+            {"id": rid, "status": run["status"], "started": run["started"],
+             "stages": [s["name"]+":"+s["status"] for s in run["stages"]],
+             "recovered": run["recovery"]["attempts"] > 0}]
+        jwrite(os.path.join(pdir, "runs.json"), runs)
+    save()
+
+    work = os.path.join(rdir, "work"); os.makedirs(work, exist_ok=True)
+    rtl_file = os.path.join(work, "counter.v")
+    with open(rtl_file, "w") as f: f.write(rtl)
+
+    attempt = 0
+    while attempt <= max_recovery:
+        run["stages"] = []
+        # Stage 1: lint
+        s = run_stage("lint", ["verilator", "--lint-only", "-Wall", "counter.v"], work)
+        run["stages"].append(s)
+        with open(os.path.join(rdir, "logs", "lint.log"), "w") as f: f.write(s["log"])
+        if s["status"] == "failed":
+            if attempt < max_recovery:
+                fixed, actions = diagnose_and_fix(rtl, s["log"])
+                if fixed:
+                    attempt += 1
+                    run["recovery"]["attempts"] = attempt
+                    run["recovery"]["actions"].extend([f"attempt {attempt}: {a}" for a in actions])
+                    with open(os.path.join(rdir, "logs", f"recovery_{attempt}.diff"), "w") as f:
+                        f.write(f"=== Recovery attempt {attempt} ===\n" + "\n".join(actions))
+                    rtl = fixed
+                    with open(rtl_file, "w") as f: f.write(rtl)
+                    save()
+                    continue
+                else:
+                    run["status"] = "failed"; run["blocker"] = "lint errors not auto-recoverable; human intervention required"
+                    save(); return run
+            else:
+                run["status"] = "failed"; run["blocker"] = "lint failed after max recovery attempts"
+                save(); return run
+
+        # Stage 2: compile simulation (Verilator --cc --exe + make)
+        with open(os.path.join(work, "tb.cpp"), "w") as f: f.write(TB)
+        s = run_stage("compile", ["verilator", "--cc", "--exe", "counter.v", "tb.cpp", "-Mdir", "obj_dir"], work)
+        run["stages"].append(s)
+        with open(os.path.join(rdir, "logs", "compile.log"), "w") as f: f.write(s["log"])
+        if s["status"] == "failed":
+            run["status"] = "failed"; run["blocker"] = "verilator compile failed"; save(); return run
+        s = run_stage("make", ["make", "-C", "obj_dir", "-f", "Vcounter.mk", "Vcounter"], work)
+        run["stages"].append(s)
+        with open(os.path.join(rdir, "logs", "make.log"), "w") as f: f.write(s["log"])
+        if s["status"] == "failed":
+            run["status"] = "failed"; run["blocker"] = "C++ build of simulator failed"; save(); return run
+
+        # Stage 3: simulate
+        s = run_stage("simulate", ["./obj_dir/Vcounter"], work)
+        run["stages"].append(s)
+        with open(os.path.join(rdir, "logs", "simulate.log"), "w") as f: f.write(s["log"])
+        sim_pass = s["status"] == "passed" and "SIM_DONE errors=0" in s["log"]
+        if not sim_pass:
+            run["status"] = "failed"; run["blocker"] = "functional simulation mismatch (see simulate.log)"; save(); return run
+
+        # Stage 4: synthesis (Yosys)
+        netlist = os.path.join(rdir, "artifacts", "counter_netlist.v")
+        jsyn = os.path.join(rdir, "artifacts", "counter_synth.json")
+        script = YOSYS_SCRIPT.format(rtl=rtl_file, netlist=netlist, json=jsyn)
+        with open(os.path.join(work, "synth.ys"), "w") as f: f.write(script)
+        s = run_stage("synthesis", ["yosys", "-s", "synth.ys"], work)
+        run["stages"].append(s)
+        with open(os.path.join(rdir, "logs", "synthesis.log"), "w") as f: f.write(s["log"])
+        if s["status"] == "failed":
+            run["status"] = "failed"; run["blocker"] = "yosys synthesis failed"; save(); return run
+        # extract cell/area stats from yosys log
+        stats = "\n".join(l for l in s["log"].splitlines() if "Number of" in l or "Chip area" in l)
+
+        # Stage 5: report
+        report = {
+            "run_id": rid, "project": meta.get("name"), "status": "passed",
+            "recovered": attempt > 0, "recovery_actions": run["recovery"]["actions"],
+            "stages": [{k: s[k] for k in ("name","exit_code","duration_s","status")} for s in run["stages"]],
+            "synthesis_stats": stats,
+            "artifacts": ["counter_netlist.v (gate-level netlist)", "counter_synth.json (synthesis database)"],
+            "signoff_note": "Functional simulation passed and gate-level netlist generated. "
+                            "This is NOT physical signoff: no placement/routing, DRC/LVS, or timing signoff performed.",
+            "tools": dict(TOOLS),
+        }
+        jwrite(os.path.join(rdir, "artifacts", "report.json"), report)
+        with open(os.path.join(rdir, "artifacts", "counter.v.final"), "w") as f: f.write(rtl)
+        run["artifacts"] = ["counter_netlist.v", "counter_synth.json", "report.json", "counter.v.final"]
+        run["status"] = "passed"
+        run["synthesis_stats"] = stats
+        save()
+        return run
+    run["status"] = "failed"; run["blocker"] = "exceeded max recovery attempts"; save()
+    return run
+
+# ---------------------------------------------------------------------------
+# HTTP handler
+# ---------------------------------------------------------------------------
+class Handler(BaseHTTPRequestHandler):
+    def log_message(self, *a): pass
+
+    def _send(self, code, body, ctype="application/json"):
+        data = body if isinstance(body, bytes) else json.dumps(body).encode()
+        self.send_response(code); self.send_header("Content-Type", ctype)
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Access-Control-Allow-Origin", "*"); self.end_headers()
+        self.wfile.write(data)
+
+    def _static(self, path):
+        if path == "/": path = "/index.html"
+        fp = os.path.join(ROOT, path.lstrip("/"))
+        if not os.path.isfile(fp) or ".." in path:
+            self._send(404, {"error": "not found"}, "text/plain"); return
+        ctype = {"html":"text/html","css":"text/css","js":"application/javascript",
+                 "svg":"image/svg+xml","json":"application/json"}.get(fp.split(".")[-1], "application/octet-stream")
+        with open(fp, "rb") as f: data = f.read()
+        self.send_response(200); self.send_header("Content-Type", ctype)
+        self.send_header("Content-Length", str(len(data))); self.end_headers(); self.wfile.write(data)
+
+    def do_GET(self):
+        u = urlparse(self.path); p = unquote(u.path)
+        if p == "/api/health":
+            self._send(200, {"ok": True, "tools": TOOLS, "tools_available": TOOLS_AVAILABLE})
+        elif p == "/api/projects":
+            self._send(200, {"projects": list_projects()})
+        elif p.startswith("/api/runs/"):
+            rid = p.split("/")[-1]
+            for pid in os.listdir(DATA):
+                rp = os.path.join(DATA, pid, "runs", rid, "run.json")
+                if os.path.isfile(rp):
+                    self._send(200, jread(rp, {})); return
+            self._send(404, {"error": "run not found"})
+        elif p.startswith("/api/artifacts/"):
+            parts = p.strip("/").split("/")
+            if len(parts) >= 4:
+                rid, name = parts[2], parts[3]
+                for pid in os.listdir(DATA):
+                    fp = os.path.join(DATA, pid, "runs", rid, "artifacts", name)
+                    if os.path.isfile(fp):
+                        with open(fp, "rb") as f: data = f.read()
+                        self.send_response(200); self.send_header("Content-Type","application/octet-stream")
+                        self.send_header("Content-Disposition", f'attachment; filename="{name}"')
+                        self.send_header("Content-Length", str(len(data))); self.end_headers(); self.wfile.write(data); return
+            self._send(404, {"error": "artifact not found"})
+        elif p.startswith("/api/logs/"):
+            parts = p.strip("/").split("/")
+            if len(parts) >= 4:
+                rid, name = parts[2], parts[3]
+                for pid in os.listdir(DATA):
+                    fp = os.path.join(DATA, pid, "runs", rid, "logs", name)
+                    if os.path.isfile(fp):
+                        with open(fp) as f: self._send(200, {"log": f.read()}); return
+            self._send(404, {"error": "log not found"})
+        else:
+            self._static(p)
+
+    def do_POST(self):
+        u = urlparse(self.path); p = unquote(u.path)
+        length = int(self.headers.get("Content-Length", 0))
+        body = self.rfile.read(length) if length else b"{}"
+        try: payload = json.loads(body or b"{}")
+        except Exception: payload = {}
+        if p == "/api/projects":
+            pid, meta = create_project(payload.get("name","untitled"), payload.get("spec",""), payload.get("rtl"))
+            self._send(200, {"id": pid, **meta})
+        elif p.startswith("/api/projects/") and p.endswith("/run"):
+            pid = p.split("/")[3]
+            pdir = os.path.join(DATA, pid)
+            if not os.path.isdir(pdir): self._send(404, {"error": "project not found"}); return
+            rtl = payload.get("rtl")
+            use_broken = payload.get("demo_broken", False)
+            if use_broken: rtl = BROKEN_RTL
+            threading.Thread(target=execute_run, args=(pid, rtl), daemon=True).start()
+            self._send(200, {"status": "started", "project": pid})
+        else:
+            self._send(404, {"error": "unknown endpoint"})
+
+    def do_OPTIONS(self):
+        self.send_response(204); self.send_header("Access-Control-Allow-Origin","*")
+        self.send_header("Access-Control-Allow-Methods","GET,POST"); self.send_header("Access-Control-Allow-Headers","Content-Type"); self.end_headers()
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 3000))
+    print(f"Silica orchestrator running on http://localhost:{port}  (tools: {', '.join(TOOLS)})")
+    HTTPServer(("0.0.0.0", port), Handler).serve_forever()

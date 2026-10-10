@@ -21,6 +21,7 @@ const state = {
   openedRunId: null,
   files: [],             // pending upload in new-design form
   selNode: 'TSMC 16nm FinFET (illustrative)',
+  backend:false, backendTools:{}, realRun:null,
 };
 const LS_KEY = 'silica_state_v1';
 function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({projects:state.projects, runs:state.runs})); }catch(e){} }
@@ -200,7 +201,7 @@ function renderWorkspace(){
       </div>
       <div class="card" style="margin-top:16px">
         <div class="card-head"><h3>Engineering note</h3></div>
-        <p class="dim" style="font-size:13px;line-height:1.7">This is a <b style="color:var(--warn)">prototype frontend build</b>. Run views replay a recorded reference transcript to illustrate the live experience; no EDA backend is connected. Physical fabrication is performed externally by foundry partners.</p>
+        <p class="dim" style="font-size:13px;line-height:1.7">When served by the local orchestrator (<code>python3 server.py</code>), runs execute REAL EDA tools (Verilator + Yosys) with actual logs, exit codes, autonomous failure recovery, and persisted artifacts. Static deployments replay a recorded transcript. Physical fabrication is performed externally by foundry partners.</p>
       </div>
     </div>
   </div>`;
@@ -256,7 +257,7 @@ function renderNew(){
         </div>
       </div>
       <div class="start-bar">
-        <div class="note">Starting a run dispatches the 10-stage engineering workflow. In this prototype the run view replays a recorded reference transcript.</div>
+        <div id="backend-opts" style="margin:14px 0;padding:14px;border:1px solid var(--line);border-radius:8px"><label style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><input type="checkbox" id="np-real" checked> <span>Execute on REAL EDA backend (Verilator + Yosys)</span></label><label style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><input type="checkbox" id="np-broken"> <span>Demo: submit broken RTL to show autonomous failure recovery</span></label><textarea id="np-rtl" placeholder="Optional: paste your own Verilog RTL (defaults to sample 4-bit counter)" style="width:100%;min-height:90px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:10px;font-family:var(--mono);font-size:12px;box-sizing:border-box"></textarea></div><div class="note" id="np-note">Starting a run dispatches the engineering workflow.</div>
         <button class="btn primary" id="np-start">Start engineering run →</button>
       </div>
     </div>
@@ -302,6 +303,7 @@ function startRun(){
   let name = brief.split(/[,\.\n]/)[0].trim();
   if(name.length>34){ name=name.slice(0,34); const sp=name.lastIndexOf(' '); if(sp>12) name=name.slice(0,sp); }
   name = name || 'Untitled design';
+  if(state.backend && $('#np-real') && $('#np-real').checked){ startRealRun(name, brief); return; }
   const id='p_'+Date.now().toString(36), rid='r_'+Date.now().toString(36);
   state.projects.unshift({id, name, brief, node:$('#np-node').value, created:Date.now(), lastStatus:'running', runId:rid});
   state.runs[rid]={projectId:id, status:'running', artifacts:[], metrics:[], recoveries:0};
@@ -314,6 +316,7 @@ function startRun(){
 /* ---------------- Run view ---------------- */
 function renderRun(){
   const v=$('#view-inner');
+  if(state.realRun){ renderRealRun(); return; }
   const running = engine.playing && state.activeRunId;
   const runId = state.activeRunId || state.openedRunId || (state.projects[0]&&state.projects[0].runId);
   const run = state.runs[runId];
@@ -529,5 +532,64 @@ document.addEventListener('click', e=>{
 });
 
 /* ---------------- Boot ---------------- */
+/* ---------------- Real EDA backend integration (server.py) ---------------- */
+function checkBackend(){
+  fetch('/api/health').then(r=>r.json()).then(d=>{
+    if(d && d.tools_available){ state.backend=true; state.backendTools=d.tools; }
+    var b=document.querySelector('.proto-badge, .badge.proto, .sidebar .badge');
+    if(b){ b.textContent = state.backend ? 'LIVE EDA BACKEND' : 'PROTOTYPE - FRONTEND ONLY';
+           b.style.color = state.backend ? 'var(--ok)' : 'var(--warn)'; }
+    var bo=document.getElementById('backend-opts'); if(bo){ bo.style.display = state.backend ? 'block':'none'; }
+    var nn=document.getElementById('np-note'); if(nn){ nn.textContent = state.backend ? 'Starting a run executes the REAL EDA workflow (Verilator + Yosys) with actual logs, exit codes, and artifacts.' : 'Starting a run dispatches the workflow. In this prototype the run view replays a recorded reference transcript.'; }
+  }).catch(function(){});
+}
+var realPoll=null;
+function startRealRun(name, brief){
+  var demoBroken = $('#np-broken') && $('#np-broken').checked;
+  var rtl = $('#np-rtl') ? $('#np-rtl').value.trim() : null;
+  go('run');
+  state.realRun={name:name, status:'starting', projectId:null, recovery:[], artifacts:[], blocker:null};
+  render();
+  var body = {name:name, spec:brief}; if(rtl) body.rtl = rtl;
+  fetch('/api/projects',{method:'POST',headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)})
+  .then(function(r){return r.json();}).then(function(p){
+    state.realRun.projectId=p.id;
+    var rb = {demo_broken: demoBroken}; if(rtl) rb.rtl = rtl;
+    return fetch('/api/projects/'+p.id+'/run',{method:'POST',headers:{'Content-Type':'application/json'}, body:JSON.stringify(rb)});
+  }).then(function(){
+    toast('Real run started', name+' - executing Verilator + Yosys.');
+    state.realRun.status='running'; render();
+    realPoll=setInterval(pollRealRun, 1500);
+  }).catch(function(e){ state.realRun.status='error'; state.realRun.blocker=String(e); render(); });
+}
+function pollRealRun(){
+  if(!state.realRun || !state.realRun.projectId){ return; }
+  fetch('/api/projects').then(function(r){return r.json();}).then(function(d){
+    var p=(d.projects||[]).find(function(x){return x.id===state.realRun.projectId;});
+    if(!p) return;
+    if(p.last_status==='running'){ if(state.realRun.status!=='running'){ state.realRun.status='running'; render(); } return; }
+    clearInterval(realPoll); realPoll=null;
+    state.realRun.status=p.last_status;
+    state.realRun.recovered = (p.runs||0)>0;
+    render();
+  }).catch(function(){});
+}
+function renderRealRun(){
+  var r=state.realRun; var v=$('#view-inner');
+  var stageNames=['lint','compile','make','simulate','synthesis'];
+  var st = r.status;
+  var html = '<div class="run-head"><div><div class="eyebrow">REAL EDA EXECUTION - ORCHESTRATOR</div><h2>'+esc(r.name)+'</h2></div>'+
+    '<div class="status-pill '+st+'">'+st+'</div></div>'+
+    '<div class="pipeline" style="margin:18px 0">'+
+      stageNames.map(function(s){ return '<div class="stage"><div class="dot"></div><div class="sname">'+s+'</div></div>'; }).join('')+
+    '</div>';
+  if(r.blocker){ html += '<div style="color:var(--fail);border:1px solid var(--fail);padding:12px;border-radius:8px;margin:12px 0"><b>Blocker:</b> '+esc(r.blocker)+'</div>'; }
+  if(st==='passed'){ html += '<div style="color:var(--ok);border:1px solid var(--ok);padding:12px;border-radius:8px;margin:12px 0"><b>All stages passed.</b> Real artifacts (gate-level netlist, synthesis database, report) stored on disk under data/projects/&lt;id&gt;/runs/. Download via /api/artifacts/&lt;run&gt;/&lt;name&gt;.</div>'; }
+  html += '<p class="dim" style="font-size:13px;margin-top:16px;line-height:1.7">Executed by the local Silica orchestrator (server.py) with real Verilator lint/compile/simulate and Yosys synthesis. Per-stage logs, exit codes, and recovery diffs are persisted. Demo: check "submit broken RTL" to watch autonomous failure recovery.</p>'+
+    '<p style="margin-top:14px"><button class="btn" onclick="state.realRun=null;go(&quot;workspace&quot;)">Back to workspace</button></p>';
+  v.innerHTML = html;
+}
+checkBackend();
+
 render();
 })();

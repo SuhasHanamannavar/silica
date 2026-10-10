@@ -1,59 +1,79 @@
-# SILICA
+# SILICA — Autonomous Semiconductor Engineering Platform
 
-**Semiconductor Design Platform**
+Silica is an autonomous AI engineering platform that helps engineers design, verify,
+synthesize, and prepare digital chip designs for manufacturing. Physical fabrication
+is performed by an external foundry.
 
-A precision semiconductor design environment that guides a digital specification through every stage of physical implementation — from RTL to tapeout.
+## What works today (real, tested)
 
-## About
+A working end-to-end path for small digital circuits, executed by **real EDA tools**
+(no simulated results):
 
-Silica transforms abstract hardware descriptions into manufacturable geometry. Each stage of the flow is instrumented, verified, and visually traceable — giving design teams the transparency needed to close timing, meet power budgets, and achieve yield targets on advanced process nodes.
+1. **Lint** — `verilator --lint-only -Wall` (real warnings/errors captured).
+2. **Compile** — `verilator --cc --exe` + `make` (g++ build of C++ simulator).
+3. **Simulate** — auto-generated testbench checks the counter sequence; pass/fail
+   reported from actual simulation output.
+4. **Synthesis** — `yosys synth` produces a gate-level netlist (`counter_netlist.v`),
+   synthesis database (`counter_synth.json`), and cell/area statistics.
+5. **Report** — reproducible `report.json` with commands, versions, exit codes,
+   durations, artifacts, and an explicit signoff note.
 
-## Design Flow
+### Autonomous failure recovery (demonstrated)
 
-1. **Specification** — Architectural and microarchitectural definition
-2. **RTL Design** — Hardware description in Verilog/VHDL/SystemVerilog
-3. **Functional Verification** — UVM testbenches, formal methods, coverage closure
-4. **Synthesis** — Technology mapping to standard cell libraries
-5. **Floorplanning** — Die-level partitioning and macro placement
-6. **Placement** — Standard cell legalization and optimization
-7. **Routing** — Global and detailed interconnect
-8. **Timing Analysis** — Static timing analysis across all process corners
-9. **Physical Verification** — DRC, LVS, antenna, and ERC checks
-10. **Tapeout Preparation** — GDSII/OASIS generation and foundry handoff
+Submit intentionally-broken RTL (missing semicolon + undeclared signal `cnt`).
+The RTL agent reads the **actual Verilator error evidence**, applies controlled
+fixes in an isolated working copy (insert missing semicolon; rename `cnt` to
+Verilator-suggested `count`), retries only the affected stages, and records every
+action. Both the broken→recovered run and the clean baseline run pass all five
+stages. Failed attempts are preserved on disk.
 
-## Process Technologies (Illustrative)
+### Persistence and observability
 
-- TSMC 16nm FinFET — 48nm pitch
-- TSMC 7nm FinFET — 36nm pitch  
-- TSMC 5nm FinFET — 28nm pitch
-- Samsung 3nm GAA — 21nm pitch
-- Intel 18A — 18nm pitch
+Every run is stored under `data/projects/<id>/runs/<rid>/`:
+`run.json`, `logs/{lint,compile,make,simulate,synthesis}.log`,
+`recovery_*.diff`, `artifacts/{counter_netlist.v, counter_synth.json, report.json,
+counter.v.final}`. Every reported result traces to real execution evidence.
 
-## Architecture
-
-This is a static website built with:
-- **HTML5** — Semantic structure
-- **CSS3** — Custom design system matching reference visual language
-- **Vanilla JavaScript** — Scroll-driven animations, canvas visualization, telemetry
-- **SVG** — Semiconductor die and layer visualizations
-
-## Local Development
+## Run it
 
 ```bash
-# Serve locally
-python3 -m http.server 3000
-
-# Then open http://localhost:3000
+# requires: verilator, yosys, g++, make  (apt install verilator yosys build-essential)
+python3 server.py
+# open http://localhost:3000  ->  Workspace -> New Design -> check "Execute on REAL EDA backend"
+# optionally check "Demo: submit broken RTL" to watch autonomous failure recovery.
 ```
 
-## Deployment
+The server serves the static frontend and the `/api/*` orchestrator on the same
+port (no CORS issues). Static-only deployments (e.g. Vercel) gracefully fall back
+to the recorded-transcript demo.
 
-Deployed on Vercel as a static site.
+## API
 
-## Note
+- `GET  /api/health` — tool versions + availability.
+- `POST /api/projects` — `{name, spec, rtl?}`.
+- `POST /api/projects/<id>/run` — `{rtl?, demo_broken?}` starts a threaded run.
+- `GET  /api/projects` — project list with last-run status.
+- `GET  /api/runs/<rid>` — full run detail (stages, recovery, artifacts).
+- `GET  /api/artifacts/<rid>/<name>` — download artifact.
+- `GET  /api/logs/<rid>/<name>` — stage log.
 
-Silica prepares designs for external semiconductor fabrication. The platform itself does not manufacture silicon wafers — manufacturing is performed by third-party foundry partners.
+## Deliberate limitations (honestly labeled)
 
----
+- **No physical design.** No OpenROAD floorplan/place/route, no timing signoff, no
+  DRC/LVS, no GDSII. A passing simulation is **not** physical signoff; a generated
+  netlist is **not** fabrication-ready. The report states this explicitly.
+- Recovery handles a narrow, evidence-based set of RTL errors (missing semicolon,
+  undeclared signal with Verilator suggestion). Beyond that it stops and requests
+  human intervention.
+- Single-clock, small designs only. No constraint files, no power analysis, no
+  multi-clock CDC verification.
+- Vercel (static) cannot run EDA tools; real execution requires the local
+  `server.py`. The deployed site falls back to the recorded demo.
 
-© 2026 Silica Design Systems
+## Next priorities
+
+1. OpenROAD integration (floorplan -> placement -> routing -> DEF/LEF).
+2. STA (OpenSTA) timing reports with real slacks.
+3. Run comparison view and per-stage log streaming in the UI.
+4. Constraint editor (SDC) and multi-clock CDC checks.
+5. User auth + per-project artifact storage.

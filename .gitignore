@@ -1,26 +1,4 @@
-# Dependencies
-node_modules/
-.pnp
-.pnp.js
-
-# Testing
-coverage/
-
-# Production
-build/
-dist/
-
-# Misc
-.DS_Store
-.env
-.env.local
-.env.*.local
-
-# Vercel
-.vercel
-
-# Editor
-.vscode/
-.idea/
-*.swp
-*.swo
+data/projects/
+__pycache__/
+*.pyc
+server.log
