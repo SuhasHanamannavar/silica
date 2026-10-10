@@ -1,0 +1,16 @@
+{
+  "name": "silica",
+  "version": "1.0.0",
+  "description": "SILICA — Semiconductor Design Platform. A precision chip-design environment taking RTL through tapeout.",
+  "scripts": {
+    "dev": "python3 -m http.server 3000",
+    "start": "python3 -m http.server 80"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SuhasHanamannavar/silica.git"
+  },
+  "keywords": ["semiconductor", "chip-design", "rtl", "tapeout", "silica"],
+  "author": "Silica Design Systems",
+  "license": "MIT"
+}

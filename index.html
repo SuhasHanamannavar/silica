@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23141414'/><path d='M8 8h16v16H8z' fill='none' stroke='%23BF6D15' stroke-width='1.5'/><path d='M12 12h8v8h-8z' fill='none' stroke='%23C8C8C8' stroke-width='1'/><line x1='4' y1='16' x2='8' y2='16' stroke='%23555' stroke-width='1'/><line x1='24' y1='16' x2='28' y2='16' stroke='%23555' stroke-width='1'/><line x1='16' y1='4' x2='16' y2='8' stroke='%23555' stroke-width='1'/><line x1='16' y1='24' x2='16' y2='28' stroke='%23555' stroke-width='1'/></svg>">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SILICA — Semiconductor Design Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=B612+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="scroll-container">
+    <div id="scroll-content">
+      <div data-scrollable-content>
+
+        <!-- Fixed UI Overlay -->
+        <div class="fixed-overlay">
+          <div class="overlay-inner">
+            <div class="telemetry-left">
+              <p id="fps-count">00fps</p>
+              <p id="resolution">0x0</p>
+            </div>
+            <div class="telemetry-right">
+              <div class="status-dot"></div>
+              <p id="timer">00:00:00</p>
+            </div>
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+            <div class="center-crosshair">
+              <span class="ch-h"></span>
+              <span class="ch-v"></span>
+            </div>
+            <div id="scroller" class="scroll-indicator">
+              <div class="scroll-track">
+                <span id="scroller-cursor" class="scroll-cursor"></span>
+              </div>
+              <div class="scroll-pins">
+                <span class="pin tall"></span>
+                <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
+                <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
+                <span class="pin tall"></span>
+                <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
+                <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
+                <span class="pin tall"></span>
+                <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
+                <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
+                <span class="pin tall"></span>
+                <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
+                <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HERO SECTION - 700vh tall for scroll experience -->
+        <div class="hero-section">
+          <div class="hero-inner">
+            <div class="hero-canvas-container">
+              <canvas id="silica-canvas"></canvas>
+            </div>
+            <div class="hero-content">
+              <h1 class="hero-title" data-animation="title">
+                <span class="title-line">SILICA</span>
+              </h1>
+              
+              <div class="hero-parts-section">
+                <!-- Part label 1 - right aligned -->
+                <div class="design-grid part-row">
+                  <div class="part-text col-2-6" data-reveal>
+                    <p>Silica is a precision semiconductor design environment that guides a digital specification through every stage of physical implementation — from RTL to tapeout. Built for engineers who require absolute control over every transistor, every connection, and every square micron of silicon.</p>
+                  </div>
+                  <div class="part-label col-7-12">
+                    <span data-part-label="die" class="part-label-item">
+                      <span class="dashed-line"></span>
+                      <span class="label-text">silicon die</span>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Part label 2 - left aligned -->
+                <div class="design-grid part-row">
+                  <div class="part-text col-8-12 right" data-reveal>
+                    <p>The platform transforms abstract hardware descriptions into manufacturable geometry. Each stage of the flow is instrumented, verified, and visually traceable — giving design teams the transparency needed to close timing, meet power budgets, and achieve yield targets on advanced process nodes.</p>
+                  </div>
+                  <div class="part-label col-1-7 left">
+                    <span data-part-label="transistor" class="part-label-item">
+                      <span class="label-text">transistor array</span>
+                      <span class="dashed-line"></span>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Part label 3 -->
+                <div class="design-grid part-row">
+                  <div class="part-label col-1-7 left">
+                    <span data-part-label="interconnect" class="part-label-item">
+                      <span class="label-text">metal interconnect</span>
+                      <span class="dashed-line"></span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Spacer -->
+        <div class="vh-100"></div>
+
+        <!-- SECTION B: SEMICONDUCTOR STORYTELLING - Workflow -->
+        <section class="section-workflow px-grid">
+          <div class="design-grid workflow-grid">
+            <div class="workflow-intro col-2-5" data-reveal>
+              <p class="section-label">— Design Flow</p>
+              <p>A semiconductor design progresses through a meticulously ordered sequence of transformations. Each stage refines the representation from abstract intent toward physical reality, with verification gates ensuring correctness at every boundary. Silica instruments this entire pipeline, making the invisible visible.</p>
+            </div>
+            <div class="workflow-intro col-9-12" data-reveal>
+              <p>The journey from specification to silicon demands both algorithmic rigor and engineering judgment. Silica provides the environment where these two disciplines converge — offering automated implementation alongside the manual controls that experienced designers rely upon for critical-path optimization.</p>
+            </div>
+
+            <!-- Workflow stages list -->
+            <div class="workflow-stages col-1-13">
+              <div class="stages-header grid-5">
+                <p class="col-2-5">Stage</p>
+                <p class="col-5-6 end">Node</p>
+              </div>
+              <div class="stages-divider"></div>
+              
+              <div class="stage-row grid-5" data-reveal>
+                <p class="col-1-2 stage-num">01.</p>
+                <p class="col-2-5 stage-name">Specification</p>
+                <p class="col-5-6 end stage-node">—</p>
+                <div class="stage-line"></div>
+              </div>
+              <div class="stage-row grid-5" data-reveal>
+                <p class="col-1-2 stage-num">02.</p>
+                <p class="col-2-5 stage-name">RTL Design</p>
+                <p class="col-5-6 end stage-node">HDL</p>
+                <div class="stage-line"></div>
+              </div>
+              <div class="stage-row grid-5" data-reveal>
+                <p class="col-1-2 stage-num">03.</p>
+                <p class="col-2-5 stage-name">Functional Verification</p>
+                <p class="col-5-6 end stage-node">UVM</p>
+                <div class="stage-line"></div>
+              </div>
+              <div class="stage-row grid-5" data-reveal>
+                <p class="col-1-2 stage-num">04.</p>
+                <p class="col-2-5 stage-name">Synthesis</p>
+                <p class="col-5-6 end stage-node">Gate</p>
+                <div class="stage-line"></div>
+              </div>
+              <div class="stage-row grid-5" data-reveal>
+                <p class="col-1-2 stage-num">05.</p>
+                <p class="col-2-5 stage-name">Floorplanning</p>
+                <p class="col-5-6 end stage-node">Die</p>
+                <div class="stage-line"></div>
+              </div>
+              <div class="stage-row grid-5" data-reveal>
+                <p class="col-1-2 stage-num">06.</p>
+                <p class="col-2-5 stage-name">Placement</p>
+                <p class="col-5-6 end stage-node">μm</p>
+                <div class="stage-line"></div>
+              </div>
+              <div class="stage-row grid-5" data-reveal>
+                <p class="col-1-2 stage-num">07.</p>
+                <p class="col-2-5 stage-name">Routing</p>
+                <p class="col-5-6 end stage-node">Metal</p>
+                <div class="stage-line"></div>
+              </div>
+              <div class="stage-row grid-5" data-reveal>
+                <p class="col-1-2 stage-num">08.</p>
+                <p class="col-2-5 stage-name">Timing Analysis</p>
+                <p class="col-5-6 end stage-node">ps</p>
+                <div class="stage-line"></div>
+              </div>
+              <div class="stage-row grid-5" data-reveal>
+                <p class="col-1-2 stage-num">09.</p>
+                <p class="col-2-5 stage-name">Physical Verification</p>
+                <p class="col-5-6 end stage-node">DRC</p>
+                <div class="stage-line"></div>
+              </div>
+              <div class="stage-row grid-5" data-reveal>
+                <p class="col-1-2 stage-num">10.</p>
+                <p class="col-2-5 stage-name">Tapeout Preparation</p>
+                <p class="col-5-6 end stage-node">GDSII</p>
+                <div class="stage-line"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION C: CHIP ANATOMY -->
+        <section class="section-anatomy">
+          <div class="design-grid anatomy-grid px-grid">
+            <div class="anatomy-title col-2-6" data-reveal>
+              <p class="section-label">— Die Architecture</p>
+              <h2 class="anatomy-heading">Layered<br/>Silicon</h2>
+            </div>
+            <div class="anatomy-desc col-8-12" data-reveal>
+              <p>A modern semiconductor die is a vertically stacked system of extraordinary complexity. Beneath the surface, multiple layers of patterned metal interconnect form a dense transportation network, routing signals between billions of transistors arranged in standard-cell rows. Power distribution grids, clock trees, and I/O structures complete the architecture — each layer precisely engineered to meet timing, power, and signal integrity constraints.</p>
+            </div>
+
+            <!-- Layered visualization -->
+            <div class="anatomy-visual col-1-13">
+              <div class="layer-stack">
+                <div class="layer layer-1" data-layer="protective">
+                  <div class="layer-visual">
+                    <svg viewBox="0 0 800 300" preserveAspectRatio="none">
+                      <defs>
+                        <pattern id="pattern1" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                          <rect width="40" height="40" fill="rgba(191,109,21,0.03)"/>
+                          <line x1="0" y1="0" x2="40" y2="40" stroke="rgba(191,109,21,0.15)" stroke-width="0.5"/>
+                        </pattern>
+                      </defs>
+                      <rect width="800" height="300" fill="url(#pattern1)"/>
+                      <g stroke="rgba(200,200,200,0.3)" stroke-width="0.5" fill="none">
+                        <rect x="50" y="40" width="120" height="220" rx="2"/>
+                        <rect x="200" y="60" width="80" height="180" rx="2"/>
+                        <rect x="310" y="30" width="180" height="240" rx="2"/>
+                        <rect x="520" y="50" width="100" height="200" rx="2"/>
+                        <rect x="650" y="70" width="100" height="160" rx="2"/>
+                      </g>
+                    </svg>
+                  </div>
+                  <div class="layer-label">
+                    <span class="layer-num">M8 / Passivation</span>
+                    <span class="layer-name">Protective Overcoat</span>
+                  </div>
+                </div>
+
+                <div class="layer layer-2" data-layer="metal8">
+                  <div class="layer-visual">
+                    <svg viewBox="0 0 800 300" preserveAspectRatio="none">
+                      <g fill="rgba(191,109,21,0.25)" stroke="rgba(191,109,21,0.5)" stroke-width="0.3">
+                        <rect x="0" y="50" width="800" height="8"/>
+                        <rect x="0" y="120" width="800" height="8"/>
+                        <rect x="0" y="190" width="800" height="8"/>
+                        <rect x="0" y="260" width="800" height="8"/>
+                      </g>
+                      <g fill="rgba(200,200,200,0.15)">
+                        <rect x="100" y="50" width="60" height="8"/>
+                        <rect x="300" y="120" width="120" height="8"/>
+                        <rect x="500" y="190" width="80" height="8"/>
+                        <rect x="650" y="260" width="100" height="8"/>
+                      </g>
+                    </svg>
+                  </div>
+                  <div class="layer-label">
+                    <span class="layer-num">M7 — M8</span>
+                    <span class="layer-name">Global Power &amp; Clock Distribution</span>
+                  </div>
+                </div>
+
+                <div class="layer layer-3" data-layer="metal5">
+                  <div class="layer-visual">
+                    <svg viewBox="0 0 800 300" preserveAspectRatio="none">
+                      <g fill="rgba(200,200,200,0.2)" stroke="rgba(200,200,200,0.3)" stroke-width="0.3">
+                        <rect x="0" y="30" width="800" height="4"/>
+                        <rect x="0" y="70" width="800" height="4"/>
+                        <rect x="0" y="110" width="800" height="4"/>
+                        <rect x="0" y="150" width="800" height="4"/>
+                        <rect x="0" y="190" width="800" height="4"/>
+                        <rect x="0" y="230" width="800" height="4"/>
+                        <rect x="0" y="270" width="800" height="4"/>
+                      </g>
+                      <g stroke="rgba(191,109,21,0.4)" stroke-width="1" fill="none">
+                        <line x1="150" y1="0" x2="150" y2="300"/>
+                        <line x1="350" y1="0" x2="350" y2="300"/>
+                        <line x1="550" y1="0" x2="550" y2="300"/>
+                        <line x1="700" y1="0" x2="700" y2="300"/>
+                      </g>
+                    </svg>
+                  </div>
+                  <div class="layer-label">
+                    <span class="layer-num">M4 — M6</span>
+                    <span class="layer-name">Intermediate Routing &amp; Block Interconnect</span>
+                  </div>
+                </div>
+
+                <div class="layer layer-4" data-layer="metal1">
+                  <div class="layer-visual">
+                    <svg viewBox="0 0 800 300" preserveAspectRatio="none">
+                      <defs>
+                        <pattern id="cellPattern" x="0" y="0" width="28" height="40" patternUnits="userSpaceOnUse">
+                          <rect width="28" height="40" fill="none" stroke="rgba(85,85,85,0.3)" stroke-width="0.3"/>
+                          <rect x="2" y="8" width="24" height="6" fill="rgba(200,200,200,0.2)"/>
+                          <rect x="2" y="22" width="24" height="6" fill="rgba(200,200,200,0.15)"/>
+                          <line x1="14" y1="0" x2="14" y2="40" stroke="rgba(191,109,21,0.2)" stroke-width="0.5"/>
+                        </pattern>
+                      </defs>
+                      <rect width="800" height="300" fill="url(#cellPattern)"/>
+                    </svg>
+                  </div>
+                  <div class="layer-label">
+                    <span class="layer-num">M1 — M3</span>
+                    <span class="layer-name">Local Interconnect &amp; Standard Cell Pins</span>
+                  </div>
+                </div>
+
+                <div class="layer layer-5" data-layer="transistors">
+                  <div class="layer-visual">
+                    <svg viewBox="0 0 800 300" preserveAspectRatio="none">
+                      <defs>
+                        <pattern id="txPattern" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
+                          <ellipse cx="8" cy="8" rx="5" ry="3" fill="rgba(191,109,21,0.3)" stroke="rgba(191,109,21,0.5)" stroke-width="0.2"/>
+                          <line x1="0" y1="8" x2="3" y2="8" stroke="rgba(200,200,200,0.3)" stroke-width="0.5"/>
+                          <line x1="13" y1="8" x2="16" y2="8" stroke="rgba(200,200,200,0.3)" stroke-width="0.5"/>
+                        </pattern>
+                      </defs>
+                      <rect width="800" height="300" fill="url(#txPattern)"/>
+                      <rect x="0" y="0" width="800" height="300" fill="rgba(191,109,21,0.05)"/>
+                    </svg>
+                  </div>
+                  <div class="layer-label">
+                    <span class="layer-num">Diffusion / Poly</span>
+                    <span class="layer-name">Transistor Layer — Standard Cells &amp; Logic Gates</span>
+                  </div>
+                </div>
+
+                <div class="layer layer-6" data-layer="substrate">
+                  <div class="layer-visual">
+                    <svg viewBox="0 0 800 300" preserveAspectRatio="none">
+                      <defs>
+                        <linearGradient id="substrateGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stop-color="rgba(85,85,85,0.3)"/>
+                          <stop offset="100%" stop-color="rgba(20,20,20,0.8)"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="800" height="300" fill="url(#substrateGrad)"/>
+                      <g fill="rgba(191,109,21,0.08)">
+                        <circle cx="100" cy="150" r="80"/>
+                        <circle cx="300" cy="100" r="60"/>
+                        <circle cx="500" cy="200" r="100"/>
+                        <circle cx="700" cy="120" r="70"/>
+                      </g>
+                    </svg>
+                  </div>
+                  <div class="layer-label">
+                    <span class="layer-num">Bulk Silicon</span>
+                    <span class="layer-name">Substrate — Foundation Wafer Material</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Anatomy callouts -->
+            <div class="anatomy-callouts col-1-13 design-grid">
+              <div class="callout col-2-4" data-reveal>
+                <p class="callout-label">Standard Cells</p>
+                <p class="callout-text">Pre-characterized logic gates (NAND, NOR, flip-flops) arranged in uniform-height rows, the fundamental building blocks of digital implementation.</p>
+              </div>
+              <div class="callout col-5-7" data-reveal>
+                <p class="callout-label">I/O Structures</p>
+                <p class="callout-text">Perimeter circuits that translate internal voltage levels to external interface standards, with ESD protection and signal conditioning.</p>
+              </div>
+              <div class="callout col-8-10" data-reveal>
+                <p class="callout-label">Clock Distribution</p>
+                <p class="callout-text">Balanced H-tree or mesh networks delivering the timing reference with controlled skew across billions of sequential elements.</p>
+              </div>
+              <div class="callout col-11-12" data-reveal>
+                <p class="callout-label">Power Grid</p>
+                <p class="callout-text">Multi-layer mesh of wide metal straps distributing VDD and VSS with controlled IR drop and electromigration margins.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION D: DESIGN CONFIGURATION (Process Technologies) -->
+        <section class="section-config px-grid">
+          <div class="design-grid config-grid">
+            <div class="config-title col-2-6" data-reveal>
+              <p class="section-label">— Process Technologies</p>
+              <h2 class="config-heading">Target<br/>Nodes</h2>
+            </div>
+            <div class="config-desc col-8-12" data-reveal>
+              <p>Silica supports design implementation across a range of process technologies, from mature nodes to advanced FinFET geometries. Each technology node carries its own design rules, layer stack, device characteristics, and extraction models. The following configurations are available as design targets within the platform. These are illustrative technology profiles — actual fabrication is performed by external foundry partners.</p>
+            </div>
+
+            <div class="config-list col-1-13">
+              <div class="config-header grid-5">
+                <p class="col-2-5">Process Node</p>
+                <p class="col-5-6 end">Pitch</p>
+              </div>
+              <div class="config-divider"></div>
+
+              <div class="config-row grid-5" data-reveal>
+                <p class="col-1-2 config-num">01.</p>
+                <p class="col-2-5 config-name">TSMC 16nm FinFET</p>
+                <p class="col-5-6 end config-pitch">48nm</p>
+                <div class="config-line"></div>
+              </div>
+              <div class="config-row grid-5" data-reveal>
+                <p class="col-1-2 config-num">02.</p>
+                <p class="col-2-5 config-name">TSMC 7nm FinFET</p>
+                <p class="col-5-6 end config-pitch">36nm</p>
+                <div class="config-line"></div>
+              </div>
+              <div class="config-row grid-5" data-reveal>
+                <p class="col-1-2 config-num">03.</p>
+                <p class="col-2-5 config-name">TSMC 5nm FinFET</p>
+                <p class="col-5-6 end config-pitch">28nm</p>
+                <div class="config-line"></div>
+              </div>
+              <div class="config-row grid-5" data-reveal>
+                <p class="col-1-2 config-num">04.</p>
+                <p class="col-2-5 config-name">Samsung 3nm GAA</p>
+                <p class="col-5-6 end config-pitch">21nm</p>
+                <div class="config-line"></div>
+              </div>
+              <div class="config-row grid-5" data-reveal>
+                <p class="col-1-2 config-num">05.</p>
+                <p class="col-2-5 config-name">Intel 18A</p>
+                <p class="col-5-6 end config-pitch">18nm</p>
+                <div class="config-line"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION E: DESIGN ANALYSIS AND RESULTS -->
+        <section class="section-analysis">
+          <div class="design-grid analysis-grid px-grid">
+            <div class="analysis-title col-2-6" data-reveal>
+              <p class="section-label">— Implementation Metrics</p>
+              <h2 class="analysis-heading">Design<br/>Telemetry</h2>
+            </div>
+            <div class="analysis-desc col-8-12" data-reveal>
+              <p class="analysis-note">Illustrative data — shown for demonstration of the visualization system. These values represent a reference design profile and are not the output of a live synthesis or routing run.</p>
+            </div>
+
+            <!-- Metrics cards -->
+            <div class="metrics-grid col-1-13 design-grid">
+              <div class="metric-card col-1-4" data-reveal>
+                <div class="metric-value">
+                  <span class="metric-num" data-count="12.47">0</span>
+                  <span class="metric-unit">mm²</span>
+                </div>
+                <p class="metric-label">Total Die Area</p>
+                <p class="metric-sub">Core utilization: 78.3%</p>
+                <div class="metric-bar">
+                  <div class="metric-bar-fill" style="width: 78.3%"></div>
+                </div>
+              </div>
+              <div class="metric-card col-4-7" data-reveal>
+                <div class="metric-value">
+                  <span class="metric-num" data-count="1.87">0</span>
+                  <span class="metric-unit">W</span>
+                </div>
+                <p class="metric-label">Estimated Power</p>
+                <p class="metric-sub">Typical corner, 0.85V</p>
+                <div class="metric-bar">
+                  <div class="metric-bar-fill" style="width: 62%"></div>
+                </div>
+              </div>
+              <div class="metric-card col-7-10" data-reveal>
+                <div class="metric-value">
+                  <span class="metric-num" data-count="2.14">0</span>
+                  <span class="metric-unit">GHz</span>
+                </div>
+                <p class="metric-label">Maximum Frequency</p>
+                <p class="metric-sub">Setup slack: +12ps</p>
+                <div class="metric-bar">
+                  <div class="metric-bar-fill" style="width: 85%"></div>
+                </div>
+              </div>
+              <div class="metric-card col-10-13" data-reveal>
+                <div class="metric-value">
+                  <span class="metric-num" data-count="99.98">0</span>
+                  <span class="metric-unit">%</span>
+                </div>
+                <p class="metric-label">Verification Coverage</p>
+                <p class="metric-sub">Functional + Formal</p>
+                <div class="metric-bar">
+                  <div class="metric-bar-fill" style="width: 99.98%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Detailed analysis panels -->
+            <div class="analysis-panels col-1-13 design-grid">
+              <div class="analysis-panel col-1-7" data-reveal>
+                <div class="panel-header">
+                  <p class="panel-title">Timing Path Distribution</p>
+                  <p class="panel-sub">Setup slack histogram</p>
+                </div>
+                <div class="timing-chart">
+                  <svg viewBox="0 0 500 200" preserveAspectRatio="none" class="timing-svg">
+                    <g stroke="rgba(85,85,85,0.2)" stroke-width="0.5">
+                      <line x1="0" y1="50" x2="500" y2="50"/>
+                      <line x1="0" y1="100" x2="500" y2="100"/>
+                      <line x1="0" y1="150" x2="500" y2="150"/>
+                    </g>
+                    <g fill="rgba(191,109,21,0.6)">
+                      <rect x="10" y="160" width="18" height="30"/>
+                      <rect x="35" y="140" width="18" height="50"/>
+                      <rect x="60" y="115" width="18" height="75"/>
+                      <rect x="85" y="85" width="18" height="105"/>
+                      <rect x="110" y="55" width="18" height="135"/>
+                      <rect x="135" y="30" width="18" height="160"/>
+                      <rect x="160" y="15" width="18" height="175"/>
+                      <rect x="185" y="25" width="18" height="165"/>
+                      <rect x="210" y="45" width="18" height="145"/>
+                      <rect x="235" y="70" width="18" height="120"/>
+                      <rect x="260" y="95" width="18" height="95"/>
+                      <rect x="285" y="120" width="18" height="70"/>
+                      <rect x="310" y="140" width="18" height="50"/>
+                      <rect x="335" y="155" width="18" height="35"/>
+                      <rect x="360" y="168" width="18" height="22"/>
+                      <rect x="385" y="178" width="18" height="12"/>
+                      <rect x="410" y="185" width="18" height="5"/>
+                    </g>
+                    <line x1="169" y1="0" x2="169" y2="200" stroke="rgba(191,109,21,0.8)" stroke-width="1" stroke-dasharray="4,4"/>
+                    <text x="175" y="15" fill="rgba(200,200,200,0.7)" font-size="10" font-family="B612 Mono, monospace">TNS = -42ps</text>
+                  </svg>
+                  <div class="chart-labels">
+                    <span>Violating</span>
+                    <span class="label-center">Zero Slack</span>
+                    <span>Positive Slack</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="analysis-panel col-7-13" data-reveal>
+                <div class="panel-header">
+                  <p class="panel-title">Implementation Progress</p>
+                  <p class="panel-sub">Flow stage completion</p>
+                </div>
+                <div class="progress-list">
+                  <div class="progress-item">
+                    <div class="progress-info">
+                      <span class="progress-name">Synthesis</span>
+                      <span class="progress-pct">100%</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill" style="width: 100%"></div></div>
+                  </div>
+                  <div class="progress-item">
+                    <div class="progress-info">
+                      <span class="progress-name">Floorplanning</span>
+                      <span class="progress-pct">100%</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill" style="width: 100%"></div></div>
+                  </div>
+                  <div class="progress-item">
+                    <div class="progress-info">
+                      <span class="progress-name">Placement</span>
+                      <span class="progress-pct">100%</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill" style="width: 100%"></div></div>
+                  </div>
+                  <div class="progress-item">
+                    <div class="progress-info">
+                      <span class="progress-name">Clock Tree Synthesis</span>
+                      <span class="progress-pct">100%</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill" style="width: 100%"></div></div>
+                  </div>
+                  <div class="progress-item">
+                    <div class="progress-info">
+                      <span class="progress-name">Global Routing</span>
+                      <span class="progress-pct">94%</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill" style="width: 94%"></div></div>
+                  </div>
+                  <div class="progress-item">
+                    <div class="progress-info">
+                      <span class="progress-name">Detailed Routing</span>
+                      <span class="progress-pct">87%</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill" style="width: 87%"></div></div>
+                  </div>
+                  <div class="progress-item">
+                    <div class="progress-info">
+                      <span class="progress-name">DRC Clean</span>
+                      <span class="progress-pct">72%</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill" style="width: 72%"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION F: TAPEOUT PREPARATION -->
+        <section class="section-tapeout px-grid">
+          <div class="design-grid tapeout-grid">
+            <div class="tapeout-title col-2-7" data-reveal>
+              <p class="section-label">— Final Handoff</p>
+              <h2 class="tapeout-heading">Tapeout<br/>Preparation</h2>
+            </div>
+            <div class="tapeout-desc col-8-12" data-reveal>
+              <p>Silica prepares the final design database for external manufacturing. The platform assembles the verified layout into industry-standard stream formats, generates all required signoff reports, and packages the complete handoff kit for foundry submission. Silica itself does not fabricate silicon wafers — manufacturing is performed by third-party foundry partners under their own process controls and quality standards.</p>
+            </div>
+
+            <div class="tapeout-visual col-1-13" data-reveal>
+              <div class="gds-visualization">
+                <svg viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid meet">
+                  <!-- Die outline -->
+                  <rect x="100" y="50" width="800" height="300" fill="none" stroke="rgba(200,200,200,0.3)" stroke-width="1"/>
+                  
+                  <!-- Scribe lines -->
+                  <g stroke="rgba(85,85,85,0.2)" stroke-width="0.5" stroke-dasharray="4,4">
+                    <line x1="100" y1="150" x2="900" y2="150"/>
+                    <line x1="100" y1="250" x2="900" y2="250"/>
+                    <line x1="300" y1="50" x2="300" y2="350"/>
+                    <line x1="500" y1="50" x2="500" y2="350"/>
+                    <line x1="700" y1="50" x2="700" y2="350"/>
+                  </g>
+
+                  <!-- Block 1 - CPU -->
+                  <g>
+                    <rect x="110" y="60" width="180" height="80" fill="rgba(191,109,21,0.15)" stroke="rgba(191,109,21,0.4)" stroke-width="0.5"/>
+                    <defs>
+                      <pattern id="cpuPattern" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
+                        <rect width="6" height="6" fill="none" stroke="rgba(191,109,21,0.15)" stroke-width="0.2"/>
+                      </pattern>
+                    </defs>
+                    <rect x="110" y="60" width="180" height="80" fill="url(#cpuPattern)"/>
+                    <text x="200" y="105" text-anchor="middle" fill="rgba(200,200,200,0.6)" font-size="9" font-family="B612 Mono, monospace">CORE 0</text>
+                  </g>
+
+                  <!-- Block 2 -->
+                  <g>
+                    <rect x="310" y="60" width="180" height="80" fill="rgba(191,109,21,0.12)" stroke="rgba(191,109,21,0.3)" stroke-width="0.5"/>
+                    <rect x="310" y="60" width="180" height="80" fill="url(#cpuPattern)"/>
+                    <text x="400" y="105" text-anchor="middle" fill="rgba(200,200,200,0.6)" font-size="9" font-family="B612 Mono, monospace">CORE 1</text>
+                  </g>
+
+                  <!-- Block 3 -->
+                  <g>
+                    <rect x="510" y="60" width="180" height="80" fill="rgba(200,200,200,0.08)" stroke="rgba(200,200,200,0.2)" stroke-width="0.5"/>
+                    <text x="600" y="105" text-anchor="middle" fill="rgba(200,200,200,0.6)" font-size="9" font-family="B612 Mono, monospace">L3 CACHE</text>
+                  </g>
+
+                  <!-- Block 4 -->
+                  <g>
+                    <rect x="710" y="60" width="180" height="80" fill="rgba(200,200,200,0.06)" stroke="rgba(200,200,200,0.15)" stroke-width="0.5"/>
+                    <text x="800" y="105" text-anchor="middle" fill="rgba(200,200,200,0.6)" font-size="9" font-family="B612 Mono, monospace">GPU</text>
+                  </g>
+
+                  <!-- Memory blocks -->
+                  <g fill="rgba(200,200,200,0.05)" stroke="rgba(200,200,200,0.15)" stroke-width="0.3">
+                    <rect x="110" y="160" width="80" height="80"/>
+                    <rect x="200" y="160" width="80" height="80"/>
+                    <rect x="310" y="160" width="80" height="80"/>
+                    <rect x="400" y="160" width="80" height="80"/>
+                    <rect x="510" y="160" width="80" height="80"/>
+                    <rect x="600" y="160" width="80" height="80"/>
+                    <rect x="710" y="160" width="80" height="80"/>
+                    <rect x="800" y="160" width="80" height="80"/>
+                  </g>
+                  <g fill="rgba(200,200,200,0.4)" font-size="8" font-family="B612 Mono, monospace">
+                    <text x="150" y="205" text-anchor="middle">MEM</text>
+                    <text x="240" y="205" text-anchor="middle">MEM</text>
+                    <text x="350" y="205" text-anchor="middle">MEM</text>
+                    <text x="440" y="205" text-anchor="middle">MEM</text>
+                    <text x="550" y="205" text-anchor="middle">MEM</text>
+                    <text x="640" y="205" text-anchor="middle">MEM</text>
+                    <text x="750" y="205" text-anchor="middle">MEM</text>
+                    <text x="840" y="205" text-anchor="middle">MEM</text>
+                  </g>
+
+                  <!-- Bottom blocks - I/O and peripherals -->
+                  <g>
+                    <rect x="110" y="260" width="380" height="80" fill="rgba(191,109,21,0.05)" stroke="rgba(191,109,21,0.2)" stroke-width="0.5"/>
+                    <text x="300" y="305" text-anchor="middle" fill="rgba(200,200,200,0.5)" font-size="9" font-family="B612 Mono, monospace">PERIPHERAL INTERCONNECT &amp; I/O RING</text>
+                  </g>
+                  <g>
+                    <rect x="510" y="260" width="380" height="80" fill="rgba(191,109,21,0.05)" stroke="rgba(191,109,21,0.2)" stroke-width="0.5"/>
+                    <text x="700" y="305" text-anchor="middle" fill="rgba(200,200,200,0.5)" font-size="9" font-family="B612 Mono, monospace">SERDES / PCIe / DDR PHY</text>
+                  </g>
+
+                  <!-- Seal ring -->
+                  <rect x="105" y="55" width="790" height="290" fill="none" stroke="rgba(191,109,21,0.3)" stroke-width="0.5" stroke-dasharray="2,2"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Deliverables list -->
+            <div class="tapeout-deliverables col-1-13 design-grid">
+              <div class="deliverable col-2-5" data-reveal>
+                <p class="deliv-label">GDSII Stream</p>
+                <p class="deliv-text">Full hierarchical layout database in Caltech Intermediate Format derivative, ready for mask generation.</p>
+              </div>
+              <div class="deliverable col-5-8" data-reveal>
+                <p class="deliv-label">OASIS</p>
+                <p class="deliv-text">Open Artwork System Interchange Standard — compressed layout representation for efficient foundry transfer.</p>
+              </div>
+              <div class="deliverable col-8-11" data-reveal>
+                <p class="deliv-label">Signoff Reports</p>
+                <p class="deliv-text">Timing (STA), power, IR drop, electromigration, DRC, LVS, and antenna rule verification summaries.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="site-footer px-grid">
+          <div class="design-grid footer-grid">
+            <div class="footer-brand col-2-6">
+              <h3 class="footer-logo">SILICA</h3>
+              <p class="footer-tagline">Precision semiconductor design environment. From RTL to tapeout, engineered for transparency and control.</p>
+            </div>
+            <div class="footer-nav col-7-9">
+              <p class="footer-nav-label">Platform</p>
+              <ul>
+                <li><a href="#">Design Flow</a></li>
+                <li><a href="#">Die Architecture</a></li>
+                <li><a href="#">Process Nodes</a></li>
+                <li><a href="#">Telemetry</a></li>
+              </ul>
+            </div>
+            <div class="footer-nav col-9-11">
+              <p class="footer-nav-label">Resources</p>
+              <ul>
+                <li><a href="#">Documentation</a></li>
+                <li><a href="#">Methodology</a></li>
+                <li><a href="#">Foundry Partners</a></li>
+                <li><a href="#">Contact</a></li>
+              </ul>
+            </div>
+            <div class="footer-bottom col-1-13">
+              <div class="footer-line"></div>
+              <div class="footer-meta">
+                <p>© 2026 Silica Design Systems</p>
+                <p>External fabrication — Silica prepares designs for foundry manufacturing</p>
+              </div>
+            </div>
+          </div>
+        </footer>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
