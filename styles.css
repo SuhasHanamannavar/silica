@@ -334,6 +334,7 @@ ul {
   height: 100%;
   z-index: 3;
   pointer-events: none;
+  background: rgba(191, 109, 21, 0.15);
 }
 
 #silica-canvas {
