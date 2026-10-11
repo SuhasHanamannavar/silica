@@ -32,6 +32,17 @@ from .hf_serving import HFServingAdapter
 from .sandbox import EDASandbox
 from .specialists import build_agent
 
+try:
+    import neatlogs
+    _NEATLOGS_API_KEY = os.environ.get("NEATLOGS_API_KEY", "bNve9E7JINfT773IqZAFaVm3yGXAZ0m4")
+    if _NEATLOGS_API_KEY:
+        neatlogs.init(api_key=_NEATLOGS_API_KEY)
+        HAVE_NEATLOGS = True
+    else:
+        HAVE_NEATLOGS = False
+except Exception:
+    HAVE_NEATLOGS = False
+
 # Vertical-slice pipeline order. Physical + timing are included but report BLOCKED.
 PIPELINE = [
     "specification", "rtl_design", "functional_verification",
@@ -159,7 +170,11 @@ class Orchestrator:
             agent = build_agent(agent_id, hf=self.hf, sandbox=sandbox,
                                 config={"artifacts_dir": artifacts_dir, "max_recovery_retries": self.max_recovery})
             try:
-                result = agent.run(self._stage_inputs(run, agent_id, rtl_override=current_rtl))
+                if HAVE_NEATLOGS:
+                    with neatlogs.trace(f"silica_{agent_id}"):
+                        result = agent.run(self._stage_inputs(run, agent_id, rtl_override=current_rtl))
+                else:
+                    result = agent.run(self._stage_inputs(run, agent_id, rtl_override=current_rtl))
             except Exception as e:
                 st.status = "failed"; st.finished_at = time.time()
                 st.result = {"status": "failed", "error": str(e)}
@@ -229,6 +244,11 @@ class Orchestrator:
             run.status = "passed"
         run.event("run_finished", status=run.status)
         run.save()
+        if HAVE_NEATLOGS:
+            try:
+                neatlogs.flush()
+            except Exception:
+                pass
         return run
 
     def _resume_from(self, run: RunState, from_agent: str, current_rtl, sandbox, artifacts_dir) -> RunState:
