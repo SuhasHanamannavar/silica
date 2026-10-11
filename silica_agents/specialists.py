@@ -112,6 +112,7 @@ int main(int argc, char** argv) {{
     top->a = tests[i].a;
     top->b = tests[i].b;
     top->opcode = tests[i].op;
+    top->eval();
     top->clk = 1; top->eval();
     top->clk = 0; top->eval();
     uint32_t got = (uint32_t)top->result;
