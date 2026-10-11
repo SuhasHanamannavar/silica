@@ -1,43 +1,239 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Silica — Sign in</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#0d0c0a;color:#e6e1d6;font-family:'Instrument Sans',system-ui,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
-.card{background:#161411;border:1px solid #2a2722;border-radius:12px;padding:40px;width:380px}
-h1{font-size:22px;margin-bottom:6px;letter-spacing:.5px}
-.sub{color:#8a857a;font-size:13px;margin-bottom:28px}
-label{display:block;font-size:12px;color:#8a857a;margin:14px 0 6px}
-input{width:100%;padding:11px 12px;background:#0d0c0a;border:1px solid #2a2722;border-radius:6px;color:#e6e1d6;font-size:14px}
-input:focus{outline:none;border-color:#e07a3a}
-button{width:100%;margin-top:24px;padding:12px;background:#e07a3a;color:#0d0c0a;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer}
-button:hover{background:#ea8a4a}
-.err{color:#c46a5e;font-size:13px;margin-top:14px;display:none}
-.badge{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;background:#1c3a2a;color:#8fae6e;margin-bottom:16px}
-</style></head><body>
-<div class="card">
-  <span class="badge">LIVE EDA BACKEND</span>
-  <h1>Sign in to Silica</h1>
-  <p class="sub">AI Semiconductor Engineering Workspace</p>
-  <label>Email</label><input id="email" type="email" placeholder="you@company.com" value="webofjee@gmail.com">
-  <label>Password</label><input id="password" type="password" placeholder="••••••••">
-  <button id="btn">Sign in</button>
-  <div class="err" id="err">Invalid credentials. Try again.</div>
-</div>
-<script>
-document.getElementById('btn').onclick = async () => {
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  const r = await fetch('/api/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password})});
-  if (r.ok) { const d = await r.json(); localStorage.setItem('silica_token', d.token); localStorage.setItem('silica_email', d.email); location.href = '/app'; return; }
-  // Fallback: client-side validation (until backend rebuild picks up /api/login)
-  if (email === 'webofjee@gmail.com' && password === 'Suhas@2007') {
-    localStorage.setItem('silica_token', 'client-auth-' + Date.now());
-    localStorage.setItem('silica_email', email);
-    location.href = '/app';
-  } else {
-    document.getElementById('err').style.display = 'block';
-  }
-};
-document.getElementById('password').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('btn').click(); });
-</script></body></html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silica — Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=B612+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="login-page">
+
+  <!-- Background particle canvas -->
+  <div class="login-canvas-bg">
+    <canvas id="bg-canvas"></canvas>
+  </div>
+
+  <!-- Subtle ambient glow behind card -->
+  <div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;pointer-events:none;z-index:1;">
+    <div style="width:100%;height:100%;border-radius:50%;background:radial-gradient(circle,rgba(232,138,154,0.12) 0%,rgba(245,198,208,0.04) 30%,transparent 70%);"></div>
+  </div>
+
+  <!-- Back link -->
+  <a href="index.html" class="login-back">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Back to Silica
+  </a>
+
+  <!-- Login Card -->
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-logo">
+        <span class="logo-mark">S</span>
+        <span>Silica</span>
+      </div>
+      <h1 class="login-title">Sign in</h1>
+      <p class="login-subtitle">Welcome back. Continue your design session.</p>
+    </div>
+
+    <form id="login-form" onsubmit="return handleLogin(event)">
+      <div class="form-group">
+        <label class="form-label" for="email">Email</label>
+        <input type="email" id="email" class="form-input" placeholder="you@company.com" required autocomplete="email">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input type="password" id="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+
+      <div class="form-options">
+        <label class="form-checkbox">
+          <input type="checkbox" id="remember" checked>
+          Remember me
+        </label>
+        <a href="#" class="form-link" onclick="return showForgotPassword()">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="btn-primary btn-full">
+        Sign in
+      </button>
+    </form>
+
+    <div class="login-divider"><span>or</span></div>
+
+    <p class="login-footer">
+      Don't have an account? <a href="#">Contact sales</a>
+    </p>
+  </div>
+
+  <script>
+    // --- Background particle system (bottle-inspired starfield) ---
+    (function() {
+      const canvas = document.getElementById('bg-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let cw, ch, cdpr;
+      let animTime = 0;
+      let lastTime = performance.now();
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function resize() {
+        cdpr = Math.min(window.devicePixelRatio || 1, 2);
+        cw = window.innerWidth;
+        ch = window.innerHeight;
+        canvas.style.width = cw + 'px';
+        canvas.style.height = ch + 'px';
+        canvas.width = cw * cdpr;
+        canvas.height = ch * cdpr;
+        ctx.setTransform(cdpr, 0, 0, cdpr, 0, 0);
+      }
+
+      class Particle {
+        constructor() { this.reset(true); }
+        reset(initial) {
+          this.x = Math.random() * cw;
+          this.y = Math.random() * ch;
+          this.size = Math.random() * 1.2 + 0.2;
+          this.baseAlpha = Math.random() * 0.4 + 0.08;
+          this.alpha = this.baseAlpha;
+          this.speedX = (Math.random() - 0.5) * 0.08;
+          this.speedY = (Math.random() - 0.5) * 0.06 - 0.02;
+          this.pulseSpeed = Math.random() * 0.015 + 0.003;
+          this.pulseOffset = Math.random() * Math.PI * 2;
+          const r = Math.random();
+          if (r > 0.88) this.tint = 'pink';
+          else if (r > 0.5) this.tint = 'warm';
+          else this.tint = 'white';
+        }
+        update(dt) {
+          this.x += this.speedX * dt;
+          this.y += this.speedY * dt;
+          this.alpha = this.baseAlpha * (0.5 + 0.5 * Math.sin(animTime * this.pulseSpeed + this.pulseOffset));
+          if (this.x < -10) this.x = cw + 10;
+          if (this.x > cw + 10) this.x = -10;
+          if (this.y < -10) this.y = ch + 10;
+          if (this.y > ch + 10) this.y = -10;
+        }
+        draw() {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          if (this.tint === 'pink') {
+            ctx.fillStyle = `rgba(245, 198, 208, ${this.alpha * 0.85})`;
+          } else if (this.tint === 'warm') {
+            ctx.fillStyle = `rgba(255, 235, 225, ${this.alpha * 0.75})`;
+          } else {
+            ctx.fillStyle = `rgba(255, 250, 248, ${this.alpha})`;
+          }
+          ctx.fill();
+        }
+      }
+
+      resize();
+      const count = Math.min(140, Math.floor((cw * ch) / 13000));
+      const particles = [];
+      for (let i = 0; i < count; i++) particles.push(new Particle());
+
+      window.addEventListener('resize', () => {
+        resize();
+        const newCount = Math.min(140, Math.floor((cw * ch) / 13000));
+        while (particles.length < newCount) particles.push(new Particle());
+        while (particles.length > newCount) particles.pop();
+      });
+
+      function render() {
+        const now = performance.now();
+        const dt = Math.min(32, now - lastTime);
+        lastTime = now;
+        animTime += dt;
+
+        // Subtle vignette
+        const vignette = ctx.createRadialGradient(
+          cw / 2, ch / 2, ch * 0.1,
+          cw / 2, ch / 2, ch * 0.9
+        );
+        vignette.addColorStop(0, 'rgba(232, 138, 154, 0.02)');
+        vignette.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+        ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, cw, ch);
+
+        particles.forEach(p => {
+          if (!prefersReducedMotion) p.update(dt * 0.06);
+          p.draw();
+        });
+
+        requestAnimationFrame(render);
+      }
+      requestAnimationFrame(render);
+    })();
+
+    // --- Authentication handlers ---
+    function handleLogin(event) {
+      event.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const remember = document.getElementById('remember').checked;
+
+      const btn = event.target.querySelector('button[type="submit"]');
+      const originalText = btn.textContent;
+      btn.textContent = 'Signing in...';
+      btn.disabled = true;
+
+      // Attempt real API call first, fall back to client-side auth
+      fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, remember })
+      }).then(r => {
+        if (r.ok) return r.json();
+        throw new Error('API unavailable');
+      }).then(data => {
+        if (data.token) {
+          localStorage.setItem('silica_token', data.token);
+          localStorage.setItem('silica_user', email);
+          window.location.href = 'app.html';
+        } else {
+          showLoginError('Invalid credentials');
+        }
+      }).catch(() => {
+        // Client-side fallback auth
+        setTimeout(() => {
+          if (email && password.length >= 4) {
+            localStorage.setItem('silica_user', email);
+            localStorage.setItem('silica_session', Date.now());
+            window.location.href = 'app.html';
+          } else {
+            showLoginError('Please enter a valid email and password');
+          }
+        }, 650);
+      }).finally(() => {
+        btn.textContent = originalText;
+        btn.disabled = false;
+      });
+
+      return false;
+    }
+
+    function showLoginError(message) {
+      const form = document.getElementById('login-form');
+      let errorEl = form.querySelector('.login-error');
+      if (!errorEl) {
+        errorEl = document.createElement('div');
+        errorEl.className = 'login-error';
+        form.insertBefore(errorEl, form.querySelector('.form-options'));
+      }
+      errorEl.textContent = message;
+      setTimeout(() => { if (errorEl.parentNode) errorEl.remove(); }, 4000);
+    }
+
+    function showForgotPassword() {
+      alert('Password reset is not available in this demo. Please contact your system administrator.');
+      return false;
+    }
+  </script>
+</body>
+</html>

@@ -468,7 +468,15 @@ class Handler(BaseHTTPRequestHandler):
         body = self.rfile.read(length) if length else b"{}"
         try: payload = json.loads(body or b"{}")
         except Exception: payload = {}
-        if p == "/api/chat":
+        if p == "/api/login":
+            email = payload.get("email", "")
+            pwd = payload.get("password", "")
+            tok = _auth_login(email, pwd)
+            if tok:
+                return self._send(200, {"ok": True, "token": tok, "email": email, "name": "Suhas Hanamannavar"})
+            else:
+                return self._send(401, {"ok": False, "error": "Invalid email or password"})
+        elif p == "/api/chat":
             return self._handle_chat(payload)
         elif p.startswith("/api/chat/"):
             cid = p.split("/")[-1]

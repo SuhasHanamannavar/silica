@@ -1,7 +1,7 @@
 /* ============================================
    SILICA — Interactive Script
+   Glass semiconductor chip animation + scroll UX
    ============================================ */
-
 (function() {
   'use strict';
 
@@ -94,24 +94,6 @@
   setTimeout(checkReveal, 300);
   setTimeout(checkReveal, 1000);
 
-  // --- Scroll-driven part labels ---
-  const partLabels = document.querySelectorAll('.part-label-item');
-  
-  function updatePartLabels() {
-    const scrollTop = scrollContainer.scrollTop;
-    const scrollMax = scrollContainer.scrollHeight - scrollContainer.clientHeight;
-    const scrollPct = scrollMax > 0 ? scrollTop / scrollMax : 0;
-    
-    partLabels.forEach((label, i) => {
-      const triggerPct = 0.05 + (i * 0.08);
-      if (scrollPct > triggerPct) {
-        label.classList.add('visible');
-      }
-    });
-  }
-
-  scrollContainer.addEventListener('scroll', updatePartLabels);
-
   // --- Interactive Film Layer Exploration ---
   const filmLayerLabels = document.querySelectorAll('.layer-label-item');
   const filmImages = document.querySelectorAll('.film-image');
@@ -130,547 +112,500 @@
     label.addEventListener('touchstart', (e) => { e.preventDefault(); activateLayer(); });
   });
 
-  // --- Animated counters ---
-  const metricNums = document.querySelectorAll('.metric-num[data-count]');
-  
-  function animateCounter(el) {
-    const target = parseFloat(el.getAttribute('data-count'));
-    const duration = 2000;
-    const startTime = performance.now();
-    const isDecimal = target % 1 !== 0;
-    
-    function update(currentTime) {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      const current = target * eased;
-      el.textContent = isDecimal ? current.toFixed(2) : Math.round(current).toLocaleString();
-      if (progress < 1) requestAnimationFrame(update);
-    }
-    requestAnimationFrame(update);
-  }
-
-  const metricCards = document.querySelectorAll('.metric-card');
-  const counterObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const numEl = entry.target.querySelector('.metric-num[data-count]');
-        if (numEl && !numEl.dataset.animated) {
-          numEl.dataset.animated = 'true';
-          animateCounter(numEl);
-        }
-        counterObserver.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.3, root: scrollContainer });
-
-  metricCards.forEach(card => counterObserver.observe(card));
-
-  // Set progress bar target widths
-  document.querySelectorAll('.metric-bar-fill').forEach(bar => {
-    const w = bar.style.width;
-    if (w) { bar.style.setProperty('--target-width', w); bar.style.width = '0'; }
-  });
-  document.querySelectorAll('.progress-fill').forEach(bar => {
-    const style = bar.getAttribute('style');
-    const match = style && style.match(/width:\s*([\d.]+%)/);
-    if (match) { bar.style.setProperty('--target-width', match[1]); bar.style.width = '0'; }
-  });
-
   // ============================================================
-  // ============================================================
-  // ============================================================
-  //  SEMICONDUCTOR CHIP ANIMATION
-  //  Scroll-driven, canvas-based, white/silver metallic chip
+  //  GLASS SEMICONDUCTOR CHIP ANIMATION
+  //  Matches bottle reference: glass material, pink/coral 
+  //  internal illumination, floating in dark particle space
   // ============================================================
   
   const chipCanvas = document.getElementById('chip-canvas');
   if (chipCanvas) {
     const chipCtx = chipCanvas.getContext('2d');
     let cw, ch, cdpr;
-    let targetScroll = 0;
-    let currentScroll = 0;
-    let animFrame = 0;
+    let animTime = 0;
+    let lastFrameTime = performance.now();
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function resizeChipCanvas() {
       cdpr = Math.min(window.devicePixelRatio || 1, 2);
-      // container is position:fixed, use window dims
       cw = window.innerWidth;
       ch = window.innerHeight;
-      chipCanvas.width = cw * cdpr;
-      chipCanvas.height = ch * cdpr;
       chipCanvas.style.width = cw + 'px';
       chipCanvas.style.height = ch + 'px';
+      chipCanvas.width = cw * cdpr;
+      chipCanvas.height = ch * cdpr;
       chipCtx.setTransform(cdpr, 0, 0, cdpr, 0, 0);
     }
 
-    // Easing helpers
-    function easeInOut(t) {
-      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    // --- Particle System (starfield like bottle reference) ---
+    class Particle {
+      constructor() { this.reset(true); }
+      reset(initial = false) {
+        this.x = Math.random() * cw;
+        this.y = Math.random() * ch;
+        this.size = Math.random() * 1.2 + 0.2;
+        this.baseAlpha = Math.random() * 0.5 + 0.08;
+        this.alpha = this.baseAlpha;
+        this.speedX = (Math.random() - 0.5) * 0.08;
+        this.speedY = (Math.random() - 0.5) * 0.06 - 0.02;
+        this.pulseSpeed = Math.random() * 0.015 + 0.003;
+        this.pulseOffset = Math.random() * Math.PI * 2;
+        this.tint = Math.random() > 0.88 ? 'pink' : (Math.random() > 0.5 ? 'warm' : 'white');
+      }
+      update(dt) {
+        this.x += this.speedX * dt;
+        this.y += this.speedY * dt;
+        this.alpha = this.baseAlpha * (0.5 + 0.5 * Math.sin(animTime * this.pulseSpeed + this.pulseOffset));
+        if (this.x < -10) this.x = cw + 10;
+        if (this.x > cw + 10) this.x = -10;
+        if (this.y < -10) this.y = ch + 10;
+        if (this.y > ch + 10) this.y = -10;
+      }
+      draw() {
+        chipCtx.beginPath();
+        chipCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        if (this.tint === 'pink') {
+          chipCtx.fillStyle = `rgba(245, 198, 208, ${this.alpha * 0.9})`;
+        } else if (this.tint === 'warm') {
+          chipCtx.fillStyle = `rgba(255, 235, 225, ${this.alpha * 0.8})`;
+        } else {
+          chipCtx.fillStyle = `rgba(255, 250, 248, ${this.alpha})`;
+        }
+        chipCtx.fill();
+      }
     }
-    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+    resizeChipCanvas();
+    const particleCount = Math.min(150, Math.floor((cw * ch) / 12000));
+    const particles = [];
+    for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+
+    window.addEventListener('resize', () => {
+      resizeChipCanvas();
+      const newCount = Math.min(150, Math.floor((cw * ch) / 12000));
+      while (particles.length < newCount) particles.push(new Particle());
+      while (particles.length > newCount) particles.pop();
+    });
+
+    // --- Drawing helpers ---
     function lerp(a, b, t) { return a + (b - a) * t; }
-    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
-    // Get scroll progress through hero section (0 to 1)
-    function getHeroScrollProgress() {
-      const scrollTop = scrollContainer.scrollTop;
-      const heroStart = 0;
-      const heroHeight = window.innerHeight * 7; // 700vh
-      const progress = (scrollTop - heroStart) / heroHeight;
-      return clamp(progress, 0, 1);
-    }
-
-    // Get animation parameters from scroll progress
-    function getAnimParams(p) {
-      // Phase A: 0.00 - 0.15 → Reveal
-      // Phase B: 0.15 - 0.40 → Rotation
-      // Phase C: 0.40 - 0.65 → Circuit illumination
-      // Phase D: 0.65 - 0.85 → Perspective transition
-      // Phase E: 0.85 - 1.00 → Settle
-
-      let rotY, rotX, scale, glowIntensity, circuitAlpha, revealAlpha;
-
-      if (p < 0.15) {
-        const t = easeOut(p / 0.15);
-        rotY = lerp(-0.6, -0.4, t);
-        rotX = lerp(0.25, 0.20, t);
-        scale = lerp(0.55, 0.85, t);
-        glowIntensity = lerp(0, 0.6, t);
-        circuitAlpha = 0;
-        revealAlpha = lerp(0, 1, t);
-      } else if (p < 0.40) {
-        const t = easeInOut((p - 0.15) / 0.25);
-        rotY = lerp(-0.4, 0.5, t);
-        rotX = lerp(0.20, 0.30, t);
-        scale = lerp(0.85, 0.95, t);
-        glowIntensity = lerp(0.6, 0.8, t);
-        circuitAlpha = lerp(0, 0.15, t);
-        revealAlpha = 1;
-      } else if (p < 0.65) {
-        const t = easeInOut((p - 0.40) / 0.25);
-        rotY = lerp(0.5, 0.8, t);
-        rotX = lerp(0.30, 0.15, t);
-        scale = lerp(0.95, 1.0, t);
-        glowIntensity = lerp(0.8, 1.0, t);
-        circuitAlpha = lerp(0.15, 0.6, t);
-        revealAlpha = 1;
-      } else if (p < 0.85) {
-        const t = easeInOut((p - 0.65) / 0.20);
-        rotY = lerp(0.8, 0.3, t);
-        rotX = lerp(0.15, 0.45, t);
-        scale = lerp(1.0, 0.92, t);
-        glowIntensity = lerp(1.0, 0.8, t);
-        circuitAlpha = lerp(0.6, 0.4, t);
-        revealAlpha = 1;
-      } else {
-        const t = easeInOut((p - 0.85) / 0.15);
-        rotY = lerp(0.3, -0.2, t);
-        rotX = lerp(0.45, 0.28, t);
-        scale = lerp(0.92, 0.88, t);
-        glowIntensity = lerp(0.8, 0.5, t);
-        circuitAlpha = lerp(0.4, 0.2, t);
-        revealAlpha = 1;
-      }
-
-      return { rotY, rotX, scale, glowIntensity, circuitAlpha, revealAlpha };
-    }
-
-    // Draw the semiconductor chip
-    function drawSemiconductorChip(params) {
-      const cx = cw / 2;
-      const cy = ch / 2;
-      const baseSize = Math.min(cw, ch) * 0.22 * params.scale;
-      
+    // Draw the glass chip with bottle-inspired lighting
+    function drawGlassChip(cx, cy, baseSize, rotY, rotX, floatY, bobPhase) {
       chipCtx.save();
-      chipCtx.translate(cx, cy);
-      chipCtx.globalAlpha = params.revealAlpha;
+      chipCtx.translate(cx, cy + floatY);
 
-      // Ambient glow behind chip
-      if (params.glowIntensity > 0) {
-        const glowR = baseSize * 2.2;
-        const glow = chipCtx.createRadialGradient(0, 0, 0, 0, 0, glowR);
-        glow.addColorStop(0, `rgba(180, 180, 190, ${params.glowIntensity * 0.15})`);
-        glow.addColorStop(0.4, `rgba(120, 120, 140, ${params.glowIntensity * 0.06})`);
-        glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        chipCtx.fillStyle = glow;
-        chipCtx.fillRect(-glowR, -glowR, glowR * 2, glowR * 2);
-      }
+      // 3D perspective simulation
+      const cosY = Math.cos(rotY);
+      const sinY = Math.sin(rotY);
+      const cosX = Math.cos(rotX);
+      const sinX = Math.sin(rotX);
 
-      // Apply 3D perspective transform
-      const cosY = Math.cos(params.rotY);
-      const sinY = Math.sin(params.rotY);
-      const cosX = Math.cos(params.rotX);
-      const sinX = Math.sin(params.rotX);
-      
-      // Build transform matrix: rotate Y, then rotate X
-      // m11 = cosY, m12 = sinX * sinY, m21 = 0, m22 = cosX
       const m11 = cosY;
-      const m12 = sinX * sinY;
+      const m12 = sinX * sinY * 0.35;
       const m21 = 0;
       const m22 = cosX;
-      
+
       chipCtx.transform(m11, m21, m12, m22, 0, 0);
+      chipCtx.transform(1, 0, sinY * 0.12, 1, 0, 0);
 
-      // Horizontal skew for perspective depth effect
-      const skew = sinY * 0.25;
-      chipCtx.transform(1, 0, skew, 1, 0, 0);
+      const scaleX = 0.82 + Math.abs(sinY) * 0.18;
+      const chipW = baseSize * 1.5 * scaleX;
+      const chipH = baseSize * 1.5;
+      const hw = chipW / 2;
+      const hh = chipH / 2;
+      const edgeDepth = baseSize * 0.1 * Math.abs(sinY) + baseSize * 0.05;
 
       // ==========================================
-      // DRAW CHIP — layered from back to front
+      // 1. OUTER AURA / BLOOM (like bottle glow)
       // ==========================================
-      
-      const dieW = baseSize * 1.5;
-      const dieH = baseSize * 1.5;
-      const packageMargin = baseSize * 0.18;
-      const pkgW = dieW + packageMargin * 2;
-      const pkgH = dieH + packageMargin * 2;
-      const thickness = baseSize * 0.35 * Math.abs(sinY) + baseSize * 0.08;
+      const auraR = baseSize * 2.2;
+      const aura = chipCtx.createRadialGradient(0, -baseSize * 0.1, 0, 0, 0, auraR);
+      aura.addColorStop(0, 'rgba(232, 138, 154, 0.18)');
+      aura.addColorStop(0.25, 'rgba(245, 198, 208, 0.08)');
+      aura.addColorStop(0.5, 'rgba(232, 138, 154, 0.03)');
+      aura.addColorStop(1, 'rgba(232, 138, 154, 0)');
+      chipCtx.fillStyle = aura;
+      chipCtx.fillRect(-auraR, -auraR, auraR * 2, auraR * 2);
 
-      // --- Substrate / Package bottom (visible when rotated) ---
-      if (Math.abs(sinY) > 0.05) {
-        chipCtx.save();
-        chipCtx.translate(thickness * 0.5 * Math.sign(sinY), thickness * 0.3);
-        
-        // Package body
-        const pkgGrad = chipCtx.createLinearGradient(-pkgW/2, 0, pkgW/2, 0);
-        pkgGrad.addColorStop(0, '#7a7a82');
-        pkgGrad.addColorStop(0.5, '#9a9aa2');
-        pkgGrad.addColorStop(1, '#7a7a82');
-        chipCtx.fillStyle = pkgGrad;
-        chipCtx.strokeStyle = '#3a3a42';
-        chipCtx.lineWidth = 1;
-        chipCtx.beginPath();
-        const r = baseSize * 0.06, rx = -pkgW/2, ry = -pkgH/2;
-        chipCtx.moveTo(rx + r, ry);
-        chipCtx.lineTo(rx + pkgW - r, ry);
-        chipCtx.quadraticCurveTo(rx + pkgW, ry, rx + pkgW, ry + r);
-        chipCtx.lineTo(rx + pkgW, ry + pkgH - r);
-        chipCtx.quadraticCurveTo(rx + pkgW, ry + pkgH, rx + pkgW - r, ry + pkgH);
-        chipCtx.lineTo(rx + r, ry + pkgH);
-        chipCtx.quadraticCurveTo(rx, ry + pkgH, rx, ry + pkgH - r);
-        chipCtx.lineTo(rx, ry + r);
-        chipCtx.quadraticCurveTo(rx, ry, rx + r, ry);
-        chipCtx.closePath();
-        chipCtx.fill();
-        chipCtx.stroke();
+      // Secondary warm glow from below
+      const aura2 = chipCtx.createRadialGradient(0, baseSize * 0.3, 0, 0, baseSize * 0.3, baseSize * 1.5);
+      aura2.addColorStop(0, 'rgba(200, 100, 120, 0.12)');
+      aura2.addColorStop(1, 'rgba(200, 100, 120, 0)');
+      chipCtx.fillStyle = aura2;
+      chipCtx.fillRect(-auraR, -auraR, auraR * 2, auraR * 2);
 
-        // Package marker dots
-        chipCtx.fillStyle = '#3a3a42';
-        for (let i = 0; i < 3; i++) {
-          chipCtx.beginPath();
-          chipCtx.arc(-pkgW/2 + baseSize * 0.08 + i * baseSize * 0.06, 
-                     -pkgH/2 + baseSize * 0.08, baseSize * 0.012, 0, Math.PI * 2);
-          chipCtx.fill();
-        }
-        
-        chipCtx.restore();
-      }
-
-      // --- Die substrate (dark silicon) ---
+      // ==========================================
+      // 2. DROP SHADOW
+      // ==========================================
       chipCtx.save();
-      
-      // Shadow under die
-      chipCtx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-      chipCtx.shadowBlur = baseSize * 0.08;
-      chipCtx.shadowOffsetY = baseSize * 0.02;
-
-      // Silicon die base
-      const dieGrad = chipCtx.createLinearGradient(-dieW/2, -dieH/2, dieW/2, dieH/2);
-      dieGrad.addColorStop(0, '#d0d0d8');
-      dieGrad.addColorStop(0.4, '#e0e0e8');
-      dieGrad.addColorStop(0.7, '#d8d8e0');
-      dieGrad.addColorStop(1, '#c0c0c8');
-      
-      chipCtx.fillStyle = dieGrad;
-      chipCtx.strokeStyle = '#8a8a92';
-      chipCtx.lineWidth = 1.2;
+      chipCtx.translate(edgeDepth * 0.4, edgeDepth * 0.6);
+      chipCtx.filter = 'blur(8px)';
+      chipCtx.fillStyle = 'rgba(0, 0, 0, 0.5)';
       chipCtx.beginPath();
-      chipCtx.rect(-dieW/2, -dieH/2, dieW, dieH);
+      if (chipCtx.roundRect) {
+        chipCtx.roundRect(-hw - 2, -hh - 2, chipW + 4, chipH + 4, baseSize * 0.08);
+      } else {
+        chipCtx.rect(-hw - 2, -hh - 2, chipW + 4, chipH + 4);
+      }
       chipCtx.fill();
-      chipCtx.stroke();
-
-      chipCtx.shadowColor = 'transparent';
-
-      // --- Die edge bevel highlight ---
-      chipCtx.strokeStyle = 'rgba(200, 200, 210, 0.15)';
-      chipCtx.lineWidth = 0.8;
-      chipCtx.strokeRect(-dieW/2 + 2, -dieH/2 + 2, dieW - 4, dieH - 4);
-
-      // --- Scribe lines (dicing marks) ---
-      chipCtx.strokeStyle = 'rgba(200, 200, 210, 0.25)';
-      chipCtx.lineWidth = 0.5;
-      chipCtx.setLineDash([3, 3]);
-      chipCtx.beginPath();
-      chipCtx.moveTo(-dieW/2, -dieH/2 + dieH * 0.5);
-      chipCtx.lineTo(dieW/2, -dieH/2 + dieH * 0.5);
-      chipCtx.moveTo(-dieW/2 + dieW * 0.5, -dieH/2);
-      chipCtx.lineTo(-dieW/2 + dieW * 0.5, dieH/2);
-      chipCtx.stroke();
-      chipCtx.setLineDash([]);
-
-      // --- Seal ring ---
-      const sealInset = baseSize * 0.04;
-      chipCtx.strokeStyle = 'rgba(200, 170, 110, 0.6)';
-      chipCtx.lineWidth = 1;
-      chipCtx.setLineDash([4, 2]);
-      chipCtx.strokeRect(-dieW/2 + sealInset, -dieH/2 + sealInset, 
-                          dieW - sealInset * 2, dieH - sealInset * 2);
-      chipCtx.setLineDash([]);
-
-      // --- Power grid (horizontal + vertical lines) ---
-      const gridAlpha = 0.12 + params.circuitAlpha * 0.2;
-      chipCtx.strokeStyle = `rgba(190, 170, 130, ${gridAlpha})`;
-      chipCtx.lineWidth = 0.6;
-      chipCtx.beginPath();
-      const gridLines = 8;
-      for (let i = 1; i < gridLines; i++) {
-        const f = i / gridLines;
-        // Horizontal
-        chipCtx.moveTo(-dieW/2 + sealInset * 2, -dieH/2 + f * dieH);
-        chipCtx.lineTo(dieW/2 - sealInset * 2, -dieH/2 + f * dieH);
-        // Vertical
-        chipCtx.moveTo(-dieW/2 + f * dieW, -dieH/2 + sealInset * 2);
-        chipCtx.lineTo(-dieW/2 + f * dieW, dieH/2 - sealInset * 2);
-      }
-      chipCtx.stroke();
-
-      // --- Functional blocks (CPU cores, caches) ---
-      const blocks = [
-        { x: -dieW * 0.32, y: -dieH * 0.32, w: dieW * 0.28, h: dieH * 0.28, type: 'core', label: 'CORE 0' },
-        { x:  dieW * 0.04, y: -dieH * 0.32, w: dieW * 0.28, h: dieH * 0.28, type: 'core', label: 'CORE 1' },
-        { x: -dieW * 0.32, y:  dieH * 0.04, w: dieW * 0.28, h: dieH * 0.28, type: 'cache', label: 'L2$' },
-        { x:  dieW * 0.04, y:  dieH * 0.04, w: dieW * 0.28, h: dieH * 0.28, type: 'cache', label: 'L2$' },
-      ];
-
-      blocks.forEach(block => {
-        // Block background
-        if (block.type === 'core') {
-          chipCtx.fillStyle = 'rgba(220, 220, 230, 0.25)';
-          chipCtx.strokeStyle = 'rgba(230, 230, 240, 0.5)';
-        } else {
-          chipCtx.fillStyle = 'rgba(200, 200, 215, 0.18)';
-          chipCtx.strokeStyle = 'rgba(210, 210, 225, 0.35)';
-        }
-        chipCtx.lineWidth = 0.8;
-        chipCtx.fillRect(block.x, block.y, block.w, block.h);
-        chipCtx.strokeRect(block.x, block.y, block.w, block.h);
-
-        // Internal grid in blocks
-        chipCtx.strokeStyle = `rgba(190, 170, 130, ${0.08 + params.circuitAlpha * 0.15})`;
-        chipCtx.lineWidth = 0.4;
-        chipCtx.beginPath();
-        const subGrid = 4;
-        for (let i = 1; i < subGrid; i++) {
-          const f = i / subGrid;
-          chipCtx.moveTo(block.x + block.w * f, block.y);
-          chipCtx.lineTo(block.x + block.w * f, block.y + block.h);
-          chipCtx.moveTo(block.x, block.y + block.h * f);
-          chipCtx.lineTo(block.x + block.w, block.y + block.h * f);
-        }
-        chipCtx.stroke();
-      });
-
-      // --- Peripheral / I/O ring area ---
-      const ioWidth = dieW * 0.12;
-      chipCtx.fillStyle = 'rgba(180, 180, 195, 0.15)';
-      // Top IO strip
-      chipCtx.fillRect(-dieW/2, -dieH/2, dieW, ioWidth);
-      // Bottom IO strip
-      chipCtx.fillRect(-dieW/2, dieH/2 - ioWidth, dieW, ioWidth);
-      // Left IO strip
-      chipCtx.fillRect(-dieW/2, -dieH/2, ioWidth, dieH);
-      // Right IO strip
-      chipCtx.fillRect(dieW/2 - ioWidth, -dieH/2, ioWidth, dieH);
-
-      // --- Luminous circuit traces (Phase C) ---
-      if (params.circuitAlpha > 0.02) {
-        const alpha = params.circuitAlpha;
-        
-        // Main horizontal bus
-        chipCtx.strokeStyle = `rgba(220, 200, 160, ${alpha * 0.8})`;
-        chipCtx.lineWidth = 1.2;
-        chipCtx.shadowColor = 'rgba(220, 180, 120, 0.5)';
-        chipCtx.shadowBlur = baseSize * 0.03;
-        chipCtx.beginPath();
-        chipCtx.moveTo(-dieW * 0.45, 0);
-        chipCtx.lineTo(dieW * 0.45, 0);
-        chipCtx.stroke();
-
-        // Vertical spines
-        chipCtx.strokeStyle = `rgba(200, 180, 140, ${alpha * 0.6})`;
-        chipCtx.lineWidth = 0.8;
-        for (let s = -2; s <= 2; s++) {
-          chipCtx.beginPath();
-          chipCtx.moveTo(s * dieW * 0.18, -dieH * 0.42);
-          chipCtx.lineTo(s * dieW * 0.18, dieH * 0.42);
-          chipCtx.stroke();
-        }
-
-        // Connection stubs to cores
-        chipCtx.strokeStyle = `rgba(230, 210, 170, ${alpha * 0.7})`;
-        chipCtx.lineWidth = 0.6;
-        blocks.forEach(block => {
-          // Top connection
-          chipCtx.beginPath();
-          chipCtx.moveTo(block.x + block.w * 0.5, block.y);
-          chipCtx.lineTo(block.x + block.w * 0.5, -dieH * 0.42);
-          chipCtx.stroke();
-          // Left connection
-          chipCtx.beginPath();
-          chipCtx.moveTo(block.x, block.y + block.h * 0.5);
-          chipCtx.lineTo(-dieW * 0.45, block.y + block.h * 0.5);
-          chipCtx.stroke();
-        });
-
-        chipCtx.shadowBlur = 0;
-
-        // Bright signal nodes
-        const nodeAlpha = alpha * 0.9;
-        chipCtx.fillStyle = `rgba(255, 240, 200, ${nodeAlpha})`;
-        chipCtx.shadowColor = 'rgba(255, 220, 150, 0.8)';
-        chipCtx.shadowBlur = baseSize * 0.04;
-        const nodeCount = Math.floor(6 + alpha * 10);
-        for (let n = 0; n < nodeCount; n++) {
-          const seed = Math.sin(n * 12.9898) * 43758.5453;
-          const fr = seed - Math.floor(seed);
-          const seed2 = Math.cos(n * 78.233) * 43758.5453;
-          const fr2 = seed2 - Math.floor(seed2);
-          const nx = lerp(-dieW * 0.42, dieW * 0.42, fr);
-          const ny = lerp(-dieH * 0.42, dieH * 0.42, fr2);
-          const pulse = 0.5 + 0.5 * Math.sin(animFrame * 0.03 + n * 1.5);
-          chipCtx.globalAlpha = revealAlpha * nodeAlpha * (0.4 + pulse * 0.6);
-          chipCtx.beginPath();
-          chipCtx.arc(nx, ny, baseSize * 0.012, 0, Math.PI * 2);
-          chipCtx.fill();
-        }
-        chipCtx.globalAlpha = revealAlpha;
-        chipCtx.shadowBlur = 0;
-      }
-
-      // --- Bond pads around die perimeter ---
-      chipCtx.fillStyle = 'rgba(210, 190, 150, 0.4)';
-      chipCtx.strokeStyle = 'rgba(150, 130, 90, 0.3)';
-      chipCtx.lineWidth = 0.4;
-      const padCount = 14;
-      const padSize = baseSize * 0.025;
-      const padInset = baseSize * 0.015;
-      for (let i = 0; i < padCount; i++) {
-        const f = (i + 0.5) / padCount;
-        // Top
-        chipCtx.fillRect(-dieW/2 + padInset + f * (dieW - padInset * 2) - padSize/2, 
-                        -dieH/2 + padInset, padSize, padSize * 0.6);
-        // Bottom
-        chipCtx.fillRect(-dieW/2 + padInset + f * (dieW - padInset * 2) - padSize/2, 
-                        dieH/2 - padInset - padSize * 0.6, padSize, padSize * 0.6);
-        // Left
-        chipCtx.fillRect(-dieW/2 + padInset, 
-                        -dieH/2 + padInset + f * (dieH - padInset * 2) - padSize/2, 
-                        padSize * 0.6, padSize);
-        // Right
-        chipCtx.fillRect(dieW/2 - padInset - padSize * 0.6, 
-                        -dieH/2 + padInset + f * (dieH - padInset * 2) - padSize/2, 
-                        padSize * 0.6, padSize);
-      }
-
-      // --- Die corner fiducial marks ---
-      chipCtx.strokeStyle = 'rgba(200, 200, 210, 0.25)';
-      chipCtx.lineWidth = 0.8;
-      const fidSize = baseSize * 0.04;
-      const fidInset = baseSize * 0.06;
-      [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([sx, sy]) => {
-        chipCtx.beginPath();
-        chipCtx.moveTo(sx * (dieW/2 - fidInset), sy * (dieH/2 - fidInset));
-        chipCtx.lineTo(sx * (dieW/2 - fidInset - fidSize), sy * (dieH/2 - fidInset));
-        chipCtx.moveTo(sx * (dieW/2 - fidInset), sy * (dieH/2 - fidInset));
-        chipCtx.lineTo(sx * (dieW/2 - fidInset), sy * (dieH/2 - fidInset - fidSize));
-        chipCtx.stroke();
-      });
-
-      chipCtx.restore(); // End of die drawing
-
-      // --- Package pins (visible on sides when rotated) ---
-      if (Math.abs(sinY) > 0.1) {
-        const pinCount = 16;
-        const pinLen = baseSize * 0.12 * Math.abs(sinY);
-        const pinSpacing = pkgH / (pinCount + 1);
-        const pinDir = Math.sign(sinY);
-        
-        chipCtx.strokeStyle = 'rgba(220, 220, 230, 0.85)';
-        chipCtx.fillStyle = 'rgba(235, 235, 245, 0.92)';
-        chipCtx.lineWidth = 1;
-        
-        for (let i = 0; i < pinCount; i++) {
-          const py = -pkgH/2 + (i + 1) * pinSpacing;
-          // Left side pins
-          chipCtx.beginPath();
-          chipCtx.moveTo(-pkgW/2, py);
-          chipCtx.lineTo(-pkgW/2 - pinLen, py - pinLen * 0.2);
-          chipCtx.stroke();
-          // Pin tip
-          chipCtx.beginPath();
-          chipCtx.arc(-pkgW/2 - pinLen, py - pinLen * 0.2, baseSize * 0.012, 0, Math.PI * 2);
-          chipCtx.fill();
-          
-          // Right side pins
-          chipCtx.beginPath();
-          chipCtx.moveTo(pkgW/2, py);
-          chipCtx.lineTo(pkgW/2 + pinLen, py - pinLen * 0.2);
-          chipCtx.stroke();
-          chipCtx.beginPath();
-          chipCtx.arc(pkgW/2 + pinLen, py - pinLen * 0.2, baseSize * 0.012, 0, Math.PI * 2);
-          chipCtx.fill();
-        }
-      }
-
-      // --- Specular highlight ---
-      chipCtx.save();
-      chipCtx.globalAlpha = 0.18 * params.revealAlpha;
-      const highlight = chipCtx.createRadialGradient(
-        -dieW * 0.25, -dieH * 0.3, 0,
-        -dieW * 0.25, -dieH * 0.3, dieW * 0.6
-      );
-      highlight.addColorStop(0, 'rgba(255, 255, 255, 1)');
-      highlight.addColorStop(1, 'rgba(255, 255, 255, 0)');
-      chipCtx.fillStyle = highlight;
-      chipCtx.fillRect(-dieW, -dieH, dieW * 2, dieH * 2);
       chipCtx.restore();
 
-      chipCtx.restore(); // End of main transform
+      // ==========================================
+      // 3. CERAMIC PACKAGE BODY
+      // ==========================================
+      const pkgGrad = chipCtx.createLinearGradient(-hw, -hh, hw, hh);
+      pkgGrad.addColorStop(0, 'rgba(26, 24, 30, 0.96)');
+      pkgGrad.addColorStop(0.4, 'rgba(36, 32, 42, 0.96)');
+      pkgGrad.addColorStop(0.7, 'rgba(32, 28, 38, 0.96)');
+      pkgGrad.addColorStop(1, 'rgba(20, 18, 24, 0.96)');
+      chipCtx.fillStyle = pkgGrad;
+      chipCtx.beginPath();
+      if (chipCtx.roundRect) {
+        chipCtx.roundRect(-hw, -hh, chipW, chipH, baseSize * 0.07);
+      } else {
+        chipCtx.rect(-hw, -hh, chipW, chipH);
+      }
+      chipCtx.fill();
+
+      // Package edge highlight (top)
+      chipCtx.strokeStyle = 'rgba(255, 245, 240, 0.12)';
+      chipCtx.lineWidth = 1;
+      chipCtx.beginPath();
+      if (chipCtx.roundRect) {
+        chipCtx.roundRect(-hw, -hh, chipW, chipH, baseSize * 0.07);
+      } else {
+        chipCtx.rect(-hw, -hh, chipW, chipH);
+      }
+      chipCtx.stroke();
+
+      // ==========================================
+      // 4. DIE CAVITY (recessed)
+      // ==========================================
+      const cavityInset = baseSize * 0.1;
+      const cgw = chipW - cavityInset * 2;
+      const cgh = chipH - cavityInset * 2;
+      const cgx = -hw + cavityInset;
+      const cgy = -hh + cavityInset;
+
+      // Cavity shadow
+      chipCtx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      chipCtx.fillRect(cgx - 1, cgy - 1, cgw + 2, cgh + 2);
+
+      // ==========================================
+      // 5. GLASS DIE — MAIN TRANSPARENT SURFACE
+      // ==========================================
+      
+      // Base glass layer (charcoal tinted, transparent)
+      const glassBase = chipCtx.createLinearGradient(cgx, cgy, cgx + cgw, cgy + cgh);
+      glassBase.addColorStop(0, 'rgba(55, 50, 65, 0.5)');
+      glassBase.addColorStop(0.3, 'rgba(70, 62, 80, 0.38)');
+      glassBase.addColorStop(0.55, 'rgba(60, 52, 70, 0.42)');
+      glassBase.addColorStop(0.8, 'rgba(48, 42, 58, 0.48)');
+      glassBase.addColorStop(1, 'rgba(38, 34, 46, 0.55)');
+      chipCtx.fillStyle = glassBase;
+      chipCtx.fillRect(cgx, cgy, cgw, cgh);
+
+      // ==========================================
+      // 6. INTERNAL ILLUMINATION (pink/coral glow)
+      //    Like the glowing liquid in the bottle
+      // ==========================================
+      
+      // Main pink internal glow (center-left)
+      const innerGlow = chipCtx.createRadialGradient(
+        cgx + cgw * 0.32, cgy + cgh * 0.38, 0,
+        cgx + cgw * 0.32, cgy + cgh * 0.38, cgw * 0.7
+      );
+      innerGlow.addColorStop(0, 'rgba(232, 138, 154, 0.35)');
+      innerGlow.addColorStop(0.3, 'rgba(245, 198, 208, 0.18)');
+      innerGlow.addColorStop(0.6, 'rgba(232, 138, 154, 0.06)');
+      innerGlow.addColorStop(1, 'rgba(232, 138, 154, 0)');
+      chipCtx.fillStyle = innerGlow;
+      chipCtx.fillRect(cgx, cgy, cgw, cgh);
+
+      // Secondary coral glow from bottom-right
+      const cornerGlow = chipCtx.createRadialGradient(
+        cgx + cgw * 0.82, cgy + cgh * 0.78, 0,
+        cgx + cgw * 0.82, cgy + cgh * 0.78, cgw * 0.55
+      );
+      cornerGlow.addColorStop(0, 'rgba(200, 100, 120, 0.28)');
+      cornerGlow.addColorStop(0.4, 'rgba(232, 138, 154, 0.1)');
+      cornerGlow.addColorStop(1, 'rgba(200, 100, 120, 0)');
+      chipCtx.fillStyle = cornerGlow;
+      chipCtx.fillRect(cgx, cgy, cgw, cgh);
+
+      // Subtle bottom glow (like light through glass)
+      const bottomGlow = chipCtx.createLinearGradient(cgx, cgy + cgh * 0.5, cgx, cgy + cgh);
+      bottomGlow.addColorStop(0, 'rgba(245, 198, 208, 0)');
+      bottomGlow.addColorStop(1, 'rgba(232, 138, 154, 0.15)');
+      chipCtx.fillStyle = bottomGlow;
+      chipCtx.fillRect(cgx, cgy, cgw, cgh);
+
+      // ==========================================
+      // 7. CIRCUIT STRUCTURES (visible through glass)
+      // ==========================================
+      chipCtx.save();
+      chipCtx.globalAlpha = 0.4;
+
+      // Main horizontal bus
+      chipCtx.strokeStyle = 'rgba(245, 198, 208, 0.55)';
+      chipCtx.lineWidth = Math.max(0.6, baseSize * 0.01);
+      chipCtx.beginPath();
+      chipCtx.moveTo(cgx + cgw * 0.08, cgy + cgh * 0.5);
+      chipCtx.lineTo(cgx + cgw * 0.92, cgy + cgh * 0.5);
+      chipCtx.stroke();
+
+      // Vertical spines
+      chipCtx.strokeStyle = 'rgba(232, 138, 154, 0.4)';
+      chipCtx.lineWidth = Math.max(0.4, baseSize * 0.006);
+      for (let s = 1; s <= 6; s++) {
+        chipCtx.beginPath();
+        chipCtx.moveTo(cgx + (s / 7) * cgw, cgy + cgh * 0.12);
+        chipCtx.lineTo(cgx + (s / 7) * cgw, cgy + cgh * 0.88);
+        chipCtx.stroke();
+      }
+
+      // Functional blocks (CPU cores / memory arrays)
+      chipCtx.strokeStyle = 'rgba(255, 245, 240, 0.22)';
+      chipCtx.lineWidth = Math.max(0.4, baseSize * 0.005);
+      const blocks = [
+        [0.10, 0.10, 0.34, 0.32],
+        [0.56, 0.10, 0.34, 0.32],
+        [0.10, 0.58, 0.34, 0.32],
+        [0.56, 0.58, 0.34, 0.32],
+      ];
+      blocks.forEach(([bx, by, bw, bh]) => {
+        chipCtx.strokeRect(cgx + cgw * bx, cgy + cgh * by, cgw * bw, cgh * bh);
+        // Internal grid within blocks
+        chipCtx.strokeStyle = 'rgba(245, 198, 208, 0.14)';
+        for (let g = 1; g < 4; g++) {
+          chipCtx.beginPath();
+          chipCtx.moveTo(cgx + cgw * bx + (cgw * bw / 4) * g, cgy + cgh * by);
+          chipCtx.lineTo(cgx + cgw * bx + (cgw * bw / 4) * g, cgy + cgh * by + cgh * bh);
+          chipCtx.stroke();
+          chipCtx.beginPath();
+          chipCtx.moveTo(cgx + cgw * bx, cgy + cgh * by + (cgh * bh / 4) * g);
+          chipCtx.lineTo(cgx + cgw * bx + cgw * bw, cgy + cgh * by + (cgh * bh / 4) * g);
+          chipCtx.stroke();
+        }
+        chipCtx.strokeStyle = 'rgba(255, 245, 240, 0.22)';
+      });
+
+      // Connection / activity dots (pulsing)
+      chipCtx.fillStyle = 'rgba(255, 245, 240, 0.5)';
+      for (let d = 0; d < 16; d++) {
+        const seed = Math.sin(d * 12.9898) * 43758.5453;
+        const fr = seed - Math.floor(seed);
+        const seed2 = Math.cos(d * 78.233) * 43758.5453;
+        const fr2 = seed2 - Math.floor(seed2);
+        const pulse = 0.4 + 0.6 * Math.sin(animTime * 0.0008 + d * 0.7);
+        chipCtx.globalAlpha = 0.2 + pulse * 0.5;
+        chipCtx.beginPath();
+        chipCtx.arc(cgx + cgw * (0.12 + fr * 0.76), cgy + cgh * (0.12 + fr2 * 0.76), 
+                  Math.max(0.6, baseSize * 0.007), 0, Math.PI * 2);
+        chipCtx.fill();
+      }
+      chipCtx.globalAlpha = 1;
+      chipCtx.restore();
+
+      // ==========================================
+      // 8. GLASS SURFACE REFLECTIONS
+      //    Bright highlights like on the bottle
+      // ==========================================
+
+      // Primary top-left highlight (large, soft)
+      const topHighlight = chipCtx.createLinearGradient(cgx, cgy, cgx + cgw * 0.55, cgy + cgh * 0.55);
+      topHighlight.addColorStop(0, 'rgba(255, 250, 245, 0.32)');
+      topHighlight.addColorStop(0.4, 'rgba(255, 245, 240, 0.12)');
+      topHighlight.addColorStop(1, 'rgba(255, 245, 240, 0)');
+      chipCtx.fillStyle = topHighlight;
+      chipCtx.beginPath();
+      chipCtx.moveTo(cgx, cgy);
+      chipCtx.lineTo(cgx + cgw * 0.65, cgy);
+      chipCtx.lineTo(cgx, cgy + cgh * 0.65);
+      chipCtx.closePath();
+      chipCtx.fill();
+
+      // Sharp specular highlight (top edge)
+      const specular = chipCtx.createLinearGradient(cgx, cgy, cgx, cgy + cgh * 0.15);
+      specular.addColorStop(0, 'rgba(255, 255, 255, 0.45)');
+      specular.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      chipCtx.fillStyle = specular;
+      chipCtx.fillRect(cgx + 2, cgy + 1, cgw - 4, cgh * 0.12);
+
+      // Left edge bright line
+      chipCtx.strokeStyle = 'rgba(255, 250, 245, 0.45)';
+      chipCtx.lineWidth = 1.8;
+      chipCtx.beginPath();
+      chipCtx.moveTo(cgx + 0.5, cgy + cgh - 3);
+      chipCtx.lineTo(cgx + 0.5, cgy + 2);
+      chipCtx.lineTo(cgx + cgw * 0.35, cgy + 0.5);
+      chipCtx.stroke();
+
+      // Right edge subtle pink reflection
+      chipCtx.strokeStyle = 'rgba(245, 198, 208, 0.25)';
+      chipCtx.lineWidth = 1.2;
+      chipCtx.beginPath();
+      chipCtx.moveTo(cgx + cgw - 0.5, cgy + 3);
+      chipCtx.lineTo(cgx + cgw - 0.5, cgy + cgh - 3);
+      chipCtx.stroke();
+
+      // Bottom edge pink glow line
+      chipCtx.strokeStyle = 'rgba(232, 138, 154, 0.35)';
+      chipCtx.lineWidth = 1.2;
+      chipCtx.beginPath();
+      chipCtx.moveTo(cgx + 3, cgy + cgh - 0.5);
+      chipCtx.lineTo(cgx + cgw - 3, cgy + cgh - 0.5);
+      chipCtx.stroke();
+
+      // ==========================================
+      // 9. DIE BORDERS / SEAL RINGS
+      // ==========================================
+      
+      // Outer die border
+      chipCtx.strokeStyle = 'rgba(200, 192, 200, 0.3)';
+      chipCtx.lineWidth = 0.8;
+      chipCtx.strokeRect(cgx + 0.5, cgy + 0.5, cgw - 1, cgh - 1);
+
+      // Inner seal ring (dashed pink)
+      chipCtx.strokeStyle = 'rgba(245, 198, 208, 0.2)';
+      chipCtx.lineWidth = 0.5;
+      chipCtx.setLineDash([4, 3]);
+      chipCtx.strokeRect(cgx + 5, cgy + 5, cgw - 10, cgh - 10);
+      chipCtx.setLineDash([]);
+
+      // ==========================================
+      // 10. PACKAGE PINS (metallic details)
+      // ==========================================
+      const pinCount = 18;
+      const pinLen = baseSize * 0.07;
+      chipCtx.lineWidth = 0.9;
+
+      for (let i = 0; i < pinCount; i++) {
+        const f = (i + 0.5) / pinCount;
+        const py = -hh + baseSize * 0.05 + f * (chipH - baseSize * 0.1);
+        const perspective = 0.6 + Math.abs(sinY) * 0.4;
+
+        // Left pins
+        const leftPinX = -hw - pinLen * perspective;
+        const leftPinY = py - pinLen * 0.12;
+        
+        // Pin gradient
+        const pinGradL = chipCtx.createLinearGradient(-hw, py, leftPinX, leftPinY);
+        pinGradL.addColorStop(0, 'rgba(220, 212, 220, 0.7)');
+        pinGradL.addColorStop(1, 'rgba(180, 170, 180, 0.3)');
+        chipCtx.strokeStyle = pinGradL;
+        chipCtx.beginPath();
+        chipCtx.moveTo(-hw, py);
+        chipCtx.lineTo(leftPinX, leftPinY);
+        chipCtx.stroke();
+
+        // Pin tip ball
+        chipCtx.fillStyle = 'rgba(240, 232, 240, 0.8)';
+        chipCtx.beginPath();
+        chipCtx.arc(leftPinX, leftPinY, Math.max(0.6, baseSize * 0.01), 0, Math.PI * 2);
+        chipCtx.fill();
+
+        // Right pins
+        const rightPinX = hw + pinLen * perspective;
+        const rightPinY = py - pinLen * 0.12;
+        
+        const pinGradR = chipCtx.createLinearGradient(hw, py, rightPinX, rightPinY);
+        pinGradR.addColorStop(0, 'rgba(220, 212, 220, 0.7)');
+        pinGradR.addColorStop(1, 'rgba(180, 170, 180, 0.3)');
+        chipCtx.strokeStyle = pinGradR;
+        chipCtx.beginPath();
+        chipCtx.moveTo(hw, py);
+        chipCtx.lineTo(rightPinX, rightPinY);
+        chipCtx.stroke();
+
+        chipCtx.fillStyle = 'rgba(240, 232, 240, 0.8)';
+        chipCtx.beginPath();
+        chipCtx.arc(rightPinX, rightPinY, Math.max(0.6, baseSize * 0.01), 0, Math.PI * 2);
+        chipCtx.fill();
+      }
+
+      // ==========================================
+      // 11. PIN 1 INDICATOR (pink marker dot)
+      // ==========================================
+      chipCtx.fillStyle = 'rgba(232, 138, 154, 0.85)';
+      chipCtx.beginPath();
+      chipCtx.arc(-hw + baseSize * 0.045, -hh + baseSize * 0.04, baseSize * 0.01, 0, Math.PI * 2);
+      chipCtx.fill();
+
+      // Pin 1 glow
+      const pin1Glow = chipCtx.createRadialGradient(
+        -hw + baseSize * 0.045, -hh + baseSize * 0.04, 0,
+        -hw + baseSize * 0.045, -hh + baseSize * 0.04, baseSize * 0.06
+      );
+      pin1Glow.addColorStop(0, 'rgba(232, 138, 154, 0.4)');
+      pin1Glow.addColorStop(1, 'rgba(232, 138, 154, 0)');
+      chipCtx.fillStyle = pin1Glow;
+      chipCtx.beginPath();
+      chipCtx.arc(-hw + baseSize * 0.045, -hh + baseSize * 0.04, baseSize * 0.06, 0, Math.PI * 2);
+      chipCtx.fill();
+
+      chipCtx.restore();
     }
 
-    // Main render loop
-    function renderChipAnimation() {
-      animFrame++;
-      
-      // Smooth scroll interpolation
-      targetScroll = getHeroScrollProgress();
-      currentScroll += (targetScroll - currentScroll) * 0.08;
-      
-      const params = getAnimParams(currentScroll);
-      
+    // --- Main render loop ---
+    function renderGlassChip() {
+      const now = performance.now();
+      const dt = Math.min(32, now - lastFrameTime);
+      lastFrameTime = now;
+      animTime += dt;
+
+      // Clear
       chipCtx.clearRect(0, 0, cw, ch);
-      drawSemiconductorChip(params);
-      
-      requestAnimationFrame(renderChipAnimation);
+
+      // Subtle background vignette (dark edges)
+      const bgVignette = chipCtx.createRadialGradient(
+        cw / 2, ch * 0.45, ch * 0.1,
+        cw / 2, ch * 0.45, ch * 0.9
+      );
+      bgVignette.addColorStop(0, 'rgba(232, 138, 154, 0.03)');
+      bgVignette.addColorStop(0.5, 'rgba(8, 8, 10, 0)');
+      bgVignette.addColorStop(1, 'rgba(0, 0, 0, 0.35)');
+      chipCtx.fillStyle = bgVignette;
+      chipCtx.fillRect(0, 0, cw, ch);
+
+      // Draw particles
+      particles.forEach(p => {
+        if (!prefersReducedMotion) p.update(dt * 0.06);
+        p.draw();
+      });
+
+      // Chip animation parameters
+      // Position: slightly above center, more prominent
+      const cx = cw / 2;
+      const cy = ch * 0.52;
+      const baseSize = Math.min(cw, ch) * 0.22;
+
+      let rotY, rotX, floatY, bobPhase;
+      if (prefersReducedMotion) {
+        rotY = 0.3;
+        rotX = 0.1;
+        floatY = 0;
+        bobPhase = 0;
+      } else {
+        // Slow continuous rotation around vertical axis
+        rotY = Math.sin(animTime * 0.00012) * 0.5 + 0.15;
+        // Gentle tilt
+        rotX = Math.sin(animTime * 0.00009 + 1.2) * 0.15 + 0.06;
+        // Smooth floating up and down
+        floatY = Math.sin(animTime * 0.00035) * baseSize * 0.1;
+        bobPhase = animTime * 0.00035;
+      }
+
+      // Draw the glass chip
+      drawGlassChip(cx, cy, baseSize, rotY, rotX, floatY, bobPhase);
+
+      requestAnimationFrame(renderGlassChip);
     }
 
-    // Respect reduced motion
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    
-    resizeChipCanvas();
-    window.addEventListener('resize', resizeChipCanvas);
-    
-    if (!prefersReducedMotion) {
-      requestAnimationFrame(renderChipAnimation);
-    } else {
-      // Static frame for reduced motion
-      currentScroll = 0.3;
-      const params = getAnimParams(currentScroll);
-      chipCtx.clearRect(0, 0, cw, ch);
-      drawSemiconductorChip(params);
-    }
+    requestAnimationFrame(renderGlassChip);
   }
+
   // --- Smooth scroll for anchor links ---
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', (e) => {
@@ -685,7 +620,6 @@
   // --- Initial triggers ---
   setTimeout(() => {
     checkReveal();
-    updatePartLabels();
     updateScrollIndicator();
   }, 200);
 
