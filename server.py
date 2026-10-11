@@ -193,8 +193,10 @@ def list_projects():
     for pid in sorted(os.listdir(DATA)) if os.path.isdir(DATA) else []:
         meta = jread(os.path.join(DATA, pid, "project.json"), {})
         runs = jread(os.path.join(DATA, pid, "runs.json"), [])
+        last_run = runs[-1] if runs else {}
         out.append({"id": pid, **meta, "runs": len(runs),
-                    "last_status": runs[-1]["status"] if runs else "none"})
+                    "last_status": last_run.get("status", "none"),
+                    "last_run_id": last_run.get("id", None)})
     return out
 
 def create_project(name, spec, rtl=None):
@@ -387,37 +389,40 @@ except Exception as _e:
     HAS_AGENTS = False
     _AGENT_IMPORT_ERR = str(_e)
 
-def execute_agent_run(pid, rtl_override=None, max_recovery=2):
+def execute_agent_run(pid, rtl_override=None, max_recovery=2, rid=None):
     """Run the multi-agent pipeline and persist a frontend-compatible run.json."""
     pdir = os.path.join(DATA, pid)
     meta = jread(os.path.join(pdir, "project.json"), {})
     orch = Orchestrator(DATA, max_recovery=max_recovery)
-    run_state = orch.run_pipeline(pid, meta.get("spec", ""), rtl_override=rtl_override)
+    run_state = orch.run_pipeline(pid, meta.get("spec", ""), rtl_override=rtl_override, run_id=rid)
     rd = run_state.to_dict()
     # map orchestrator shape -> legacy frontend shape (stages as list)
     stages = []
     for aid, st in rd.get("stages", {}).items():
         stages.append({"name": aid, "status": st.get("status", "pending"),
                        "exit_code": 0 if st.get("status") == "passed" else 1,
-                       "duration_s": (st.get("finished_at") or 0) - (st.get("started_at") or 0)})
+                       "duration_s": round((st.get("finished_at") or 0) - (st.get("started_at") or 0), 2)})
+    rdir = os.path.join(pdir, "runs", rd["id"])
+    artifacts_dir = os.path.join(rdir, "artifacts")
+    all_artifacts = sorted(os.listdir(artifacts_dir)) if os.path.isdir(artifacts_dir) else rd.get("artifacts", [])
     legacy = {
         "id": rd["id"], "project": pid, "status": rd["status"],
         "stages": stages,
         "recovery": {"attempts": rd.get("recovery_attempts", 0),
                      "actions": [e.get("actions", "") for e in rd.get("events", []) if e.get("kind") == "recovery_attempt"]},
-        "artifacts": rd.get("artifacts", []),
+        "artifacts": all_artifacts,
         "tools": dict(TOOLS),
         "agent_pipeline": True,
         "events": rd.get("events", [])[-50:],
     }
     # overwrite run.json with frontend-compatible view
-    rdir = os.path.join(pdir, "runs", rd["id"])
     jwrite(os.path.join(rdir, "run.json"), legacy)
     runs = jread(os.path.join(pdir, "runs.json"), [])
     runs = [r for r in runs if r.get("id") != rd["id"]] + [
         {"id": rd["id"], "status": rd["status"], "started": rd.get("started_at"),
          "stages": [s["name"]+":"+s["status"] for s in stages],
-         "recovered": rd.get("recovery_attempts", 0) > 0, "agent_pipeline": True}]
+         "recovered": rd.get("recovery_attempts", 0) > 0, "agent_pipeline": True,
+         "artifacts_count": len(all_artifacts)}]
     jwrite(os.path.join(pdir, "runs.json"), runs)
     return legacy
 
@@ -558,9 +563,10 @@ class Handler(BaseHTTPRequestHandler):
             rtl = payload.get("rtl")
             use_broken = payload.get("demo_broken", False)
             if use_broken: rtl = BROKEN_RTL
+            rid = uuid.uuid4().hex[:8]
             _run_fn = execute_agent_run if HAS_AGENTS else execute_run
-            threading.Thread(target=_run_fn, args=(pid, rtl), daemon=True).start()
-            self._send(200, {"status": "started", "project": pid, "agent_pipeline": HAS_AGENTS})
+            threading.Thread(target=_run_fn, args=(pid, rtl), kwargs={"rid": rid} if HAS_AGENTS else {}, daemon=True).start()
+            self._send(200, {"status": "started", "project": pid, "run_id": rid, "agent_pipeline": HAS_AGENTS})
         else:
             self._send(404, {"error": "unknown endpoint"})
 

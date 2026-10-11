@@ -144,9 +144,9 @@ class Orchestrator:
         return inputs
 
     def run_pipeline(self, project_id: str, natural_language: str,
-                     rtl_override: Optional[str] = None) -> RunState:
+                     rtl_override: Optional[str] = None, run_id: Optional[str] = None) -> RunState:
         pdir = os.path.join(self.projects_dir, project_id)
-        rid = uuid.uuid4().hex[:8]
+        rid = run_id or uuid.uuid4().hex[:8]
         run = RunState(os.path.join(pdir, "runs", rid))
         run._natural_language = natural_language
         run.status = "running"
@@ -185,8 +185,10 @@ class Orchestrator:
             st.result = result.to_dict()
             st.status = result.status
             st.finished_at = time.time()
+            if os.path.isdir(artifacts_dir):
+                run.artifacts = sorted(os.listdir(artifacts_dir))
             run.event("stage_finished", agent=agent_id, status=result.status,
-                      confidence=result.confidence)
+                      confidence=result.confidence, artifacts=run.artifacts)
 
             # --- inline failure recovery for rtl_design / verification ---
             if result.status in ("failed",) and agent_id in ("rtl_design", "functional_verification"):
@@ -242,7 +244,9 @@ class Orchestrator:
             run.status = "passed" if disp == "complete" else disp
         else:
             run.status = "passed"
-        run.event("run_finished", status=run.status)
+        if os.path.isdir(artifacts_dir):
+            run.artifacts = sorted(os.listdir(artifacts_dir))
+        run.event("run_finished", status=run.status, artifacts=run.artifacts)
         run.save()
         if HAVE_NEATLOGS:
             try:
