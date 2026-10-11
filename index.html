@@ -15,23 +15,6 @@
   <div class="chip-canvas-container">
     <canvas id="chip-canvas"></canvas>
   <!-- Premium Navigation -->
-  <nav class="premium-nav" style="background: rgba(10,10,12,0.9) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border-bottom: 1px solid rgba(255,255,255,0.1) !important;">
-    <div class="nav-inner">
-      <a href="index.html" class="nav-logo">
-        <span class="logo-mark">S</span>
-        <span class="logo-text" style="color: #fff !important;">Silica</span>
-      </a>
-      <div class="nav-links">
-        <a href="#workflow" class="nav-link" style="color: #fff !important;">Platform</a>
-        <a href="#anatomy" class="nav-link" style="color: #fff !important;">Architecture</a>
-        <a href="#config" class="nav-link" style="color: #fff !important;">Technologies</a>
-        <a href="#analysis" class="nav-link" style="color: #fff !important;">Analysis</a>
-      </div>
-      <div class="nav-actions">
-        <a href="login.html" class="nav-link nav-signin">Sign in</a>
-        <a href="login.html" class="btn-primary btn-small" style="background: linear-gradient(135deg, #f5c6d0, #e88a9a) !important; color: #1a1a1a !important;">Get Started</a>
-      </div>
-    </div>
   </nav>  </div>
   <div id="scroll-container">
     <div id="scroll-content">
@@ -57,6 +40,24 @@
               <span class="ch-v"></span>
             </div>
             <div id="scroller" class="scroll-indicator">
+            <nav class="premium-nav" style="position: absolute; top: 0; left: 0; right: 0; padding: 14px 40px; background: rgba(10,10,12,0.85); border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 10;">
+              <div class="nav-inner" style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;">
+                <a href="index.html" class="nav-logo" style="display: flex; align-items: center; gap: 10px; font-family: Inter, sans-serif; font-weight: 600; font-size: 17px; color: #fff; text-decoration: none;">
+                  <span class="logo-mark" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f5c6d0, #e88a9a); border-radius: 7px; font-size: 15px; font-weight: 700; color: #1a1a1a;">S</span>
+                  <span>Silica</span>
+                </a>
+                <div style="display: flex; align-items: center; gap: 28px;">
+                  <a href="#workflow" style="font-family: Inter, sans-serif; font-size: 14px; color: rgba(255,255,255,0.8); text-decoration: none;">Platform</a>
+                  <a href="#anatomy" style="font-family: Inter, sans-serif; font-size: 14px; color: rgba(255,255,255,0.8); text-decoration: none;">Architecture</a>
+                  <a href="#config" style="font-family: Inter, sans-serif; font-size: 14px; color: rgba(255,255,255,0.8); text-decoration: none;">Technologies</a>
+                  <a href="#analysis" style="font-family: Inter, sans-serif; font-size: 14px; color: rgba(255,255,255,0.8); text-decoration: none;">Analysis</a>
+                </div>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                  <a href="login.html" style="font-family: Inter, sans-serif; font-size: 14px; color: rgba(255,255,255,0.7); text-decoration: none;">Sign in</a>
+                  <a href="login.html" style="display: inline-flex; align-items: center; padding: 8px 16px; font-family: Inter, sans-serif; font-size: 13px; font-weight: 500; color: #1a1a1a; background: linear-gradient(135deg, #f5c6d0, #e88a9a); border-radius: 8px; text-decoration: none; box-shadow: 0 2px 12px rgba(232,138,154,0.3);">Get Started</a>
+                </div>
+              </div>
+            </nav>
               <div class="scroll-track">
                 <span id="scroller-cursor" class="scroll-cursor"></span>
               </div>
