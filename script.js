@@ -236,7 +236,7 @@
         rotY = lerp(-0.6, -0.4, t);
         rotX = lerp(0.25, 0.20, t);
         scale = lerp(0.55, 0.85, t);
-        glowIntensity = lerp(0, 0.3, t);
+        glowIntensity = lerp(0, 0.6, t);
         circuitAlpha = 0;
         revealAlpha = lerp(0, 1, t);
       } else if (p < 0.40) {
@@ -244,7 +244,7 @@
         rotY = lerp(-0.4, 0.5, t);
         rotX = lerp(0.20, 0.30, t);
         scale = lerp(0.85, 0.95, t);
-        glowIntensity = lerp(0.3, 0.5, t);
+        glowIntensity = lerp(0.6, 0.8, t);
         circuitAlpha = lerp(0, 0.15, t);
         revealAlpha = 1;
       } else if (p < 0.65) {
@@ -252,7 +252,7 @@
         rotY = lerp(0.5, 0.8, t);
         rotX = lerp(0.30, 0.15, t);
         scale = lerp(0.95, 1.0, t);
-        glowIntensity = lerp(0.5, 0.7, t);
+        glowIntensity = lerp(0.8, 1.0, t);
         circuitAlpha = lerp(0.15, 0.6, t);
         revealAlpha = 1;
       } else if (p < 0.85) {
@@ -260,7 +260,7 @@
         rotY = lerp(0.8, 0.3, t);
         rotX = lerp(0.15, 0.45, t);
         scale = lerp(1.0, 0.92, t);
-        glowIntensity = lerp(0.7, 0.55, t);
+        glowIntensity = lerp(1.0, 0.8, t);
         circuitAlpha = lerp(0.6, 0.4, t);
         revealAlpha = 1;
       } else {
@@ -268,7 +268,7 @@
         rotY = lerp(0.3, -0.2, t);
         rotX = lerp(0.45, 0.28, t);
         scale = lerp(0.92, 0.88, t);
-        glowIntensity = lerp(0.55, 0.35, t);
+        glowIntensity = lerp(0.8, 0.5, t);
         circuitAlpha = lerp(0.4, 0.2, t);
         revealAlpha = 1;
       }
@@ -334,11 +334,11 @@
         
         // Package body
         const pkgGrad = chipCtx.createLinearGradient(-pkgW/2, 0, pkgW/2, 0);
-        pkgGrad.addColorStop(0, '#1a1a1a');
-        pkgGrad.addColorStop(0.5, '#2a2a2a');
-        pkgGrad.addColorStop(1, '#1a1a1a');
+        pkgGrad.addColorStop(0, '#7a7a82');
+        pkgGrad.addColorStop(0.5, '#9a9aa2');
+        pkgGrad.addColorStop(1, '#7a7a82');
         chipCtx.fillStyle = pkgGrad;
-        chipCtx.strokeStyle = '#0a0a0a';
+        chipCtx.strokeStyle = '#3a3a42';
         chipCtx.lineWidth = 1;
         chipCtx.beginPath();
         const r = baseSize * 0.06, rx = -pkgW/2, ry = -pkgH/2;
@@ -356,7 +356,7 @@
         chipCtx.stroke();
 
         // Package marker dots
-        chipCtx.fillStyle = '#0a0a0a';
+        chipCtx.fillStyle = '#3a3a42';
         for (let i = 0; i < 3; i++) {
           chipCtx.beginPath();
           chipCtx.arc(-pkgW/2 + baseSize * 0.08 + i * baseSize * 0.06, 
@@ -377,13 +377,13 @@
 
       // Silicon die base
       const dieGrad = chipCtx.createLinearGradient(-dieW/2, -dieH/2, dieW/2, dieH/2);
-      dieGrad.addColorStop(0, '#2a2d35');
-      dieGrad.addColorStop(0.4, '#3a3d45');
-      dieGrad.addColorStop(0.7, '#32353d');
-      dieGrad.addColorStop(1, '#252830');
+      dieGrad.addColorStop(0, '#d0d0d8');
+      dieGrad.addColorStop(0.4, '#e0e0e8');
+      dieGrad.addColorStop(0.7, '#d8d8e0');
+      dieGrad.addColorStop(1, '#c0c0c8');
       
       chipCtx.fillStyle = dieGrad;
-      chipCtx.strokeStyle = '#4a4d55';
+      chipCtx.strokeStyle = '#8a8a92';
       chipCtx.lineWidth = 1.2;
       chipCtx.beginPath();
       chipCtx.rect(-dieW/2, -dieH/2, dieW, dieH);
@@ -398,7 +398,7 @@
       chipCtx.strokeRect(-dieW/2 + 2, -dieH/2 + 2, dieW - 4, dieH - 4);
 
       // --- Scribe lines (dicing marks) ---
-      chipCtx.strokeStyle = 'rgba(150, 150, 160, 0.08)';
+      chipCtx.strokeStyle = 'rgba(200, 200, 210, 0.25)';
       chipCtx.lineWidth = 0.5;
       chipCtx.setLineDash([3, 3]);
       chipCtx.beginPath();
@@ -411,7 +411,7 @@
 
       // --- Seal ring ---
       const sealInset = baseSize * 0.04;
-      chipCtx.strokeStyle = 'rgba(180, 160, 120, 0.35)';
+      chipCtx.strokeStyle = 'rgba(200, 170, 110, 0.6)';
       chipCtx.lineWidth = 1;
       chipCtx.setLineDash([4, 2]);
       chipCtx.strokeRect(-dieW/2 + sealInset, -dieH/2 + sealInset, 
@@ -446,11 +446,11 @@
       blocks.forEach(block => {
         // Block background
         if (block.type === 'core') {
-          chipCtx.fillStyle = 'rgba(180, 180, 190, 0.08)';
-          chipCtx.strokeStyle = 'rgba(200, 200, 210, 0.2)';
+          chipCtx.fillStyle = 'rgba(220, 220, 230, 0.25)';
+          chipCtx.strokeStyle = 'rgba(230, 230, 240, 0.5)';
         } else {
-          chipCtx.fillStyle = 'rgba(160, 160, 175, 0.05)';
-          chipCtx.strokeStyle = 'rgba(170, 170, 185, 0.12)';
+          chipCtx.fillStyle = 'rgba(200, 200, 215, 0.18)';
+          chipCtx.strokeStyle = 'rgba(210, 210, 225, 0.35)';
         }
         chipCtx.lineWidth = 0.8;
         chipCtx.fillRect(block.x, block.y, block.w, block.h);
@@ -473,7 +473,7 @@
 
       // --- Peripheral / I/O ring area ---
       const ioWidth = dieW * 0.12;
-      chipCtx.fillStyle = 'rgba(140, 140, 155, 0.04)';
+      chipCtx.fillStyle = 'rgba(180, 180, 195, 0.15)';
       // Top IO strip
       chipCtx.fillRect(-dieW/2, -dieH/2, dieW, ioWidth);
       // Bottom IO strip
@@ -596,8 +596,8 @@
         const pinSpacing = pkgH / (pinCount + 1);
         const pinDir = Math.sign(sinY);
         
-        chipCtx.strokeStyle = 'rgba(180, 180, 190, 0.6)';
-        chipCtx.fillStyle = 'rgba(200, 200, 210, 0.7)';
+        chipCtx.strokeStyle = 'rgba(220, 220, 230, 0.85)';
+        chipCtx.fillStyle = 'rgba(235, 235, 245, 0.92)';
         chipCtx.lineWidth = 1;
         
         for (let i = 0; i < pinCount; i++) {
@@ -625,7 +625,7 @@
 
       // --- Specular highlight ---
       chipCtx.save();
-      chipCtx.globalAlpha = 0.08 * params.revealAlpha;
+      chipCtx.globalAlpha = 0.18 * params.revealAlpha;
       const highlight = chipCtx.createRadialGradient(
         -dieW * 0.25, -dieH * 0.3, 0,
         -dieW * 0.25, -dieH * 0.3, dieW * 0.6
