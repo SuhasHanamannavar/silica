@@ -593,6 +593,39 @@ function renderRealRun(){
     '<p style="margin-top:14px"><button class="btn" onclick="state.realRun=null;go(&quot;workspace&quot;)">Back to workspace</button></p>';
   v.innerHTML = html;
 }
+function updateUserProfile(){
+  try {
+    var email = localStorage.getItem('silica_user');
+    var name = localStorage.getItem('silica_name');
+    if(!email) return;
+
+    var displayName = name || email.split('@')[0];
+    var initial = displayName.trim().charAt(0).toUpperCase() || 'E';
+
+    var nameEl = document.getElementById('app-uname') || document.querySelector('.u-name');
+    var mailEl = document.getElementById('app-umail') || document.querySelector('.u-mail');
+    var avEl = document.getElementById('app-avatar') || document.querySelector('.avatar');
+
+    if(nameEl) nameEl.textContent = displayName;
+    if(mailEl) mailEl.textContent = email;
+    if(avEl) avEl.textContent = initial;
+
+    var userBox = document.getElementById('app-user-box') || document.querySelector('.user');
+    if(userBox && !userBox.getAttribute('data-logout-bound')){
+      userBox.setAttribute('data-logout-bound', 'true');
+      userBox.addEventListener('click', function(){
+        if(confirm('Currently signed in as ' + displayName + ' (' + email + '). Do you want to sign out?')){
+          localStorage.removeItem('silica_token');
+          localStorage.removeItem('silica_user');
+          localStorage.removeItem('silica_name');
+          window.location.href = 'login.html';
+        }
+      });
+    }
+  } catch(e){}
+}
+updateUserProfile();
+
 checkBackend();
 
 render();

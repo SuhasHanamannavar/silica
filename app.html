@@ -59,15 +59,33 @@
     </nav>
     <div class="side-foot">
       <div class="proto-badge"><span class="dot"></span>Connecting to backend…</div>
-      <div class="user">
-        <div class="avatar">S</div>
+      <div class="user" id="app-user-box" title="Click to Sign Out / Switch Account" style="cursor:pointer">
+        <div class="avatar" id="app-avatar">S</div>
         <div>
-          <div class="u-name">Suhas Hanamannavar</div>
-          <div class="u-mail">webofjee@gmail.com</div>
+          <div class="u-name" id="app-uname">Suhas Hanamannavar</div>
+          <div class="u-mail" id="app-umail">webofjee@gmail.com</div>
         </div>
       </div>
     </div>
   </aside>
+  <script>
+    (function(){
+      try {
+        var email = localStorage.getItem('silica_user');
+        var name = localStorage.getItem('silica_name');
+        if(email){
+          var dn = name || email.split('@')[0];
+          var av = dn.trim().charAt(0).toUpperCase() || 'E';
+          var uN = document.getElementById('app-uname');
+          var uM = document.getElementById('app-umail');
+          var aV = document.getElementById('app-avatar');
+          if(uN) uN.textContent = dn;
+          if(uM) uM.textContent = email;
+          if(aV) aV.textContent = av;
+        }
+      }catch(e){}
+    })();
+  </script>
 
   <!-- ============ Main ============ -->
   <div class="main">
