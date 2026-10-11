@@ -19,10 +19,10 @@
   --line: rgba(255, 255, 255, 0.08);
   --line-strong: rgba(255, 255, 255, 0.14);
 
-  --accent: #D4A03A;
-  --accent-hover: #E0AD4A;
-  --accent-soft: rgba(212, 160, 58, 0.1);
-  --accent-dim: rgba(212, 160, 58, 0.5);
+  --accent: #94A3B8;
+  --accent-hover: #A8B5C9;
+  --accent-soft: rgba(148, 163, 184, 0.12);
+  --accent-dim: rgba(148, 163, 184, 0.5);
 
   --success: #4ADE80;
   --success-soft: rgba(74, 222, 128, 0.1);
@@ -489,12 +489,12 @@ a{color: inherit; text-decoration: none;}
   margin: 0 auto;
   border-radius: var(--radius-lg);
   background: var(--bg-surface);
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(4, 1fr);
-  gap: 4px;
-  padding: 12px;
+  gap: 3px;
+  padding: 10px;
   overflow: hidden;
 }
 .chip-mini::before{
@@ -504,12 +504,12 @@ a{color: inherit; text-decoration: none;}
 }
 .chip-mini .cell{
   background: var(--bg-card);
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   border-radius: 2px;
   transition: background 0.3s;
 }
 .chip-mini .cell.a{ background: var(--accent-soft); border-color: var(--accent-dim); }
-.chip-mini .cell.b{ background: rgba(96, 165, 250, 0.08); border-color: rgba(96, 165, 250, 0.2); }
+.chip-mini .cell.b{ background: rgba(96, 165, 250, 0.1); border-color: rgba(96, 165, 250, 0.25); }
 
 @media(max-width: 720px){
   .hero-strip{ grid-template-columns: 1fr; }
