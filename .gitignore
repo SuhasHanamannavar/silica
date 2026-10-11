@@ -4,3 +4,5 @@ __pycache__/
 server.log
 __pycache__/
 data/silica_sft/
+*.pem
+aws_instance_info.json
