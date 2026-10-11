@@ -110,6 +110,24 @@
     background: var(--blue); color: #fff !important; border-color: var(--blue);
     box-shadow: 0 0 16px var(--blue-glow);
   }
+  nav .nav-auth-link {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    padding: 6px 10px;
+    transition: all 0.2s;
+  }
+  nav .signup-pill {
+    color: var(--blue-bright) !important;
+    border: 1px solid var(--blue);
+    border-radius: 4px;
+    padding: 5px 12px;
+    background: rgba(91, 139, 247, 0.12);
+  }
+  nav .signup-pill:hover {
+    background: var(--blue);
+    color: #fff !important;
+    box-shadow: 0 0 14px var(--blue-glow);
+  }
   @media (max-width: 860px) { nav ul { display: none; } }
 
   /* ---------- HERO SECTION ---------- */
@@ -315,6 +333,8 @@
       <li><a href="#config">CONFIGURATION</a></li>
       <li><a href="#analysis">ANALYSIS</a></li>
       <li><a href="#tapeout">TAPEOUT</a></li>
+      <li><a href="login.html" class="nav-auth-link">SIGN IN</a></li>
+      <li><a href="login.html?mode=signup" class="nav-auth-link signup-pill">SIGN UP</a></li>
       <li><a href="app.html" class="workspace-link">WORKSPACE →</a></li>
     </ul>
   </nav>
@@ -342,8 +362,9 @@
                 <path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </a>
-            <a href="chat.html" class="btn-secondary">AI ASSISTANT</a>
+            <a href="login.html?mode=signup" class="btn-secondary" style="border-color:var(--blue);color:var(--blue-bright);">CREATE ACCOUNT (SIGN UP)</a>
             <a href="login.html" class="btn-secondary">SIGN IN</a>
+            <a href="chat.html" class="btn-secondary">AI ASSISTANT</a>
           </div>
         </div>
 

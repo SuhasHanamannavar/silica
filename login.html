@@ -3,236 +3,459 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Silica — Sign In</title>
+  <title>SILICA — Access & Account Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=B612+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=B612+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #08090d;
+      --bg-card: #0d0f17;
+      --bg-input: #121520;
+      --ink: #f0f4f8;
+      --ink-dim: #94a3b8;
+      --ink-faint: #475569;
+      --line: rgba(148, 163, 184, 0.14);
+      --line-strong: rgba(148, 163, 184, 0.28);
+      --blue: #5b8bf7;
+      --blue-bright: #6896ff;
+      --blue-glow: rgba(91, 139, 247, 0.4);
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --mono: 'B612 Mono', ui-monospace, Menlo, monospace;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient blue glow behind card */
+    .glow {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 650px; height: 650px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(91, 139, 247, 0.12) 0%, rgba(91, 139, 247, 0.03) 45%, transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Back link */
+    .back-nav {
+      position: fixed;
+      top: 28px; left: 36px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 10;
+      transition: color 0.2s;
+    }
+    .back-nav:hover { color: var(--blue-bright); }
+
+    /* Telemetry badge */
+    .db-badge {
+      position: fixed;
+      top: 28px; right: 36px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--blue-bright);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(91, 139, 247, 0.08);
+      border: 1px solid rgba(91, 139, 247, 0.25);
+      padding: 6px 14px;
+      border-radius: 20px;
+      z-index: 10;
+    }
+    .db-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    /* Card */
+    .auth-card {
+      position: relative;
+      z-index: 5;
+      width: 100%;
+      max-width: 440px;
+      background: var(--bg-card);
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      padding: 38px 36px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(91, 139, 247, 0.08);
+    }
+
+    /* Header */
+    .auth-header { text-align: center; margin-bottom: 28px; }
+    .logo-mark {
+      display: inline-flex;
+      align-items: center; justify-content: center;
+      width: 32px; height: 32px;
+      border: 1.5px solid var(--blue);
+      border-radius: 6px;
+      color: var(--blue-bright);
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 14px;
+      background: rgba(91, 139, 247, 0.1);
+      margin-bottom: 14px;
+    }
+    .auth-title { font-size: 24px; font-weight: 600; color: #fff; letter-spacing: -0.02em; }
+    .auth-subtitle { color: var(--ink-dim); font-size: 13px; margin-top: 6px; }
+
+    /* Tabs */
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 26px;
+    }
+    .tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 10px 0;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .tab-btn:hover { color: #fff; }
+    .tab-btn.active {
+      color: var(--blue-bright);
+      border-bottom-color: var(--blue);
+      font-weight: 600;
+    }
+
+    /* Form Fields */
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+      margin-bottom: 7px;
+    }
+    .form-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--line);
+      color: #fff;
+      font-family: var(--sans);
+      font-size: 14px;
+      padding: 11px 14px;
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(91, 139, 247, 0.2);
+    }
+    .form-input::placeholder { color: var(--ink-faint); }
+
+    /* Options */
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--ink-dim);
+      margin-bottom: 22px;
+    }
+    .form-checkbox { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .form-checkbox input { accent-color: var(--blue); }
+    .form-link { color: var(--blue-bright); text-decoration: none; font-size: 12px; }
+    .form-link:hover { text-decoration: underline; }
+
+    /* Submit Button */
+    .btn-submit {
+      width: 100%;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      padding: 13px;
+      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(91, 139, 247, 0.35);
+      transition: all 0.25s;
+    }
+    .btn-submit:hover {
+      background: var(--blue-bright);
+      box-shadow: 0 0 25px rgba(91, 139, 247, 0.55);
+      transform: translateY(-1px);
+    }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* Alerts */
+    .auth-alert {
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin-bottom: 18px;
+      display: none;
+      line-height: 1.5;
+    }
+    .auth-alert.error {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+    }
+    .auth-alert.success {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #6ee7b7;
+    }
+
+    /* Footer hints */
+    .auth-hints {
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--ink-faint);
+      line-height: 1.6;
+      text-align: center;
+    }
+    .auth-hints code {
+      color: var(--ink-dim);
+      background: rgba(148, 163, 184, 0.08);
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+  </style>
 </head>
-<body class="login-page">
+<body>
 
-  <!-- Background particle canvas -->
-  <div class="login-canvas-bg">
-    <canvas id="bg-canvas"></canvas>
-  </div>
+  <div class="glow"></div>
 
-  <!-- Subtle ambient glow behind card -->
-  <div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;pointer-events:none;z-index:1;">
-    <div style="width:100%;height:100%;border-radius:50%;background:radial-gradient(circle,rgba(232,138,154,0.12) 0%,rgba(245,198,208,0.04) 30%,transparent 70%);"></div>
-  </div>
-
-  <!-- Back link -->
-  <a href="index.html" class="login-back">
+  <!-- Top bar -->
+  <a href="index.html" class="back-nav">
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
       <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     Back to Silica
   </a>
 
-  <!-- Login Card -->
-  <div class="login-card">
-    <div class="login-header">
-      <div class="login-logo">
-        <span class="logo-mark">S</span>
-        <span>Silica</span>
-      </div>
-      <h1 class="login-title">Sign in</h1>
-      <p class="login-subtitle">Welcome back. Continue your design session.</p>
+  <div class="db-badge">
+    <span class="db-dot"></span>
+    AWS DynamoDB Live (ap-south-1)
+  </div>
+
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="logo-mark">2</div>
+      <h1 class="auth-title" id="card-title">Sign In</h1>
+      <p class="auth-subtitle" id="card-subtitle">Access your autonomous EDA engineering session</p>
     </div>
 
-    <form id="login-form" onsubmit="return handleLogin(event)">
+    <!-- Tab Switcher -->
+    <div class="auth-tabs">
+      <button class="tab-btn active" id="tab-login" onclick="setMode('login')">Sign In</button>
+      <button class="tab-btn" id="tab-signup" onclick="setMode('signup')">Create Account</button>
+    </div>
+
+    <div id="alert-box" class="auth-alert"></div>
+
+    <!-- Sign In Form -->
+    <form id="form-login" onsubmit="return handleLogin(event)">
       <div class="form-group">
-        <label class="form-label" for="email">Email</label>
-        <input type="email" id="email" class="form-input" placeholder="you@company.com" required autocomplete="email">
+        <label class="form-label" for="login-email">Engineer Email</label>
+        <input type="email" id="login-email" class="form-input" placeholder="webofjee@gmail.com" required autocomplete="email">
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="password">Password</label>
-        <input type="password" id="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+        <label class="form-label" for="login-password">Password</label>
+        <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
       </div>
 
       <div class="form-options">
         <label class="form-checkbox">
           <input type="checkbox" id="remember" checked>
-          Remember me
+          Keep session active
         </label>
-        <a href="#" class="form-link" onclick="return showForgotPassword()">Forgot password?</a>
+        <a href="#" class="form-link" onclick="quickFillAdmin(); return false;">Use Seeded Admin</a>
       </div>
 
-      <button type="submit" class="btn-primary btn-full">
-        Sign in
-      </button>
+      <button type="submit" class="btn-submit" id="btn-login-submit">Sign In →</button>
     </form>
 
-    <div class="login-divider"><span>or</span></div>
+    <!-- Sign Up Form (hidden by default) -->
+    <form id="form-signup" style="display:none;" onsubmit="return handleSignup(event)">
+      <div class="form-group">
+        <label class="form-label" for="signup-name">Full Name</label>
+        <input type="text" id="signup-name" class="form-input" placeholder="Suhas Hanamannavar" required autocomplete="name">
+      </div>
 
-    <p class="login-footer">
-      Don't have an account? <a href="#">Contact sales</a>
-    </p>
+      <div class="form-group">
+        <label class="form-label" for="signup-email">Work Email</label>
+        <input type="email" id="signup-email" class="form-input" placeholder="engineer@foundry.com" required autocomplete="email">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="signup-password">Password</label>
+        <input type="password" id="signup-password" class="form-input" placeholder="•••••••• (min 4 characters)" minlength="4" required autocomplete="new-password">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="signup-company">Organization / Foundry (Optional)</label>
+        <input type="text" id="signup-company" class="form-input" placeholder="VLSI Systems / TSMC / Intel">
+      </div>
+
+      <button type="submit" class="btn-submit" id="btn-signup-submit">Register in AWS DynamoDB →</button>
+    </form>
+
+    <div class="auth-hints">
+      Database: AWS DynamoDB table <code>silica-users</code><br>
+      Default Admin: <code>webofjee@gmail.com</code> / <code>Suhas@2007</code>
+    </div>
   </div>
 
   <script>
-    // --- Background particle system (bottle-inspired starfield) ---
-    (function() {
-      const canvas = document.getElementById('bg-canvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      let cw, ch, cdpr;
-      let animTime = 0;
-      let lastTime = performance.now();
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function setMode(mode) {
+      const tabLogin = document.getElementById('tab-login');
+      const tabSignup = document.getElementById('tab-signup');
+      const formLogin = document.getElementById('form-login');
+      const formSignup = document.getElementById('form-signup');
+      const cardTitle = document.getElementById('card-title');
+      const cardSubtitle = document.getElementById('card-subtitle');
+      const alertBox = document.getElementById('alert-box');
+      alertBox.style.display = 'none';
 
-      function resize() {
-        cdpr = Math.min(window.devicePixelRatio || 1, 2);
-        cw = window.innerWidth;
-        ch = window.innerHeight;
-        canvas.style.width = cw + 'px';
-        canvas.style.height = ch + 'px';
-        canvas.width = cw * cdpr;
-        canvas.height = ch * cdpr;
-        ctx.setTransform(cdpr, 0, 0, cdpr, 0, 0);
+      if (mode === 'signup') {
+        tabLogin.classList.remove('active');
+        tabSignup.classList.add('active');
+        formLogin.style.display = 'none';
+        formSignup.style.display = 'block';
+        cardTitle.textContent = 'Create Account';
+        cardSubtitle.textContent = 'Register an engineer profile in AWS DynamoDB';
+      } else {
+        tabSignup.classList.remove('active');
+        tabLogin.classList.add('active');
+        formSignup.style.display = 'none';
+        formLogin.style.display = 'block';
+        cardTitle.textContent = 'Sign In';
+        cardSubtitle.textContent = 'Access your autonomous EDA engineering session';
       }
+    }
 
-      class Particle {
-        constructor() { this.reset(true); }
-        reset(initial) {
-          this.x = Math.random() * cw;
-          this.y = Math.random() * ch;
-          this.size = Math.random() * 1.2 + 0.2;
-          this.baseAlpha = Math.random() * 0.4 + 0.08;
-          this.alpha = this.baseAlpha;
-          this.speedX = (Math.random() - 0.5) * 0.08;
-          this.speedY = (Math.random() - 0.5) * 0.06 - 0.02;
-          this.pulseSpeed = Math.random() * 0.015 + 0.003;
-          this.pulseOffset = Math.random() * Math.PI * 2;
-          const r = Math.random();
-          if (r > 0.88) this.tint = 'pink';
-          else if (r > 0.5) this.tint = 'warm';
-          else this.tint = 'white';
-        }
-        update(dt) {
-          this.x += this.speedX * dt;
-          this.y += this.speedY * dt;
-          this.alpha = this.baseAlpha * (0.5 + 0.5 * Math.sin(animTime * this.pulseSpeed + this.pulseOffset));
-          if (this.x < -10) this.x = cw + 10;
-          if (this.x > cw + 10) this.x = -10;
-          if (this.y < -10) this.y = ch + 10;
-          if (this.y > ch + 10) this.y = -10;
-        }
-        draw() {
-          ctx.beginPath();
-          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-          if (this.tint === 'pink') {
-            ctx.fillStyle = `rgba(245, 198, 208, ${this.alpha * 0.85})`;
-          } else if (this.tint === 'warm') {
-            ctx.fillStyle = `rgba(255, 235, 225, ${this.alpha * 0.75})`;
-          } else {
-            ctx.fillStyle = `rgba(255, 250, 248, ${this.alpha})`;
-          }
-          ctx.fill();
-        }
-      }
+    // Check URL param ?mode=signup
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'signup') {
+      setMode('signup');
+    }
 
-      resize();
-      const count = Math.min(140, Math.floor((cw * ch) / 13000));
-      const particles = [];
-      for (let i = 0; i < count; i++) particles.push(new Particle());
+    function showAlert(msg, isError) {
+      const box = document.getElementById('alert-box');
+      box.textContent = msg;
+      box.className = 'auth-alert ' + (isError ? 'error' : 'success');
+      box.style.display = 'block';
+    }
 
-      window.addEventListener('resize', () => {
-        resize();
-        const newCount = Math.min(140, Math.floor((cw * ch) / 13000));
-        while (particles.length < newCount) particles.push(new Particle());
-        while (particles.length > newCount) particles.pop();
-      });
+    function quickFillAdmin() {
+      document.getElementById('login-email').value = 'webofjee@gmail.com';
+      document.getElementById('login-password').value = 'Suhas@2007';
+      showAlert('Filled seeded admin credentials from AWS DynamoDB. Click Sign In.', false);
+    }
 
-      function render() {
-        const now = performance.now();
-        const dt = Math.min(32, now - lastTime);
-        lastTime = now;
-        animTime += dt;
+    // Sign In Handler
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const btn = document.getElementById('btn-login-submit');
 
-        // Subtle vignette
-        const vignette = ctx.createRadialGradient(
-          cw / 2, ch / 2, ch * 0.1,
-          cw / 2, ch / 2, ch * 0.9
-        );
-        vignette.addColorStop(0, 'rgba(232, 138, 154, 0.02)');
-        vignette.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
-        ctx.fillStyle = vignette;
-        ctx.fillRect(0, 0, cw, ch);
-
-        particles.forEach(p => {
-          if (!prefersReducedMotion) p.update(dt * 0.06);
-          p.draw();
-        });
-
-        requestAnimationFrame(render);
-      }
-      requestAnimationFrame(render);
-    })();
-
-    // --- Authentication handlers ---
-    function handleLogin(event) {
-      event.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const remember = document.getElementById('remember').checked;
-
-      const btn = event.target.querySelector('button[type="submit"]');
-      const originalText = btn.textContent;
-      btn.textContent = 'Signing in...';
+      btn.textContent = 'Authenticating with AWS...';
       btn.disabled = true;
 
-      // Attempt real API call first, fall back to client-side auth
-      fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, remember })
-      }).then(r => {
-        if (r.ok) return r.json();
-        throw new Error('API unavailable');
-      }).then(data => {
-        if (data.token) {
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (res.ok && data.token) {
+          localStorage.setItem('silica_token', data.token);
+          localStorage.setItem('silica_user', data.email || email);
+          localStorage.setItem('silica_name', data.name || 'Engineer');
+          showAlert('Authentication verified! Redirecting to EDA Workspace...', false);
+          setTimeout(() => { window.location.href = 'app.html'; }, 700);
+        } else {
+          showAlert(data.error || 'Invalid email or password.', true);
+        }
+      } catch (err) {
+        showAlert('Network or API error: ' + err.message, true);
+      } finally {
+        btn.textContent = 'Sign In →';
+        btn.disabled = false;
+      }
+    }
+
+    // Sign Up Handler
+    async function handleSignup(e) {
+      e.preventDefault();
+      const name = document.getElementById('signup-name').value.trim();
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value;
+      const company = document.getElementById('signup-company').value.trim();
+      const btn = document.getElementById('btn-signup-submit');
+
+      btn.textContent = 'Saving to AWS DynamoDB...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, company })
+        });
+        const data = await res.json();
+        if (res.ok && data.token) {
           localStorage.setItem('silica_token', data.token);
           localStorage.setItem('silica_user', email);
-          window.location.href = 'app.html';
+          localStorage.setItem('silica_name', name);
+          showAlert('Account saved to AWS DynamoDB successfully! Launching workspace...', false);
+          setTimeout(() => { window.location.href = 'app.html'; }, 900);
         } else {
-          showLoginError('Invalid credentials');
+          showAlert(data.error || 'Failed to create account.', true);
         }
-      }).catch(() => {
-        // Client-side fallback auth
-        setTimeout(() => {
-          if (email && password.length >= 4) {
-            localStorage.setItem('silica_user', email);
-            localStorage.setItem('silica_session', Date.now());
-            window.location.href = 'app.html';
-          } else {
-            showLoginError('Please enter a valid email and password');
-          }
-        }, 650);
-      }).finally(() => {
-        btn.textContent = originalText;
+      } catch (err) {
+        showAlert('Registration error: ' + err.message, true);
+      } finally {
+        btn.textContent = 'Register in AWS DynamoDB →';
         btn.disabled = false;
-      });
-
-      return false;
-    }
-
-    function showLoginError(message) {
-      const form = document.getElementById('login-form');
-      let errorEl = form.querySelector('.login-error');
-      if (!errorEl) {
-        errorEl = document.createElement('div');
-        errorEl.className = 'login-error';
-        form.insertBefore(errorEl, form.querySelector('.form-options'));
       }
-      errorEl.textContent = message;
-      setTimeout(() => { if (errorEl.parentNode) errorEl.remove(); }, 4000);
-    }
-
-    function showForgotPassword() {
-      alert('Password reset is not available in this demo. Please contact your system administrator.');
-      return false;
     }
   </script>
 </body>

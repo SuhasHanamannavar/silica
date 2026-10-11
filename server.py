@@ -19,22 +19,69 @@ from urllib.parse import urlparse, unquote
 # ---------------------------------------------------------------------------
 import hashlib, secrets as _secrets
 AUTH_ENABLED = os.environ.get("SILICA_REQUIRE_AUTH", "") == "1"
-AUTH_USERS = {"webofjee@gmail.com": "Suhas@2007"}  # seeded admin user
+AUTH_USERS = {"webofjee@gmail.com": "Suhas@2007"}  # fallback local user
 AUTH_TOKENS = {}  # token -> email
+
+try:
+    import boto3
+    _boto_session = boto3.Session(
+        region_name=os.environ.get("AWS_REGION", "ap-south-1")
+    )
+    _dynamodb = _boto_session.resource("dynamodb")
+    _users_table = _dynamodb.Table("silica-users")
+    HAVE_DYNAMODB = True
+except Exception as _e:
+    HAVE_DYNAMODB = False
+    _users_table = None
+
 def _auth_check(path, headers):
     if not AUTH_ENABLED: return True, None
-    if path in ("/api/health", "/api/login", "/api/agents/health"): return True, None
+    if path in ("/api/health", "/api/login", "/api/signup", "/api/agents/health"): return True, None
     h = headers.get("Authorization", "")
     if h.startswith("Bearer "):
         tok = h[7:]
         if tok in AUTH_TOKENS: return True, AUTH_TOKENS[tok]
     return False, None
+
 def _auth_login(email, password):
+    if HAVE_DYNAMODB and _users_table:
+        try:
+            res = _users_table.get_item(Key={"email": email})
+            item = res.get("Item")
+            if item and item.get("password") == password:
+                tok = _secrets.token_hex(24)
+                AUTH_TOKENS[tok] = email
+                return tok, item.get("name", email.split("@")[0])
+        except Exception:
+            pass
     if AUTH_USERS.get(email) == password:
         tok = _secrets.token_hex(24)
         AUTH_TOKENS[tok] = email
-        return tok
-    return None
+        return tok, "Suhas Hanamannavar"
+    return None, None
+
+def _auth_signup(name, email, password, company=""):
+    if not email or not password or len(password) < 4:
+        return None, "Invalid email or password (min 4 characters)"
+    if HAVE_DYNAMODB and _users_table:
+        try:
+            existing = _users_table.get_item(Key={"email": email}).get("Item")
+            if existing:
+                return None, "An account with this email already exists"
+            _users_table.put_item(Item={
+                "email": email,
+                "password": password,
+                "name": name or email.split("@")[0],
+                "company": company or "Independent",
+                "role": "engineer",
+                "created_at": int(time.time())
+            })
+        except Exception as e:
+            return None, f"Database error: {e}"
+    AUTH_USERS[email] = password
+    tok = _secrets.token_hex(24)
+    AUTH_TOKENS[tok] = email
+    return tok, None
 
 
 
@@ -471,11 +518,21 @@ class Handler(BaseHTTPRequestHandler):
         if p == "/api/login":
             email = payload.get("email", "")
             pwd = payload.get("password", "")
-            tok = _auth_login(email, pwd)
+            tok, name = _auth_login(email, pwd)
             if tok:
-                return self._send(200, {"ok": True, "token": tok, "email": email, "name": "Suhas Hanamannavar"})
+                return self._send(200, {"ok": True, "token": tok, "email": email, "name": name})
             else:
                 return self._send(401, {"ok": False, "error": "Invalid email or password"})
+        elif p == "/api/signup":
+            name = payload.get("name", "")
+            email = payload.get("email", "")
+            pwd = payload.get("password", "")
+            company = payload.get("company", "")
+            tok, err = _auth_signup(name, email, pwd, company)
+            if tok:
+                return self._send(200, {"ok": True, "token": tok, "email": email, "name": name or email.split("@")[0], "message": "Account created in AWS DynamoDB successfully!"})
+            else:
+                return self._send(400, {"ok": False, "error": err or "Failed to register account"})
         elif p == "/api/chat":
             return self._handle_chat(payload)
         elif p.startswith("/api/chat/"):
