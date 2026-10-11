@@ -1,0 +1,20 @@
+Step 3: cfo.ai Integration (Business Plan & Pricing)
+Open https://cfo.ai/neathacks.
+Sign up (if it asks for a card, enter it and immediately click Settings 
+→
+→ Billing 
+→
+→ Cancel subscription as instructed in the email—neatHack credits will cover it and you will not be billed).
+We will define Silica's SaaS unit economics:
+Product: Autonomous Semiconductor Engineering Platform (EDA design, verification, synthesis).
+Pricing: $199/month/engineer seat or $0.50 per synthesized block.
+COGS (Infrastructure Costs): AWS EC2 t3.medium ($35/month), LoRA model inference ($0.01/run), DynamoDB ($0.00 free tier).
+Gross Margin: ~88%.
+Export the business plan report to submit to the judges.
+Step 4: Claim Free Crustdata Credits
+Open https://app.crustdata.com.
+Click "Have a promo code?" below Continue.
+Enter promo code: NEATLOGS-OCT2026 (use email signup, do not use Google login).
+Get your 5,000 free credits.
+
+see this and still step 3 and 4 u dais are not completed guide me  dont miss anything bro
