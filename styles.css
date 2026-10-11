@@ -1891,3 +1891,25 @@ ul {
   position: relative;
   z-index: 10;
 }
+
+/* Override old scroll-driven hero styles */
+.hero-section {
+  height: auto !important;
+  min-height: 100vh;
+  padding: 180px 40px 80px !important;
+}
+
+.hero-inner {
+  display: none;
+}
+
+.hero-content {
+  height: auto !important;
+  padding-top: 0 !important;
+  min-height: auto;
+}
+
+.hero-title, .hero-parts-section, .hover-instruction, .title-word,
+.hero-stage-line, .hero-stages, .hero-stage-label {
+  display: none !important;
+}
