@@ -1,0 +1,25 @@
+it is asking card details but i dont have a card
+
+---
+
+'
+
+---
+
+see before moving to aws tell me is everything in aws we will get in free tier
+
+---
+
+see the thing is i want this to submit for demo purpose and dont want to spend any money for noww so u onlt suggest what and all i can do under free tier so all the things planed are executed
+
+---
+
+but using aws is compulsry and also they given some free credits of aws my feiend has it
+
+---
+
+AWS_ACCESS_KEY_ID=REDACTED
+REDACTED
+AWS_REGION=us-east-1
+Access key ID,Secret access key
+REDACTED,REDACTED
