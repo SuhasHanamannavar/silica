@@ -14,7 +14,25 @@
   <!-- Chip Animation Canvas -->
   <div class="chip-canvas-container">
     <canvas id="chip-canvas"></canvas>
-  </div>
+  <!-- Premium Navigation -->
+  <nav class="premium-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <span class="logo-mark">S</span>
+        <span class="logo-text">Silica</span>
+      </a>
+      <div class="nav-links">
+        <a href="#workflow" class="nav-link">Platform</a>
+        <a href="#anatomy" class="nav-link">Architecture</a>
+        <a href="#config" class="nav-link">Technologies</a>
+        <a href="#analysis" class="nav-link">Analysis</a>
+      </div>
+      <div class="nav-actions">
+        <a href="login.html" class="nav-link nav-signin">Sign in</a>
+        <a href="login.html" class="btn-primary btn-small">Get Started</a>
+      </div>
+    </div>
+  </nav>  </div>
   <div id="scroll-container">
     <div id="scroll-content">
       <div data-scrollable-content>
@@ -61,62 +79,49 @@
         <!-- Chip Animation Canvas -->
         </div>
         <!-- HERO SECTION - 700vh tall for scroll experience -->
+        <!-- HERO SECTION - Premium glass chip experience -->
         <section class="hero-section">
-          <div class="hero-inner">
-            <div class="hero-content">
-              <h1 class="hero-title" data-animation="title">
-                <span class="title-word word-left">Silicon</span>
-                <span class="title-word word-right">Craft</span>
-              </h1>
-              
-              <div class="hero-parts-section">
-                <!-- Hover instruction -->
-                <p class="hover-instruction font-inter">Hover on a die region</p>
-
-                <!-- Part label 1 - right aligned -->
-                <div class="design-grid part-row">
-                  <div class="part-text col-2-6" data-reveal>
-                    <p>Silica is a precision semiconductor design environment that guides a digital specification through every stage of physical implementation — from RTL to tapeout. Built for engineers who require absolute control over every transistor, every connection, and every square micron of silicon.</p>
-                  </div>
-                  <div class="part-label col-7-12">
-                    <span data-part-label="die" class="part-label-item">
-                      <span class="dashed-line"></span>
-                      <span class="label-text">silicon die</span>
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Part label 2 - left aligned -->
-                <div class="design-grid part-row">
-                  <div class="part-text col-8-12 right" data-reveal>
-                    <p>The platform transforms abstract hardware descriptions into manufacturable geometry. Each stage of the flow is instrumented, verified, and visually traceable — giving design teams the transparency needed to close timing, meet power budgets, and achieve yield targets on advanced process nodes.</p>
-                  </div>
-                  <div class="part-label col-1-7 left">
-                    <span data-part-label="transistor" class="part-label-item">
-                      <span class="label-text">transistor array</span>
-                      <span class="dashed-line"></span>
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Part label 3 -->
-                <div class="design-grid part-row">
-                  <div class="part-label col-1-7 left">
-                    <span data-part-label="interconnect" class="part-label-item">
-                      <span class="label-text">metal interconnect</span>
-                      <span class="dashed-line"></span>
-                    </span>
-                  </div>
-                </div>
-              </div>
+          <div class="hero-content">
+            <div class="hero-eyebrow" data-reveal>Semiconductor Design Platform</div>
+            <h1 class="hero-headline" data-reveal>
+              Precision silicon,<br/>
+              <span class="headline-accent">crafted in light.</span>
+            </h1>
+            <p class="hero-subheadline" data-reveal>
+              Silica guides a digital specification through every stage of physical implementation — 
+              from RTL to tapeout — with absolute control over every transistor, every connection, 
+              and every square micron of silicon.
+            </p>
+            <div class="hero-actions" data-reveal>
+              <a href="login.html" class="btn-primary">
+                Start Designing
+                <svg class="btn-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+              <a href="#workflow" class="btn-ghost">Explore the Platform</a>
+            </div>
+            <div class="hero-platforms" data-reveal>
+              <span class="platform-label">Available for</span>
+              <span class="platform-item">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><circle cx="7" cy="7" r="6"/></svg>
+                Web
+              </span>
+              <span class="platform-item">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="2" y="3" width="10" height="8" rx="1.5"/></svg>
+                Desktop
+              </span>
+              <span class="platform-item">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="4" y="1" width="6" height="12" rx="1.5"/></svg>
+                Cloud
+              </span>
             </div>
           </div>
-        </div>
-
-        <!-- Spacer -->
-        <div class="vh-100"></div>
-
-        <!-- SECTION B: SEMICONDUCTOR STORYTELLING - Workflow -->
+          <div class="hero-scroll-hint" aria-hidden="true">
+            <span class="scroll-line"></span>
+            <span class="scroll-label">Scroll to explore</span>
+          </div>
+        </section>
         <section class="section-workflow px-grid">
           <div class="design-grid workflow-grid">
             <div class="workflow-intro col-2-5" data-reveal>
