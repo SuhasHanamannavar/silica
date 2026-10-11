@@ -142,7 +142,7 @@
   .crafted-word {
     font-family: var(--sans);
     font-weight: 600;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.05em;
     background: linear-gradient(
       135deg,
       #F5D58E 0%,
@@ -186,44 +186,44 @@
   }
   .crafted-trace .tr {
     stroke: rgba(212, 160, 58, 0.5);
-    stroke-width: 1.5;
+    stroke-width: 1.2;
     fill: none;
     stroke-linecap: square;
-    stroke-dasharray: 200;
-    stroke-dashoffset: 200;
-    animation: traceFlow 3.5s ease-in-out infinite;
+    stroke-dasharray: 80;
+    stroke-dashoffset: 80;
+    animation: traceFlow 3s ease-in-out infinite;
   }
-  .crafted-trace .tr.d2 { animation-delay: 1s; }
-  .crafted-trace .tr.d3 { animation-delay: 2s; }
+  .crafted-trace .tr.d2 { animation-delay: 0.8s; }
+  .crafted-trace .tr.d3 { animation-delay: 1.6s; }
   .crafted-trace .via {
     fill: rgba(212, 160, 58, 0.85);
     opacity: 0;
-    animation: viaPulse 3.5s ease-in-out infinite;
+    animation: viaPulse 3s ease-in-out infinite;
   }
-  .crafted-trace .via.v2 { animation-delay: 1s; }
-  .crafted-trace .via.v3 { animation-delay: 2s; }
+  .crafted-trace .via.v2 { animation-delay: 0.8s; }
+  .crafted-trace .via.v3 { animation-delay: 1.6s; }
   @keyframes traceFlow {
-    0% { stroke-dashoffset: 200; opacity: 0.2; }
+    0% { stroke-dashoffset: 80; opacity: 0.2; }
     35% { stroke-dashoffset: 0; opacity: 0.75; }
     65% { stroke-dashoffset: 0; opacity: 0.75; }
-    100% { stroke-dashoffset: -200; opacity: 0.2; }
+    100% { stroke-dashoffset: -80; opacity: 0.2; }
   }
   @keyframes viaPulse {
     0%, 100% { opacity: 0; transform: scale(0.5); }
     33%, 67% { opacity: 1; transform: scale(1.1); }
   }
   .crafted-trace-left {
-    left: -110px;
+    left: -34px;
     top: 50%;
     transform: translateY(-50%);
   }
   .crafted-trace-right {
-    right: -120px;
+    right: -38px;
     top: 32%;
   }
   @media (max-width: 960px) {
-    .crafted-trace-left { left: -70px; }
-    .crafted-trace-right { right: -80px; }
+    .crafted-trace-left { left: -24px; }
+    .crafted-trace-right { right: -28px; }
   }
   @media (max-width: 720px) {
     .crafted-trace { display: none; }
@@ -922,23 +922,19 @@
           <span class="crafted-wrap">
             <span class="crafted-word">Crafted</span>
             <span class="crafted-trace crafted-trace-left" aria-hidden="true">
-              <svg width="110" height="56" viewBox="0 0 110 56">
-                <path class="tr d1" d="M110 28 L80 28 L80 12 L48 12 L48 4 L28 4"/>
-                <circle class="via v1" cx="28" cy="4" r="3"/>
-                <path class="tr d2" d="M110 38 L70 38 L70 50 L18 50"/>
-                <circle class="via v2" cx="18" cy="50" r="2.5"/>
-                <path class="tr d3" d="M110 18 L92 18 L92 24 L6 24"/>
-                <circle class="via v3" cx="6" cy="24" r="2"/>
+              <svg width="34" height="32" viewBox="0 0 34 32">
+                <path class="tr d1" d="M34 14 L20 14 L20 6 L6 6"/>
+                <circle class="via v1" cx="6" cy="6" r="2"/>
+                <path class="tr d2" d="M34 22 L16 22 L16 28 L4 28"/>
+                <circle class="via v2" cx="4" cy="28" r="1.8"/>
               </svg>
             </span>
             <span class="crafted-trace crafted-trace-right" aria-hidden="true">
-              <svg width="120" height="52" viewBox="0 0 120 52">
-                <path class="tr d1" d="M0 18 L30 18 L30 6 L66 6 L66 14 L100 14"/>
-                <circle class="via v1" cx="100" cy="14" r="3"/>
-                <path class="tr d2" d="M0 34 L40 34 L40 44 L86 44"/>
-                <circle class="via v2" cx="86" cy="44" r="2.5"/>
-                <path class="tr d3" d="M0 26 L54 26 L54 38 L114 38"/>
-                <circle class="via v3" cx="114" cy="38" r="2"/>
+              <svg width="38" height="30" viewBox="0 0 38 30">
+                <path class="tr d1" d="M0 10 L16 10 L16 4 L30 4"/>
+                <circle class="via v1" cx="30" cy="4" r="2"/>
+                <path class="tr d2" d="M0 20 L22 20 L22 26 L34 26"/>
+                <circle class="via v2" cx="34" cy="26" r="1.8"/>
               </svg>
             </span>
           </span><br>
