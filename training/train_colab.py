@@ -18,7 +18,11 @@ print(f"=== Silica {STAGE.upper()} LoRA training -> {OUTPUT_REPO} ===")
 login(token=HF_TOKEN)
 print(f"GPU: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'NONE'}")
 
-bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=torch.bfloat16)
+use_bf16 = torch.cuda.is_available() and torch.cuda.is_bf16_supported()
+compute_dtype = torch.bfloat16 if use_bf16 else torch.float16
+print(f"Precision: {'bf16' if use_bf16 else 'fp16 (T4 optimized)'}")
+
+bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=compute_dtype)
 tok = AutoTokenizer.from_pretrained(BASE_MODEL, trust_remote_code=True)
 tok.pad_token = tok.eos_token
 model = AutoModelForCausalLM.from_pretrained(BASE_MODEL, quantization_config=bnb, device_map="auto", trust_remote_code=True)
@@ -33,7 +37,7 @@ def fmt(b):
 ds = ds.map(fmt, batched=True)
 
 args = TrainingArguments(output_dir=f"./silica-{STAGE}", num_train_epochs=3, per_device_train_batch_size=2,
-    gradient_accumulation_steps=4, learning_rate=2e-4, bf16=True, logging_steps=2, save_strategy="no",
+    gradient_accumulation_steps=4, learning_rate=2e-4, fp16=not use_bf16, bf16=use_bf16, logging_steps=2, save_strategy="no",
     report_to="none", push_to_hub=True, hub_model_id=OUTPUT_REPO, hub_token=HF_TOKEN)
 
 trainer = SFTTrainer(model=model, train_dataset=ds, dataset_text_field="text", max_seq_length=1024,
@@ -42,3 +46,4 @@ trainer.train()
 trainer.push_to_hub()
 tok.push_to_hub(OUTPUT_REPO, token=HF_TOKEN)
 print(f"DONE. Adapter pushed to https://huggingface.co/{OUTPUT_REPO}")
+
