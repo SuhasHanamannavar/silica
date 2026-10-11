@@ -188,6 +188,7 @@ ul {
   width: 100%;
   height: 100%;
   position: relative;
+  z-index: 2;
   padding: calc(var(--s) * 16);
   font-size: calc(var(--s) * 12);
   color: var(--text-muted);
@@ -326,18 +327,14 @@ ul {
   position: relative;
 }
 
-.hero-canvas-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 99;
+.chip-canvas-container {
+  position: absolute;
+  inset: 0;
   pointer-events: none;
-  background: red;
+  z-index: 0;
 }
 
-#silica-canvas {
+#chip-canvas {
   width: 100%;
   height: 100%;
   display: block;
