@@ -251,7 +251,7 @@ function renderWorkspace(){
         <button class="btn" id="ws-open">Open recent run</button>
       </div>
     </div>
-    <div class="chip-mini" aria-hidden="true"><div class="ly"></div><div class="ly"></div><div class="ly"></div><div class="ly"></div><div class="core"></div></div>
+    <div class="chip-mini" aria-hidden="true"><div class="cell a"></div><div class="cell b"></div><div class="cell"></div><div class="cell a"></div><div class="cell c"></div><div class="cell"></div><div class="cell a"></div><div class="cell b"></div><div class="cell"></div><div class="cell a"></div><div class="cell b"></div><div class="cell c"></div><div class="cell a"></div><div class="cell"></div><div class="cell b"></div><div class="cell"></div><div class="cell a"></div><div class="cell"></div><div class="cell b"></div><div class="cell c"></div><div class="cell a"></div><div class="cell"></div><div class="cell b"></div><div class="cell a"></div><div class="cell"></div></div>
   </div>
   <div class="stat-row">
     <div class="stat"><div class="v">${state.projects.length}</div><div class="l">Projects</div></div>
