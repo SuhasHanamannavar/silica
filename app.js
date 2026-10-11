@@ -466,6 +466,8 @@ function renderRun(){
       });
     }
   }
+}
+
 function bindRunControls(){
   $('#run-pause').addEventListener('click', function(){
     if(engine.playing){ engine.pause(); this.textContent='Resume'; }
@@ -950,7 +952,7 @@ function updateBackendMetrics(stageStatusMap, artifactCount){
     { value: '400.0', unit: 'MHz', label: 'Clock Frequency', qualifier: 'Target constraint (2.50 ns)' },
     { value: synPassed ? '182' : '—', unit: 'GE', label: 'Gate Equivalents', qualifier: synPassed ? 'Yosys synthesized' : 'Pending synthesis' },
     { value: synPassed ? '327' : '—', unit: 'um2', label: 'Core Cell Area', qualifier: synPassed ? 'Standard cell basis' : 'Pending synthesis' },
-    { value: synPassed ? '+1.23', unit: 'ns', label: 'Setup Slack', qualifier: synPassed ? 'MET (zero timing violations)' : 'Pending synthesis' },
+    { value: synPassed ? '+1.23' : '—', unit: 'ns', label: 'Setup Slack', qualifier: synPassed ? 'MET (zero timing violations)' : 'Pending synthesis' },
     { value: verPassed ? '0' : '—', unit: 'err', label: 'Simulation Mismatch', qualifier: verPassed ? 'SIM_DONE errors=0 (Verilator)' : 'Running tests' },
     { value: String(artifactCount || 0), unit: 'files', label: 'Archived Deliverables', qualifier: 'Specifications to Synthesis' }
   ];
