@@ -458,7 +458,7 @@ function renderRun(){
     });
     updatePipelineFromBackend(stageStatusMap);
     updateBackendMetrics(stageStatusMap, run.artifacts.length);
-    if(run.status === 'passed' || run.status === 'complete'){
+    if(run.status === 'passed' || run.status === 'complete' || run.status === 'incomplete_awaiting_human_review'){
       showOutcome({
         kind: 'pass',
         title: 'Core Deliverables Generated & Verified',
