@@ -10,32 +10,33 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-light: #F5F5F7;
-      --bg-white: #FFFFFF;
-      --bg-surface: #FAFAFA;
-      --ink-black: #000000;
-      --ink-primary: #111111;
-      --ink-secondary: #666666;
-      --ink-muted: #999999;
-      --ink-faint: #BBBBBB;
-      --line: rgba(0, 0, 0, 0.08);
-      --line-strong: rgba(0, 0, 0, 0.14);
-      --accent: #0F766E;
-      --accent-hover: #0D655E;
-      --accent-soft: rgba(15, 118, 110, 0.08);
-      --accent-dim: rgba(15, 118, 110, 0.5);
-      --success: #16A34A;
-      --fail: #DC2626;
+      --bg-black: #000000;
+      --bg-surface: #0A0A0A;
+      --bg-card: #111111;
+      --bg-input: #0A0A0A;
+      --ink-white: #FFFFFF;
+      --ink-primary: #F5F5F5;
+      --ink-secondary: #999999;
+      --ink-muted: #666666;
+      --line: rgba(255, 255, 255, 0.08);
+      --line-strong: rgba(255, 255, 255, 0.14);
+      --accent: #D4A03A;
+      --accent-hover: #E0AD4A;
+      --accent-soft: rgba(212, 160, 58, 0.1);
+      --accent-dim: rgba(212, 160, 58, 0.5);
+      --success: #4ADE80;
+      --fail: #F87171;
       --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
       --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
       --radius-sm: 6px;
       --radius-md: 10px;
-      --radius-lg: 16px;
+      --radius-lg: 14px;
+      --radius-pill: 999px;
       --ease: cubic-bezier(.2, .7, .2, 1);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: var(--bg-light);
+      background: var(--bg-black);
       color: var(--ink-primary);
       font-family: var(--sans);
       min-height: 100vh;
@@ -47,22 +48,26 @@
       position: relative;
       -webkit-font-smoothing: antialiased;
     }
-
-    /* Subtle decorative wafer pattern */
     body::before {
       content: '';
       position: fixed;
-      top: -200px;
-      right: -200px;
-      width: 600px;
-      height: 600px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(15, 118, 110, 0.05) 0%, transparent 70%);
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 0%, rgba(212, 160, 58, 0.06) 0%, transparent 50%);
       pointer-events: none;
       z-index: 0;
     }
 
-    /* Back link */
     .back-nav {
       position: fixed;
       top: 28px;
@@ -81,7 +86,6 @@
     }
     .back-nav:hover { color: var(--accent); }
 
-    /* Status badge */
     .db-badge {
       position: fixed;
       top: 28px;
@@ -94,10 +98,10 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: rgba(22, 163, 74, 0.06);
-      border: 1px solid rgba(22, 163, 74, 0.2);
+      background: var(--success-soft);
+      border: 1px solid rgba(74, 222, 128, 0.2);
       padding: 6px 14px;
-      border-radius: 20px;
+      border-radius: var(--radius-pill);
       z-index: 10;
     }
     .db-dot {
@@ -106,20 +110,25 @@
       background: var(--success);
     }
 
-    /* Card */
     .auth-card {
       position: relative;
       z-index: 5;
       width: 100%;
       max-width: 440px;
-      background: var(--bg-white);
+      background: var(--bg-card);
       border: 1px solid var(--line);
       border-radius: var(--radius-lg);
       padding: 40px 36px;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.04);
+      overflow: hidden;
+    }
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
     }
 
-    /* Header */
     .auth-header { text-align: center; margin-bottom: 32px; }
     .logo-mark {
       display: inline-flex;
@@ -133,7 +142,7 @@
     .auth-title {
       font-size: 24px;
       font-weight: 600;
-      color: var(--ink-black);
+      color: var(--ink-white);
       letter-spacing: -0.02em;
     }
     .auth-subtitle {
@@ -142,7 +151,6 @@
       margin-top: 6px;
     }
 
-    /* Tabs */
     .auth-tabs {
       display: flex;
       border-bottom: 1px solid var(--line);
@@ -162,14 +170,13 @@
       cursor: pointer;
       transition: all 0.25s;
     }
-    .tab-btn:hover { color: var(--ink-primary); }
+    .tab-btn:hover { color: var(--ink-white); }
     .tab-btn.active {
       color: var(--accent);
       border-bottom-color: var(--accent);
       font-weight: 600;
     }
 
-    /* Form Fields */
     .form-group { margin-bottom: 18px; }
     .form-label {
       display: block;
@@ -182,7 +189,7 @@
     }
     .form-input {
       width: 100%;
-      background: var(--bg-white);
+      background: var(--bg-input);
       border: 1px solid var(--line-strong);
       color: var(--ink-primary);
       font-family: var(--sans);
@@ -198,7 +205,6 @@
     }
     .form-input::placeholder { color: var(--ink-faint); }
 
-    /* Options */
     .form-options {
       display: flex;
       justify-content: space-between;
@@ -221,14 +227,13 @@
     }
     .form-link:hover { text-decoration: underline; }
 
-    /* Submit Button */
     .btn-submit {
       width: 100%;
-      background: var(--accent);
-      color: #fff;
-      border: none;
+      background: var(--ink-white);
+      color: #000;
+      border: 1px solid var(--ink-white);
       padding: 13px;
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-pill);
       font-family: var(--sans);
       font-size: 14px;
       font-weight: 500;
@@ -237,12 +242,12 @@
       letter-spacing: 0.01em;
     }
     .btn-submit:hover {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #000;
     }
     .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-    /* Alerts */
     .auth-alert {
       padding: 12px 14px;
       border-radius: var(--radius-sm);
@@ -252,17 +257,16 @@
       line-height: 1.5;
     }
     .auth-alert.error {
-      background: rgba(220, 38, 38, 0.06);
-      border: 1px solid rgba(220, 38, 38, 0.25);
+      background: var(--fail-soft);
+      border: 1px solid rgba(248, 113, 113, 0.25);
       color: var(--fail);
     }
     .auth-alert.success {
-      background: rgba(22, 163, 74, 0.06);
-      border: 1px solid rgba(22, 163, 74, 0.25);
+      background: var(--success-soft);
+      border: 1px solid rgba(74, 222, 128, 0.25);
       color: var(--success);
     }
 
-    /* Footer hints */
     .auth-hints {
       margin-top: 28px;
       padding-top: 20px;
@@ -311,7 +315,6 @@
       <p class="auth-subtitle" id="card-subtitle">Access your autonomous EDA engineering session</p>
     </div>
 
-    <!-- Tab Switcher -->
     <div class="auth-tabs">
       <button class="tab-btn active" id="tab-login" onclick="setMode('login')">Sign In</button>
       <button class="tab-btn" id="tab-signup" onclick="setMode('signup')">Create Account</button>
@@ -319,7 +322,6 @@
 
     <div id="alert-box" class="auth-alert"></div>
 
-    <!-- Sign In Form -->
     <form id="form-login" onsubmit="return handleLogin(event)">
       <div class="form-group">
         <label class="form-label" for="login-email">Engineer Email</label>
@@ -339,7 +341,6 @@
       <button type="submit" class="btn-submit" id="btn-login-submit">Sign In →</button>
     </form>
 
-    <!-- Sign Up Form -->
     <form id="form-signup" style="display:none;" onsubmit="return handleSignup(event)">
       <div class="form-group">
         <label class="form-label" for="signup-name">Full Name</label>
