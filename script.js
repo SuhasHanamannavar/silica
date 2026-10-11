@@ -341,7 +341,17 @@
         chipCtx.strokeStyle = '#0a0a0a';
         chipCtx.lineWidth = 1;
         chipCtx.beginPath();
-        chipCtx.roundRect(-pkgW/2, -pkgH/2, pkgW, pkgH, baseSize * 0.06);
+        const r = baseSize * 0.06, rx = -pkgW/2, ry = -pkgH/2;
+        chipCtx.moveTo(rx + r, ry);
+        chipCtx.lineTo(rx + pkgW - r, ry);
+        chipCtx.quadraticCurveTo(rx + pkgW, ry, rx + pkgW, ry + r);
+        chipCtx.lineTo(rx + pkgW, ry + pkgH - r);
+        chipCtx.quadraticCurveTo(rx + pkgW, ry + pkgH, rx + pkgW - r, ry + pkgH);
+        chipCtx.lineTo(rx + r, ry + pkgH);
+        chipCtx.quadraticCurveTo(rx, ry + pkgH, rx, ry + pkgH - r);
+        chipCtx.lineTo(rx, ry + r);
+        chipCtx.quadraticCurveTo(rx, ry, rx + r, ry);
+        chipCtx.closePath();
         chipCtx.fill();
         chipCtx.stroke();
 
