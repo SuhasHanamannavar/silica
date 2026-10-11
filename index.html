@@ -132,6 +132,110 @@
   .h2 { font-size: clamp(32px, 4vw, 48px); font-weight: 600; }
   .h3 { font-size: clamp(20px, 2.2vw, 26px); font-weight: 600; }
   .accent-text { color: var(--accent); }
+
+  /* Creative 'Crafted' word treatment — semiconductor-inspired */
+  .crafted-wrap {
+    position: relative;
+    display: inline-block;
+    line-height: 1;
+  }
+  .crafted-word {
+    font-family: var(--sans);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    background: linear-gradient(
+      135deg,
+      #F5D58E 0%,
+      #E8C06A 18%,
+      #D4A03A 38%,
+      #E8B84A 58%,
+      #C89028 78%,
+      #F0CC78 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(0 2px 8px rgba(212, 160, 58, 0.35)) drop-shadow(0 0 24px rgba(212, 160, 58, 0.15));
+    position: relative;
+    z-index: 2;
+  }
+  .crafted-word::before {
+    content: 'Crafted';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 255, 255, 0) 45%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .crafted-etch {
+    position: absolute;
+    inset: 0;
+    font-family: var(--sans);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(212, 160, 58, 0.35);
+    transform: translate(2px, 2px);
+    z-index: 1;
+    opacity: 0.6;
+  }
+  .crafted-trace {
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .crafted-trace svg {
+    display: block;
+    overflow: visible;
+  }
+  .crafted-trace .tr {
+    stroke: rgba(212, 160, 58, 0.45);
+    stroke-width: 1.5;
+    fill: none;
+    stroke-linecap: round;
+    stroke-dasharray: 120;
+    stroke-dashoffset: 120;
+    animation: traceFlow 3s ease-in-out infinite;
+  }
+  .crafted-trace .tr.d2 { animation-delay: 0.8s; }
+  .crafted-trace .tr.d3 { animation-delay: 1.6s; }
+  .crafted-trace .via {
+    fill: rgba(212, 160, 58, 0.7);
+    opacity: 0;
+    animation: viaPulse 3s ease-in-out infinite;
+  }
+  .crafted-trace .via.v2 { animation-delay: 0.8s; }
+  .crafted-trace .via.v3 { animation-delay: 1.6s; }
+  @keyframes traceFlow {
+    0% { stroke-dashoffset: 120; opacity: 0.3; }
+    40% { stroke-dashoffset: 0; opacity: 0.7; }
+    60% { stroke-dashoffset: 0; opacity: 0.7; }
+    100% { stroke-dashoffset: -120; opacity: 0.3; }
+  }
+  @keyframes viaPulse {
+    0%, 100% { opacity: 0; transform: scale(0.6); }
+    38%, 62% { opacity: 1; transform: scale(1); }
+  }
+  .crafted-trace-left {
+    left: -52px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .crafted-trace-right {
+    right: -60px;
+    top: 30%;
+  }
+  @media (max-width: 720px) {
+    .crafted-trace { display: none; }
+  }
   .body-lg { font-size: 17px; line-height: 1.7; color: var(--ink-secondary); max-width: 620px; }
   .body-md { font-size: 15px; line-height: 1.7; color: var(--ink-secondary); }
 
@@ -823,7 +927,26 @@
       <div class="reveal">
         <h1 class="h1">
           Silicon<br>
-          <span class="accent-text">Crafted</span><br>
+          <span class="crafted-wrap">
+            <span class="crafted-etch" aria-hidden="true">Crafted</span>
+            <span class="crafted-word">Crafted</span>
+            <span class="crafted-trace crafted-trace-left" aria-hidden="true">
+              <svg width="52" height="40" viewBox="0 0 52 40">
+                <path class="tr d1" d="M52 20 L36 20 L36 8 L18 8"/>
+                <circle class="via v1" cx="18" cy="8" r="2.5"/>
+                <path class="tr d2" d="M52 28 L24 28 L24 34 L8 34"/>
+                <circle class="via v2" cx="8" cy="34" r="2"/>
+              </svg>
+            </span>
+            <span class="crafted-trace crafted-trace-right" aria-hidden="true">
+              <svg width="60" height="36" viewBox="0 0 60 36">
+                <path class="tr d1" d="M0 14 L22 14 L22 4 L44 4"/>
+                <circle class="via v1" cx="44" cy="4" r="2.5"/>
+                <path class="tr d3" d="M0 26 L30 26 L30 32 L52 32"/>
+                <circle class="via v3" cx="52" cy="32" r="2"/>
+              </svg>
+            </span>
+          </span><br>
           with precision.
         </h1>
         <p class="body-lg">
