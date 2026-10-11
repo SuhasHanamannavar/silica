@@ -1,497 +1,570 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23141414'/><path d='M8 8h16v16H8z' fill='none' stroke='%23BF6D15' stroke-width='1.5'/><path d='M12 12h8v8h-8z' fill='none' stroke='%23C8C8C8' stroke-width='1'/><line x1='4' y1='16' x2='8' y2='16' stroke='%23555' stroke-width='1'/><line x1='24' y1='16' x2='28' y2='16' stroke='%23555' stroke-width='1'/><line x1='16' y1='4' x2='16' y2='8' stroke='%23555' stroke-width='1'/><line x1='16' y1='24' x2='16' y2='28' stroke='%23555' stroke-width='1'/></svg>">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>SILICA — Semiconductor Design Platform</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=B612+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SILICA — Silicon Crafted</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=B612+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08090d;
+    --bg-card: #0d0f17;
+    --bg-elevated: #111422;
+    --ink: #f0f4f8;
+    --ink-dim: #94a3b8;
+    --ink-faint: #475569;
+    --line: rgba(148, 163, 184, 0.12);
+    --line-strong: rgba(148, 163, 184, 0.28);
+    --blue: #5b8bf7;
+    --blue-bright: #6896ff;
+    --blue-glow: rgba(91, 139, 247, 0.35);
+    --blue-subtle: rgba(91, 139, 247, 0.08);
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: 'B612 Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; background: var(--bg); }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-weight: 300;
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--blue); color: #fff; }
+
+  /* ---------- TELEMETRY OVERLAY ---------- */
+  .tele {
+    position: fixed; inset: 0; pointer-events: none; z-index: 100;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
+    color: var(--ink-dim); text-transform: uppercase;
+    transition: opacity 0.8s ease;
+  }
+  .tele .corner { position: absolute; width: 20px; height: 20px; border: 1px solid var(--line-strong); }
+  .tele .c-tl { top: 22px; left: 22px; border-right: none; border-bottom: none; }
+  .tele .c-tr { top: 22px; right: 22px; border-left: none; border-bottom: none; }
+  .tele .c-bl { bottom: 22px; left: 22px; border-right: none; border-top: none; }
+  .tele .c-br { bottom: 22px; right: 22px; border-left: none; border-top: none; }
+
+  .tele .tl { position: absolute; top: 68px; left: 48px; line-height: 1.8; }
+  .tele .tr { position: absolute; top: 68px; right: 48px; text-align: right; line-height: 1.8; display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .tele .bl { position: absolute; bottom: 30px; left: 48px; display: flex; gap: 24px; align-items: center; }
+  .tele .bc { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); font-weight: 500; color: var(--blue-bright); }
+  .tele .br { position: absolute; bottom: 30px; right: 48px; text-align: right; }
+
+  .rec-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--blue-bright); display: inline-block;
+    box-shadow: 0 0 8px var(--blue);
+    animation: blink 1.6s steps(2) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0.2; } }
+
+  .center-crosshair {
+    position: fixed; top: 50%; left: 50%; width: 24px; height: 24px;
+    transform: translate(-50%, -50%); pointer-events: none; z-index: 99;
+    opacity: 0.35; transition: opacity 1.2s ease;
+  }
+  .center-crosshair::before, .center-crosshair::after { content: ''; position: absolute; background: var(--line-strong); }
+  .center-crosshair::before { left: 50%; top: 0; width: 1px; height: 100%; transform: translateX(-50%); }
+  .center-crosshair::after { top: 50%; left: 0; height: 1px; width: 100%; transform: translateY(-50%); }
+
+  /* ---------- LAYOUT & REVEAL ---------- */
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 0 48px; }
+  .mono { font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-dim); }
+  .rule { height: 1px; background: var(--line); border: none; margin: 0; }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.9s cubic-bezier(.2,.7,.2,1), transform 0.9s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* ---------- TOP NAVIGATION ---------- */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 120;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 24px 48px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    background: rgba(8, 9, 13, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+  }
+  nav .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 15px; font-weight: 600; letter-spacing: 0.28em; color: #fff; text-decoration: none;
+  }
+  nav .logo-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border: 1px solid var(--blue); border-radius: 4px;
+    font-size: 11px; font-weight: 700; color: var(--blue-bright);
+    background: rgba(91, 139, 247, 0.1);
+  }
+  nav ul { display: flex; gap: 32px; list-style: none; align-items: center; }
+  nav a { color: var(--ink-dim); text-decoration: none; transition: color 0.25s, opacity 0.25s; }
+  nav a:hover { color: #fff; }
+  nav .workspace-link {
+    color: var(--blue-bright) !important; font-weight: 600;
+    padding: 6px 14px; border: 1px solid var(--blue-dim); border-radius: 4px;
+    background: rgba(91, 139, 247, 0.08); transition: all 0.25s ease;
+  }
+  nav .workspace-link:hover {
+    background: var(--blue); color: #fff !important; border-color: var(--blue);
+    box-shadow: 0 0 16px var(--blue-glow);
+  }
+  @media (max-width: 860px) { nav ul { display: none; } }
+
+  /* ---------- HERO SECTION ---------- */
+  #hero {
+    min-height: 100vh; position: relative; display: flex; align-items: center;
+    overflow: hidden; padding: 130px 0 90px;
+    background: radial-gradient(circle at 75% 50%, rgba(91, 139, 247, 0.07) 0%, transparent 60%);
+  }
+  .hero-grid {
+    display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 40px;
+    align-items: center; width: 100%;
+  }
+  @media (max-width: 960px) { .hero-grid { grid-template-columns: 1fr; gap: 50px; } }
+
+  .hero-kicker { display: flex; align-items: center; gap: 14px; margin-bottom: 30px; }
+  .hero-kicker .bar { width: 36px; height: 2px; background: var(--blue); box-shadow: 0 0 8px var(--blue); }
+
+  .hero-title {
+    font-family: var(--sans); font-weight: 400; line-height: 1.05;
+    font-size: clamp(52px, 8.5vw, 112px); letter-spacing: -0.025em; color: #ffffff;
+  }
+  .hero-title .line { display: block; }
+  .hero-title .accent-blue {
+    color: var(--blue); font-weight: 500;
+    text-shadow: 0 0 35px rgba(91, 139, 247, 0.45);
+    display: inline-block;
+  }
+
+  .hero-actions { display: flex; gap: 16px; margin-top: 36px; flex-wrap: wrap; }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--blue); color: #fff; text-decoration: none;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    font-weight: 600; padding: 14px 28px; border-radius: 4px;
+    box-shadow: 0 0 20px rgba(91, 139, 247, 0.4);
+    transition: all 0.25s ease;
+  }
+  .btn-primary:hover {
+    background: var(--blue-bright); transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(91, 139, 247, 0.6);
+  }
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; color: var(--ink); text-decoration: none;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 14px 24px; border-radius: 4px; border: 1px solid var(--line-strong);
+    transition: all 0.25s ease;
+  }
+  .btn-secondary:hover { border-color: var(--blue); color: #fff; background: rgba(91, 139, 247, 0.05); }
+
+  /* ---------- 3D ISOMETRIC SEMICONDUCTOR CHIP ---------- */
+  .chip-stage {
+    perspective: 1400px; display: flex; align-items: center; justify-content: center;
+    height: 480px; position: relative;
+  }
+  .chip {
+    position: relative; width: 300px; height: 300px; transform-style: preserve-3d;
+    transform: rotateX(58deg) rotateZ(-32deg);
+    transition: transform 0.2s linear;
+  }
+  .chip .layer {
+    position: absolute; inset: 0;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    background: rgba(91, 139, 247, 0.02);
+    box-shadow: inset 0 0 30px rgba(91, 139, 247, 0.04);
+  }
+  .chip .layer::before {
+    content: ''; position: absolute; inset: 12px;
+    border: 1px solid rgba(91, 139, 247, 0.15);
+    background-image:
+      linear-gradient(rgba(91, 139, 247, 0.18) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(91, 139, 247, 0.18) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+  .chip .l1 { transform: translateZ(0px); border-color: rgba(91, 139, 247, 0.35); }
+  .chip .l2 { transform: translateZ(16px); }
+  .chip .l3 { transform: translateZ(32px); }
+  .chip .l4 { transform: translateZ(48px); background: rgba(91, 139, 247, 0.05); }
+  .chip .l5 { transform: translateZ(64px); border-color: var(--blue); box-shadow: 0 0 15px rgba(91, 139, 247, 0.25); }
+  .chip .core {
+    position: absolute; top: 50%; left: 50%; width: 100px; height: 100px;
+    transform: translate(-50%, -50%) translateZ(72px);
+    border: 1.5px solid var(--blue-bright);
+    background: radial-gradient(circle, rgba(91, 139, 247, 0.6) 0%, rgba(91, 139, 247, 0.15) 50%, transparent 80%);
+    box-shadow: 0 0 35px rgba(91, 139, 247, 0.5);
+  }
+  .chip-label {
+    position: absolute; font-family: var(--mono); font-size: 9px;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-dim);
+  }
+  .chip-label.a { top: 12%; left: -4%; }
+  .chip-label.a::after { content: ''; display: block; width: 44px; height: 1px; background: var(--blue); margin-top: 6px; box-shadow: 0 0 6px var(--blue); }
+  .chip-label.b { bottom: 12%; right: -2%; }
+  .chip-label.b::after { content: ''; display: block; width: 44px; height: 1px; background: var(--line-strong); margin-top: 6px; }
+
+  /* ---------- SECTION HEADINGS ---------- */
+  section { padding: 120px 0; position: relative; }
+  .sec-head {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 60px; padding-bottom: 22px; border-bottom: 1px solid var(--line);
+  }
+  .sec-head h2 { font-size: clamp(32px, 5vw, 52px); font-weight: 500; letter-spacing: -0.02em; color: #fff; }
+  .sec-head h2 em { font-style: normal; color: var(--blue); }
+  .sec-head .idx { font-family: var(--mono); font-size: 11px; color: var(--ink-dim); letter-spacing: 0.2em; text-transform: uppercase; }
+
+  /* ---------- WORKFLOW STAGES ---------- */
+  .stage {
+    display: grid; grid-template-columns: 80px 1fr 1.4fr; gap: 40px;
+    align-items: baseline; padding: 32px 0; border-bottom: 1px solid var(--line);
+    transition: background 0.3s;
+  }
+  .stage:hover { background: rgba(91, 139, 247, 0.03); }
+  .stage .num { font-family: var(--mono); font-size: 28px; font-weight: 600; color: var(--ink-faint); }
+  .stage:hover .num { color: var(--blue); }
+  .stage h3 { font-size: 22px; font-weight: 500; letter-spacing: -0.01em; color: #fff; }
+  .stage p { color: var(--ink-dim); font-size: 14px; line-height: 1.7; max-width: 540px; }
+  .stage .tag { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--blue); display: block; margin-bottom: 8px; }
+  @media (max-width: 760px) { .stage { grid-template-columns: 50px 1fr; gap: 18px; } .stage p { grid-column: 2; } }
+
+  /* ---------- ANATOMY (INTERACTIVE DIE SVG) ---------- */
+  .anat-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; align-items: center; }
+  @media (max-width: 920px) { .anat-grid { grid-template-columns: 1fr; } }
+  .die-svg { width: 100%; max-width: 500px; display: block; margin: 0 auto; }
+  .die-svg .region { fill: rgba(148, 163, 184, 0.04); stroke: var(--line-strong); stroke-width: 1; transition: all 0.35s; cursor: pointer; }
+  .die-svg .region:hover, .die-svg .region.active { fill: rgba(91, 139, 247, 0.18); stroke: var(--blue); }
+  .die-svg text { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; fill: var(--ink-dim); pointer-events: none; }
+  .anat-info { min-height: 220px; }
+  .anat-info .t { font-size: 28px; font-weight: 500; margin-bottom: 14px; color: #fff; transition: opacity 0.3s; }
+  .anat-info .d { color: var(--ink-dim); font-size: 14px; line-height: 1.8; max-width: 440px; transition: opacity 0.3s; }
+  .anat-info .spec { margin-top: 22px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--blue); text-transform: uppercase; }
+  .anat-parts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+  .anat-parts button {
+    background: transparent; border: 1px solid var(--line); color: var(--ink-dim);
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 8px 14px; cursor: pointer; border-radius: 3px; transition: all 0.25s;
+  }
+  .anat-parts button:hover, .anat-parts button.active { border-color: var(--blue); color: #fff; background: rgba(91, 139, 247, 0.1); }
+
+  /* ---------- CONFIG ROWS ---------- */
+  .cfg-head { display: grid; grid-template-columns: 60px 1.6fr 1fr 1fr; gap: 24px; padding: 14px 0; border-bottom: 1px solid var(--line-strong); font-family: var(--mono); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-dim); }
+  .cfg-row { display: grid; grid-template-columns: 60px 1.6fr 1fr 1fr; gap: 24px; padding: 24px 0; border-bottom: 1px solid var(--line); align-items: baseline; transition: background 0.3s; cursor: pointer; }
+  .cfg-row:hover { background: rgba(91, 139, 247, 0.03); }
+  .cfg-row .n { font-family: var(--mono); font-size: 12px; color: var(--ink-faint); }
+  .cfg-row:hover .n { color: var(--blue); }
+  .cfg-row .name { font-size: 20px; font-weight: 500; color: #fff; }
+  .cfg-row .name small { display: block; font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-dim); margin-top: 6px; }
+  .cfg-row .val { font-family: var(--mono); font-size: 12px; color: var(--ink); letter-spacing: 0.08em; }
+
+  /* ---------- FOOTER ---------- */
+  footer { padding: 90px 0 40px; border-top: 1px solid var(--line); background: #06070a; }
+  .foot-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 60px; }
+  @media (max-width: 760px) { .foot-grid { grid-template-columns: 1fr; gap: 30px; } }
+  .foot-grid .brand { font-size: 20px; font-weight: 600; letter-spacing: 0.28em; color: #fff; margin-bottom: 12px; }
+  .foot-grid .tag { color: var(--ink-dim); font-size: 13px; max-width: 320px; line-height: 1.7; }
+  .foot-grid h4 { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #fff; margin-bottom: 16px; }
+  .foot-grid ul { list-style: none; }
+  .foot-grid li { margin-bottom: 10px; }
+  .foot-grid a { color: var(--ink-dim); text-decoration: none; font-size: 13px; transition: color 0.2s; }
+  .foot-grid a:hover { color: var(--blue-bright); }
+  .foot-bottom { display: flex; justify-content: space-between; padding-top: 30px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 10px; color: var(--ink-faint); letter-spacing: 0.15em; flex-wrap: wrap; gap: 16px; }
+</style>
 </head>
 <body>
 
-  <!-- Premium Navigation -->
-  <nav class="premium-nav">
-    <div class="nav-inner">
-      <a href="index.html" class="nav-logo">
-        <span class="logo-mark">S</span>
-        <span>Silica</span>
-      </a>
-      <div class="nav-links">
-        <a href="#workflow" class="nav-link">Platform</a>
-        <a href="#anatomy" class="nav-link">Architecture</a>
-        <a href="#config" class="nav-link">Technologies</a>
-        <a href="app.html" class="nav-link">EDA Studio</a>
-        <a href="chat.html" class="nav-link">AI Assistant</a>
-      </div>
-      <div class="nav-actions">
-        <a href="login.html" class="nav-link nav-signin">Sign in</a>
-        <a href="app.html" class="btn-primary btn-small">Launch Studio</a>
-      </div>
+  <!-- TELEMETRY HUD OVERLAY -->
+  <div class="tele">
+    <div class="corner c-tl"></div>
+    <div class="corner c-tr"></div>
+    <div class="corner c-bl"></div>
+    <div class="corner c-br"></div>
+
+    <div class="tl">
+      <p id="fps">61FPS</p>
+      <p id="res">1536X730</p>
     </div>
+    <div class="tr">
+      <span class="rec-dot"></span>
+      <p id="timer">00:17:07</p>
+    </div>
+    <div class="bl">
+      <span>SILICA / V2.4.1</span>
+      <span><span class="rec-dot" style="margin-right:6px"></span>S · SILICON CRAFTED</span>
+    </div>
+    <div class="bc">
+      <span id="pct">88%</span>
+    </div>
+    <div class="br">
+      <span>NODE 7NM · READY</span>
+    </div>
+  </div>
+
+  <div class="center-crosshair"></div>
+
+  <!-- TOP NAVIGATION -->
+  <nav>
+    <a href="index.html" class="logo">
+      <span class="logo-badge">2</span>
+      <span>SILICA</span>
+    </a>
+    <ul>
+      <li><a href="#workflow">WORKFLOW</a></li>
+      <li><a href="#anatomy">ANATOMY</a></li>
+      <li><a href="#config">CONFIGURATION</a></li>
+      <li><a href="#analysis">ANALYSIS</a></li>
+      <li><a href="#tapeout">TAPEOUT</a></li>
+      <li><a href="app.html" class="workspace-link">WORKSPACE →</a></li>
+    </ul>
   </nav>
 
-  <!-- Glass Chip Canvas - fixed background -->
-  <div class="chip-canvas-container">
-    <canvas id="chip-canvas"></canvas>
-  </div>
-
-  <!-- Fixed UI Overlay (telemetry, corners, scroll indicator) -->
-  <div class="fixed-overlay">
-    <div class="overlay-inner">
-      <div class="telemetry-left">
-        <p id="fps-count">00fps</p>
-        <p id="resolution">0x0</p>
-      </div>
-      <div class="telemetry-right">
-        <div class="status-dot"></div>
-        <p id="timer">00:00:00</p>
-      </div>
-      <div class="corner corner-tl"></div>
-      <div class="corner corner-tr"></div>
-      <div class="corner corner-bl"></div>
-      <div class="corner corner-br"></div>
-      <div class="center-crosshair">
-        <span class="ch-h"></span>
-        <span class="ch-v"></span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Scroll Container -->
-  <div id="scroll-container">
-    <div id="scroll-content">
-      <div data-scrollable-content>
-
-        <!-- Scroll Indicator -->
-        <div id="scroller" class="scroll-indicator">
-          <div class="scroll-track">
-            <span id="scroller-cursor" class="scroll-cursor"></span>
+  <!-- HERO SECTION -->
+  <section id="hero">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div>
+          <div class="hero-kicker reveal">
+            <span class="bar"></span>
+            <span class="mono">A SEMICONDUCTOR DESIGN ENVIRONMENT</span>
           </div>
-          <div class="scroll-pins">
-            <span class="pin tall"></span>
-            <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
-            <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
-            <span class="pin tall"></span>
-            <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
-            <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
-            <span class="pin tall"></span>
-            <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
-            <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
-            <span class="pin tall"></span>
-            <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
-            <span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span><span class="pin"></span>
+          <h1 class="hero-title reveal">
+            <span class="line">Silicon</span>
+            <span class="line"><span class="accent-blue">Crafted</span></span>
+            <span class="line">with</span>
+            <span class="line">Precision.</span>
+          </h1>
+
+          <div class="hero-actions reveal">
+            <a href="app.html" class="btn-primary">
+              LAUNCH WORKSPACE
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="chat.html" class="btn-secondary">AI ASSISTANT</a>
+            <a href="login.html" class="btn-secondary">SIGN IN</a>
           </div>
         </div>
 
-        <!-- HERO SECTION -->
-        <section class="hero-section">
-          <div class="hero-content">
-            <div class="hero-eyebrow">Semiconductor Design Platform</div>
-            <h1 class="hero-headline">
-              Precision silicon,<br/>
-              <span class="headline-accent">crafted in light.</span>
-            </h1>
-            <p class="hero-subheadline">
-              Silica guides a digital specification through every stage of physical implementation — 
-              from RTL to tapeout — with absolute control over every transistor, every connection, 
-              and every square micron of silicon.
-            </p>
-            <div class="hero-actions">
-              <a href="app.html" class="btn-primary">
-                Launch EDA Studio
-                <svg class="btn-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-              <a href="chat.html" class="btn-ghost">AI Assistant</a>
-              <a href="#workflow" class="btn-ghost">Explore Flow</a>
-            </div>
-            <div class="hero-platforms">
-              <span class="platform-label">Available for</span>
-              <span class="platform-item">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><circle cx="7" cy="7" r="6"/></svg>
-                Web
-              </span>
-              <span class="platform-item">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="2" y="3" width="10" height="8" rx="1.5"/></svg>
-                Desktop
-              </span>
-              <span class="platform-item">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="4" y="1" width="6" height="12" rx="1.5"/></svg>
-                Cloud
-              </span>
-            </div>
+        <div class="chip-stage reveal">
+          <div class="chip" id="chip3d">
+            <div class="layer l1"></div>
+            <div class="layer l2"></div>
+            <div class="layer l3"></div>
+            <div class="layer l4"></div>
+            <div class="layer l5"></div>
+            <div class="core"></div>
           </div>
-          <div class="hero-scroll-hint" aria-hidden="true">
-            <span class="scroll-line"></span>
-            <span class="scroll-label">Scroll to explore</span>
-          </div>
-        </section>
-
-        <!-- SECTION: WORKFLOW / DESIGN FLOW -->
-        <section class="section-workflow px-grid" id="workflow">
-          <div class="design-grid workflow-grid">
-            <div class="workflow-intro col-2-5" data-reveal>
-              <p class="section-label">— Design Flow</p>
-              <p>A semiconductor design progresses through a meticulously ordered sequence of transformations. Each stage refines the representation from abstract intent toward physical reality, with verification gates ensuring correctness at every boundary. Silica instruments this entire pipeline, making the invisible visible.</p>
-            </div>
-            <div class="workflow-intro col-9-12" data-reveal>
-              <p>Stages 1 through 4 are fully implemented and operational within the Silica platform. The remaining stages are in active development and will be rolled out progressively.</p>
-            </div>
-
-            <!-- Workflow stages list -->
-            <div class="workflow-stages col-1-13">
-              <div class="stages-header grid-5">
-                <p class="col-2-5">Stage</p>
-                <p class="col-5-6 end">Status</p>
-              </div>
-              <div class="stages-divider"></div>
-              
-              <div class="stage-row grid-5 stage-completed" data-reveal>
-                <p class="col-1-2 stage-num">01.</p>
-                <p class="col-2-5 stage-name">Specification</p>
-                <p class="col-5-6 end stage-status status-done">
-                  <span class="status-dot-done"></span>Completed
-                </p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5 stage-completed" data-reveal>
-                <p class="col-1-2 stage-num">02.</p>
-                <p class="col-2-5 stage-name">RTL Design</p>
-                <p class="col-5-6 end stage-status status-done">
-                  <span class="status-dot-done"></span>Completed
-                </p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5 stage-completed" data-reveal>
-                <p class="col-1-2 stage-num">03.</p>
-                <p class="col-2-5 stage-name">Functional Verification</p>
-                <p class="col-5-6 end stage-status status-done">
-                  <span class="status-dot-done"></span>Completed
-                </p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5 stage-completed" data-reveal>
-                <p class="col-1-2 stage-num">04.</p>
-                <p class="col-2-5 stage-name">Synthesis</p>
-                <p class="col-5-6 end stage-status status-done">
-                  <span class="status-dot-done"></span>Completed
-                </p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5 stage-upcoming" data-reveal>
-                <p class="col-1-2 stage-num">05.</p>
-                <p class="col-2-5 stage-name">Floorplanning</p>
-                <p class="col-5-6 end stage-status status-soon">Coming Soon</p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5 stage-upcoming" data-reveal>
-                <p class="col-1-2 stage-num">06.</p>
-                <p class="col-2-5 stage-name">Placement</p>
-                <p class="col-5-6 end stage-status status-soon">Coming Soon</p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5 stage-upcoming" data-reveal>
-                <p class="col-1-2 stage-num">07.</p>
-                <p class="col-2-5 stage-name">Routing</p>
-                <p class="col-5-6 end stage-status status-soon">Coming Soon</p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5 stage-upcoming" data-reveal>
-                <p class="col-1-2 stage-num">08.</p>
-                <p class="col-2-5 stage-name">Timing Analysis</p>
-                <p class="col-5-6 end stage-status status-soon">Coming Soon</p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5 stage-upcoming" data-reveal>
-                <p class="col-1-2 stage-num">09.</p>
-                <p class="col-2-5 stage-name">Physical Verification</p>
-                <p class="col-5-6 end stage-status status-soon">Coming Soon</p>
-                <div class="stage-line"></div>
-              </div>
-              <div class="stage-row grid-5 stage-upcoming" data-reveal>
-                <p class="col-1-2 stage-num">10.</p>
-                <p class="col-2-5 stage-name">Tapeout Preparation</p>
-                <p class="col-5-6 end stage-status status-soon">Coming Soon</p>
-                <div class="stage-line"></div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- SECTION: CHIP ANATOMY -->
-        <section class="section-anatomy" id="anatomy">
-          <div class="design-grid anatomy-grid px-grid">
-            <div class="anatomy-title col-2-6" data-reveal>
-              <p class="section-label">— Die Architecture</p>
-              <h2 class="anatomy-heading">Layered<br/>Silicon</h2>
-            </div>
-            <div class="anatomy-desc col-8-12" data-reveal>
-              <p>A modern semiconductor die is a vertically stacked system of extraordinary complexity. Beneath the surface, multiple layers of patterned metal interconnect form a dense transportation network, routing signals between billions of transistors arranged in standard-cell rows. Power distribution grids, clock trees, and I/O structures complete the architecture.</p>
-            </div>
-
-            <div class="layer-exploration col-1-13">
-              <div class="design-grid layer-explore-grid">
-                <div class="layer-labels col-2-5">
-                  <div class="layer-label-item active" data-film-layer="film_negative">
-                    <span class="film-label-name">Die Cross-section</span>
-                    <span class="film-label-line"></span>
-                  </div>
-                  <div class="layer-label-item" data-film-layer="white_balanced">
-                    <span class="film-label-name">Metal Layers</span>
-                    <span class="film-label-line"></span>
-                  </div>
-                  <div class="layer-label-item" data-film-layer="film_positive">
-                    <span class="film-label-name">Transistor Plane</span>
-                    <span class="film-label-line"></span>
-                  </div>
-                  <div class="layer-label-item" data-film-layer="colors_corrected">
-                    <span class="film-label-name">Power Distribution</span>
-                    <span class="film-label-line"></span>
-                  </div>
-                </div>
-
-                <div class="layer-visualization col-6-12">
-                  <div class="film-image-container">
-                    <svg class="film-image active" data-film-image="film_negative" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid meet">
-                      <defs>
-                        <linearGradient id="dieGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stop-color="rgba(30,30,30,1)"/>
-                          <stop offset="100%" stop-color="rgba(15,15,15,1)"/>
-                        </linearGradient>
-                        <pattern id="baseGrid" x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse">
-                          <path d="M 12 0 L 0 0 0 12" fill="none" stroke="rgba(232,138,154,0.08)" stroke-width="0.3"/>
-                        </pattern>
-                      </defs>
-                      <rect width="600" height="400" fill="url(#dieGrad)"/>
-                      <rect width="600" height="400" fill="url(#baseGrid)"/>
-                      <rect x="60" y="40" width="480" height="320" fill="none" stroke="rgba(200,192,200,0.3)" stroke-width="1"/>
-                      <rect x="70" y="50" width="460" height="300" fill="none" stroke="rgba(232,138,154,0.25)" stroke-width="0.5" stroke-dasharray="4,4"/>
-                      <rect x="90" y="70" width="140" height="100" fill="rgba(232,138,154,0.12)" stroke="rgba(245,198,208,0.3)" stroke-width="0.5"/>
-                      <rect x="250" y="70" width="140" height="100" fill="rgba(232,138,154,0.08)" stroke="rgba(245,198,208,0.2)" stroke-width="0.5"/>
-                      <rect x="410" y="70" width="110" height="100" fill="rgba(200,200,200,0.06)" stroke="rgba(200,200,200,0.15)" stroke-width="0.5"/>
-                      <rect x="90" y="190" width="200" height="140" fill="rgba(200,200,200,0.04)" stroke="rgba(200,200,200,0.12)" stroke-width="0.5"/>
-                      <rect x="310" y="190" width="210" height="140" fill="rgba(232,138,154,0.06)" stroke="rgba(245,198,208,0.15)" stroke-width="0.5"/>
-                      <g stroke="rgba(245,198,208,0.2)" stroke-width="0.5" fill="none">
-                        <line x1="60" y1="120" x2="540" y2="120"/>
-                        <line x1="60" y1="180" x2="540" y2="180"/>
-                        <line x1="60" y1="240" x2="540" y2="240"/>
-                        <line x1="60" y1="300" x2="540" y2="300"/>
-                        <line x1="160" y1="40" x2="160" y2="360"/>
-                        <line x1="320" y1="40" x2="320" y2="360"/>
-                        <line x1="460" y1="40" x2="460" y2="360"/>
-                      </g>
-                      <text x="300" y="385" text-anchor="middle" fill="rgba(200,192,200,0.5)" font-size="9" font-family="B612 Mono, monospace">FULL DIE CROSS-SECTION</text>
-                    </svg>
-
-                    <svg class="film-image" data-film-image="white_balanced" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid meet">
-                      <rect width="600" height="400" fill="rgba(12,12,14,1)"/>
-                      <g fill="rgba(245,198,208,0.35)">
-                        <rect x="0" y="40" width="600" height="6"/>
-                        <rect x="0" y="70" width="600" height="5"/>
-                        <rect x="0" y="100" width="600" height="4"/>
-                        <rect x="0" y="130" width="600" height="4"/>
-                        <rect x="0" y="160" width="600" height="3"/>
-                        <rect x="0" y="190" width="600" height="3"/>
-                        <rect x="0" y="220" width="600" height="2.5"/>
-                        <rect x="0" y="250" width="600" height="2"/>
-                        <rect x="0" y="280" width="600" height="2"/>
-                        <rect x="0" y="310" width="600" height="1.5"/>
-                      </g>
-                      <g stroke="rgba(232,138,154,0.2)" stroke-width="0.5">
-                        <line x1="80" y1="40" x2="80" y2="310"/><line x1="120" y1="40" x2="120" y2="310"/>
-                        <line x1="160" y1="40" x2="160" y2="310"/><line x1="200" y1="40" x2="200" y2="310"/>
-                        <line x1="240" y1="40" x2="240" y2="310"/><line x1="280" y1="40" x2="280" y2="310"/>
-                        <line x1="320" y1="40" x2="320" y2="310"/><line x1="360" y1="40" x2="360" y2="310"/>
-                        <line x1="400" y1="40" x2="400" y2="310"/><line x1="440" y1="40" x2="440" y2="310"/>
-                        <line x1="480" y1="40" x2="480" y2="310"/><line x1="520" y1="40" x2="520" y2="310"/>
-                      </g>
-                      <g fill="rgba(245,198,208,0.7)" font-size="8" font-family="B612 Mono, monospace">
-                        <text x="550" y="45">M8</text><text x="550" y="75">M7</text>
-                        <text x="550" y="105">M6</text><text x="550" y="135">M5</text>
-                        <text x="550" y="165">M4</text><text x="550" y="195">M3</text>
-                        <text x="550" y="225">M2</text><text x="550" y="255">M1</text>
-                        <text x="550" y="285">Poly</text><text x="550" y="315">Diff</text>
-                      </g>
-                      <text x="300" y="385" text-anchor="middle" fill="rgba(245,198,208,0.5)" font-size="9" font-family="B612 Mono, monospace">METAL INTERCONNECT STACK — 10 LAYERS</text>
-                    </svg>
-
-                    <svg class="film-image" data-film-image="film_positive" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid meet">
-                      <defs>
-                        <pattern id="txPattern2" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                          <ellipse cx="10" cy="10" rx="7" ry="4" fill="rgba(232,138,154,0.3)" stroke="rgba(245,198,208,0.5)" stroke-width="0.3"/>
-                          <line x1="0" y1="10" x2="3" y2="10" stroke="rgba(200,192,200,0.4)" stroke-width="0.8"/>
-                          <line x1="17" y1="10" x2="20" y2="10" stroke="rgba(200,192,200,0.4)" stroke-width="0.8"/>
-                          <line x1="10" y1="0" x2="10" y2="6" stroke="rgba(232,138,154,0.5)" stroke-width="0.6"/>
-                        </pattern>
-                      </defs>
-                      <rect width="600" height="400" fill="rgba(12,12,14,1)"/>
-                      <rect x="60" y="40" width="480" height="320" fill="url(#txPattern2)"/>
-                      <rect x="60" y="40" width="480" height="320" fill="none" stroke="rgba(200,192,200,0.2)" stroke-width="1"/>
-                      <g stroke="rgba(200,192,200,0.12)" stroke-width="0.3">
-                        <line x1="60" y1="80" x2="540" y2="80"/><line x1="60" y1="120" x2="540" y2="120"/>
-                        <line x1="60" y1="160" x2="540" y2="160"/><line x1="60" y1="200" x2="540" y2="200"/>
-                        <line x1="60" y1="240" x2="540" y2="240"/><line x1="60" y1="280" x2="540" y2="280"/>
-                        <line x1="60" y1="320" x2="540" y2="320"/>
-                      </g>
-                      <text x="300" y="385" text-anchor="middle" fill="rgba(200,192,200,0.4)" font-size="9" font-family="B612 Mono, monospace">TRANSISTOR ARRAY — STANDARD CELL ROWS</text>
-                    </svg>
-
-                    <svg class="film-image" data-film-image="colors_corrected" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid meet">
-                      <rect width="600" height="400" fill="rgba(12,12,14,1)"/>
-                      <g fill="rgba(232,138,154,0.35)">
-                        <rect x="0" y="20" width="600" height="12"/>
-                        <rect x="0" y="80" width="600" height="10"/>
-                        <rect x="0" y="140" width="600" height="10"/>
-                        <rect x="0" y="200" width="600" height="10"/>
-                        <rect x="0" y="260" width="600" height="10"/>
-                        <rect x="0" y="320" width="600" height="12"/>
-                      </g>
-                      <g fill="rgba(200,192,200,0.18)">
-                        <rect x="50" y="0" width="6" height="400"/>
-                        <rect x="150" y="0" width="6" height="400"/>
-                        <rect x="250" y="0" width="6" height="400"/>
-                        <rect x="350" y="0" width="6" height="400"/>
-                        <rect x="450" y="0" width="6" height="400"/>
-                        <rect x="550" y="0" width="6" height="400"/>
-                      </g>
-                      <g stroke="rgba(245,198,208,0.4)" stroke-width="1" fill="none">
-                        <rect x="80" y="50" width="120" height="80"/>
-                        <rect x="220" y="50" width="160" height="80"/>
-                        <rect x="400" y="50" width="120" height="80"/>
-                        <rect x="80" y="160" width="200" height="120"/>
-                        <rect x="300" y="160" width="220" height="120"/>
-                      </g>
-                      <g font-size="8" font-family="B612 Mono, monospace">
-                        <text x="20" y="30" fill="rgba(245,198,208,0.7)">VDD</text>
-                        <text x="20" y="90" fill="rgba(245,198,208,0.7)">VSS</text>
-                        <text x="20" y="150" fill="rgba(245,198,208,0.7)">VDD</text>
-                        <text x="20" y="210" fill="rgba(245,198,208,0.7)">VSS</text>
-                        <text x="20" y="270" fill="rgba(245,198,208,0.7)">VDD</text>
-                        <text x="20" y="330" fill="rgba(245,198,208,0.7)">VSS</text>
-                      </g>
-                      <text x="300" y="385" text-anchor="middle" fill="rgba(245,198,208,0.5)" font-size="9" font-family="B612 Mono, monospace">POWER DISTRIBUTION NETWORK — VDD/VSS GRID</text>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <div class="film-explanation col-2-6" data-reveal>
-                <p class="section-label">— Layer Stack</p>
-                <p>A semiconductor die is composed of a complex series of stacked materials. At the foundation lies the silicon substrate, doped to create transistor channels. Above this, polysilicon gates and diffusion regions form the active devices. Multiple layers of metal interconnect route signals vertically and horizontally.</p>
-              </div>
-            </div>
-
-            <div class="anatomy-callouts col-1-13 design-grid">
-              <div class="callout col-2-4" data-reveal>
-                <p class="callout-label">Standard Cells</p>
-                <p class="callout-text">Pre-characterized logic gates arranged in uniform-height rows — the fundamental building blocks of digital implementation.</p>
-              </div>
-              <div class="callout col-5-7" data-reveal>
-                <p class="callout-label">I/O Structures</p>
-                <p class="callout-text">Perimeter circuits translating internal voltage levels to external interface standards, with ESD protection.</p>
-              </div>
-              <div class="callout col-8-10" data-reveal>
-                <p class="callout-label">Clock Distribution</p>
-                <p class="callout-text">Balanced networks delivering the timing reference with controlled skew across billions of sequential elements.</p>
-              </div>
-              <div class="callout col-11-12" data-reveal>
-                <p class="callout-label">Power Grid</p>
-                <p class="callout-text">Multi-layer mesh distributing VDD and VSS with controlled IR drop and electromigration margins.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- SECTION: PROCESS TECHNOLOGIES -->
-        <section class="section-config px-grid" id="config">
-          <div class="design-grid config-grid">
-            <div class="config-title col-2-6" data-reveal>
-              <p class="section-label">— Process Technologies</p>
-              <h2 class="config-heading">Target<br/>Nodes</h2>
-            </div>
-            <div class="config-desc col-8-12" data-reveal>
-              <p>Silica supports design implementation across a range of process technologies, from mature nodes to advanced FinFET geometries. Each technology node carries its own design rules, layer stack, and device characteristics.</p>
-            </div>
-            <div class="config-list col-1-13">
-              <div class="config-header grid-5">
-                <p class="col-2-5">Process Node</p>
-                <p class="col-5-6 end">Pitch</p>
-              </div>
-              <div class="config-divider"></div>
-              <div class="config-row grid-5" data-reveal>
-                <p class="col-1-2 config-num">01.</p>
-                <p class="col-2-5 config-name">TSMC 16nm FinFET</p>
-                <p class="col-5-6 end config-pitch">48nm</p>
-                <div class="config-line"></div>
-              </div>
-              <div class="config-row grid-5" data-reveal>
-                <p class="col-1-2 config-num">02.</p>
-                <p class="col-2-5 config-name">TSMC 7nm FinFET</p>
-                <p class="col-5-6 end config-pitch">36nm</p>
-                <div class="config-line"></div>
-              </div>
-              <div class="config-row grid-5" data-reveal>
-                <p class="col-1-2 config-num">03.</p>
-                <p class="col-2-5 config-name">TSMC 5nm FinFET</p>
-                <p class="col-5-6 end config-pitch">28nm</p>
-                <div class="config-line"></div>
-              </div>
-              <div class="config-row grid-5" data-reveal>
-                <p class="col-1-2 config-num">04.</p>
-                <p class="col-2-5 config-name">Samsung 3nm GAA</p>
-                <p class="col-5-6 end config-pitch">21nm</p>
-                <div class="config-line"></div>
-              </div>
-              <div class="config-row grid-5" data-reveal>
-                <p class="col-1-2 config-num">05.</p>
-                <p class="col-2-5 config-name">Intel 18A</p>
-                <p class="col-5-6 end config-pitch">18nm</p>
-                <div class="config-line"></div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- FOOTER -->
-        <footer class="site-footer px-grid">
-          <div class="design-grid footer-grid">
-            <div class="col-2-6">
-              <div class="footer-logo">SILICA</div>
-              <p class="footer-tagline">Precision semiconductor design environment. From specification to silicon.</p>
-            </div>
-            <div class="footer-nav col-8-9">
-              <p class="footer-nav-label">Platform</p>
-              <ul>
-                <li><a href="#workflow">Design Flow</a></li>
-                <li><a href="#anatomy">Architecture</a></li>
-                <li><a href="#config">Technologies</a></li>
-              </ul>
-            </div>
-            <div class="footer-nav col-10-11">
-              <p class="footer-nav-label">Account</p>
-              <ul>
-                <li><a href="login.html">Sign In</a></li>
-                <li><a href="login.html">Get Started</a></li>
-              </ul>
-            </div>
-            <div class="footer-bottom">
-              <div class="footer-line"></div>
-              <div class="footer-meta">
-                <span>© 2026 Silica Design Systems</span>
-                <span>Stages 1–4 operational · Stages 5–10 coming soon</span>
-              </div>
-            </div>
-          </div>
-        </footer>
-
+          <div class="chip-label a">M5 — TOP METAL</div>
+          <div class="chip-label b">SUBSTRATE · BULK SI</div>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <script src="script.js"></script>
+  <hr class="rule">
+
+  <!-- WORKFLOW -->
+  <section id="workflow">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <h2>The Design <em>Journey</em></h2>
+        <span class="idx">01 / WORKFLOW</span>
+      </div>
+      <div class="stage reveal"><div class="num">01</div><div><span class="tag">Frontend</span><h3>Specification</h3></div><p>Architecture, performance targets, power budget, and die-area envelope defined. The contract every downstream stage is measured against.</p></div>
+      <div class="stage reveal"><div class="num">02</div><div><span class="tag">Frontend</span><h3>RTL Design</h3></div><p>Behavioral description in hardware-description language — registers, datapaths, and finite state machines captured as synthesizable logic.</p></div>
+      <div class="stage reveal"><div class="num">03</div><div><span class="tag">Frontend</span><h3>Functional Verification</h3></div><p>Verilator C++ testbenches, assertions, and coverage closure prove the RTL does what the specification requires, before a single gate is placed.</p></div>
+      <div class="stage reveal"><div class="num">04</div><div><span class="tag">Frontend</span><h3>Logic Synthesis</h3></div><p>Yosys logic synthesis mapping RTL to standard cell technology library. Gates sized for timing, area, and cell count.</p></div>
+      <div class="stage reveal"><div class="num">05</div><div><span class="tag">Backend</span><h3>Floorplanning</h3></div><p>Macro blocks, I/O rings, and power domains arranged on the die. The skeleton on which every later stage is built.</p></div>
+      <div class="stage reveal"><div class="num">06</div><div><span class="tag">Backend</span><h3>Placement</h3></div><p>Standard cells positioned legal-row by legal-row, optimized for wirelength, timing, and routability across the core area.</p></div>
+      <div class="stage reveal"><div class="num">07</div><div><span class="tag">Backend</span><h3>Routing</h3></div><p>Metal interconnect drawn across stacked layers — signals, clock tree, and power grid connected without design-rule violation.</p></div>
+      <div class="stage reveal"><div class="num">08</div><div><span class="tag">Signoff</span><h3>Timing Analysis</h3></div><p>Static timing closure across all process, voltage, and temperature corners. Setup and hold margins verified before signoff.</p></div>
+      <div class="stage reveal"><div class="num">09</div><div><span class="tag">Signoff</span><h3>Physical Verification</h3></div><p>Design-rule check (DRC), layout-versus-schematic (LVS), and antenna checks confirm the drawn geometry is manufacturable.</p></div>
+      <div class="stage reveal"><div class="num">10</div><div><span class="tag">Signoff</span><h3>Tapeout Preparation</h3></div><p>Final GDSII/OASIS database, signoff reports, and fabrication handoff package assembled for external foundry manufacture.</p></div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ANATOMY -->
+  <section id="anatomy">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <h2>Die <em>Anatomy</em></h2>
+        <span class="idx">02 / ANATOMY</span>
+      </div>
+      <div class="anat-grid">
+        <div class="reveal">
+          <svg class="die-svg" viewBox="0 0 400 400" id="dieSvg">
+            <rect x="10" y="10" width="380" height="380" fill="none" stroke="var(--line-strong)" stroke-width="1"/>
+            <!-- I/O ring -->
+            <rect class="region" data-part="io" x="10" y="10" width="380" height="40"/>
+            <rect class="region" data-part="io" x="10" y="350" width="380" height="40"/>
+            <rect class="region" data-part="io" x="10" y="50" width="40" height="300"/>
+            <rect class="region" data-part="io" x="350" y="50" width="40" height="300"/>
+            <!-- Power grid stripe -->
+            <rect class="region" data-part="power" x="50" y="50" width="300" height="14"/>
+            <rect class="region" data-part="power" x="50" y="336" width="300" height="14"/>
+            <!-- Standard cell core -->
+            <rect class="region active" data-part="cells" x="50" y="64" width="190" height="272"/>
+            <!-- SRAM macros -->
+            <rect class="region" data-part="sram" x="240" y="64" width="110" height="80"/>
+            <rect class="region" data-part="sram" x="240" y="154" width="110" height="80"/>
+            <!-- PLL / analog -->
+            <rect class="region" data-part="pll" x="240" y="244" width="110" height="92"/>
+            <!-- labels -->
+            <text x="70" y="34">I/O RING</text>
+            <text x="70" y="130" style="fill:var(--ink)">STANDARD-CELL CORE</text>
+            <text x="252" y="108">SRAM MACRO</text>
+            <text x="252" y="296">PLL · ANALOG</text>
+            <text x="70" y="60" style="fill:var(--blue)">POWER GRID</text>
+          </svg>
+        </div>
+        <div class="anat-info reveal">
+          <div class="t" id="anatT">Standard Cells &amp; Logic Gates</div>
+          <div class="d" id="anatD">The bulk of the die is filled with rows of standard cells — NAND, NOR, flip-flops, and multiplexers drawn from the foundry library, placed in legal rows and interconnected by routed metal.</div>
+          <div class="spec" id="anatS">Density · 82% utilization · 7-track height</div>
+          <div class="anat-parts" id="anatBtns">
+            <button data-part="cells" class="active">Standard Cells</button>
+            <button data-part="sram">SRAM Macros</button>
+            <button data-part="power">Power Grid</button>
+            <button data-part="pll">PLL / Analog</button>
+            <button data-part="io">I/O Structures</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- CONFIGURATION -->
+  <section id="config">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <h2>Process <em>Configurations</em></h2>
+        <span class="idx">03 / CONFIGURATION</span>
+      </div>
+      <div class="cfg-head reveal"><div class="h1">No.</div><div class="h2">Process Node</div><div class="h3">Vdd / Gate</div><div class="h4">Target Application</div></div>
+      <div class="cfg-row reveal" data-node="7nm"><div class="n">01.</div><div class="name">TSMC 7nm FinFET<small>High-performance compute</small></div><div class="val">0.75V · 9.5T</div><div class="val">CPU · GPU · AI Accelerators</div></div>
+      <div class="cfg-row reveal" data-node="16nm"><div class="n">02.</div><div class="name">TSMC 16nm FinFET<small>Performance / cost balance</small></div><div class="val">0.80V · 7.5T</div><div class="val">Networking · Edge SoC</div></div>
+      <div class="cfg-row reveal" data-node="28nm"><div class="n">03.</div><div class="name">28nm HKMG<small>Mature high-volume production</small></div><div class="val">0.90V · 6T</div><div class="val">IoT · Automotive Sensors</div></div>
+      <div class="cfg-row reveal" data-node="5nm"><div class="n">04.</div><div class="name">TSMC 5nm EUV<small>Ultra-dense compute clusters</small></div><div class="val">0.70V · 6T</div><div class="val">Datacenter · Mobile Flagship</div></div>
+      <div class="cfg-row reveal" data-node="18A"><div class="n">05.</div><div class="name">Intel 18A RibbonFET<small>Gate-All-Around &amp; PowerVia</small></div><div class="val">0.65V · GAA</div><div class="val">Next-Gen Semiconductor</div></div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <div class="brand">SILICA</div>
+          <div class="tag">Silicon Crafted · Autonomous Semiconductor Engineering Platform from Specification to Silicon.</div>
+        </div>
+        <div>
+          <h4>Platform</h4>
+          <ul>
+            <li><a href="#workflow">Workflow</a></li>
+            <li><a href="#anatomy">Die Anatomy</a></li>
+            <li><a href="#config">Technologies</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Studio</h4>
+          <ul>
+            <li><a href="app.html">EDA Workspace</a></li>
+            <li><a href="chat.html">AI Assistant</a></li>
+            <li><a href="login.html">Sign In</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Reference</h4>
+          <ul>
+            <li><a href="https://huggingface.co/SILICAM" target="_blank">HF Adapters</a></li>
+            <li><a href="https://entire.io/gh/SuhasHanamannavar/silica/trails/1" target="_blank">Entire Trail</a></li>
+            <li><a href="https://app.neatlogs.com" target="_blank">Neatlogs Tracing</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© 2026 SILICA · Autonomous Semiconductor Engineering</span>
+        <span>Verified with Verilator &amp; Yosys on AWS Cloud</span>
+        <span>v2.4.1 · Build Stable</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+  (function(){
+    // ---- Telemetry timer ----
+    var t0 = Date.now(), timerEl = document.getElementById('timer'), fpsEl = document.getElementById('fps'), resEl = document.getElementById('res');
+    setInterval(function(){
+      var s = Math.floor((Date.now()-t0)/1000) + 1027; // realistic elapsed
+      var h = String(Math.floor(s/3600)).padStart(2,'0'), m = String(Math.floor((s%3600)/60)).padStart(2,'0'), ss = String(s%60).padStart(2,'0');
+      if (timerEl) timerEl.textContent = h+':'+m+':'+ss;
+    }, 1000);
+
+    // FPS jitter between 60 and 62
+    setInterval(function(){ if (fpsEl) fpsEl.textContent = (60 + Math.floor(Math.random()*3)) + 'FPS'; }, 1600);
+
+    // Resolution readout
+    function updateRes() { if (resEl) resEl.textContent = window.innerWidth + 'X' + window.innerHeight; }
+    updateRes();
+    window.addEventListener('resize', updateRes);
+
+    // ---- Scroll progress & 3D chip rotation ----
+    var pct = document.getElementById('pct'), chip = document.getElementById('chip3d');
+    window.addEventListener('scroll', function(){
+      var h = document.documentElement;
+      var sc = h.scrollTop / (h.scrollHeight - h.clientHeight || 1);
+      if (pct) pct.textContent = Math.round(sc * 100) + '%';
+      if (chip) {
+        var ry = -32 + sc * 45;
+        var rx = 58 - sc * 15;
+        chip.style.transform = 'rotateX(' + rx + 'deg) rotateZ(' + ry + 'deg)';
+      }
+    }, {passive:true});
+
+    // ---- Reveal on scroll ----
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, {threshold: 0.1});
+    document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+    // ---- Anatomy interactivity ----
+    var ANAT = {
+      cells: {t:'Standard Cells & Logic Gates', d:'The bulk of the die is filled with rows of standard cells — NAND, NOR, flip-flops, and multiplexers drawn from the foundry library, placed in legal rows and interconnected by routed metal.', s:'Density · 82% utilization · 7-track height'},
+      sram:  {t:'SRAM Compiler Macros', d:'Dense memory arrays generated by the foundry SRAM compiler, tiled across the upper-right quadrant. Each macro is a hardened block with its own power domain and sense amplifiers.', s:'6 macros · 512KB total · dual-port'},
+      power: {t:'Power Distribution Grid', d:'Horizontal and vertical metal straps forming a grid across the core, delivering Vdd and Vss to every standard cell. IR-drop and electromigration verified at signoff.', s:'M9/M10 straps · 1.2µm pitch · IR-drop < 2%'},
+      pll:   {t:'PLL & Analog Blocks', d:'Phase-locked loop, clock generators, and mixed-signal circuits placed in their own guarded region, isolated from switching noise of the digital core.', s:'1 PLL · 2 DLL · guard-ring isolated'},
+      io:    {t:'I/O Ring & Pad Structures', d:'Perimeter ring of input/output cells — drivers, ESD protection, and bond pads — interfacing the core to the package and the board beyond.', s:'128 pads · 1.8V/3.3V · ESD 2kV HBM'}
+    };
+    var anatT = document.getElementById('anatT'), anatD = document.getElementById('anatD'), anatS = document.getElementById('anatS');
+    function setPart(p){
+      var d = ANAT[p]; if(!d) return;
+      if (anatT) anatT.style.opacity = 0;
+      if (anatD) anatD.style.opacity = 0;
+      setTimeout(function(){
+        if (anatT) { anatT.textContent = d.t; anatT.style.opacity = 1; }
+        if (anatD) { anatD.textContent = d.d; anatD.style.opacity = 1; }
+        if (anatS) anatS.textContent = d.s;
+      }, 180);
+      document.querySelectorAll('.die-svg .region').forEach(function(r){ r.classList.toggle('active', r.getAttribute('data-part')===p); });
+      document.querySelectorAll('#anatBtns button').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-part')===p); });
+    }
+    document.querySelectorAll('.die-svg .region').forEach(function(r){
+      r.addEventListener('mouseenter', function(){ setPart(r.getAttribute('data-part')); });
+    });
+    document.querySelectorAll('#anatBtns button').forEach(function(b){
+      b.addEventListener('click', function(){ setPart(b.getAttribute('data-part')); });
+    });
+  })();
+  </script>
 </body>
 </html>

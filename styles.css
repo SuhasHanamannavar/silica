@@ -12,28 +12,28 @@
   --grid-cols-count: 12;
   --column-width: calc((100vw - (var(--grid-cols-count) * var(--grid-gap))) / var(--grid-cols-count));
   
-  /* Glass & Pink palette — from bottle reference */
-  --glass-bg: 10, 10, 12;
-  --glass-charcoal: 40, 38, 44;
-  --pink-pale: 245, 198, 208;
-  --pink-coral: 232, 138, 154;
-  --pink-deep: 200, 100, 120;
-  --highlight-warm: 255, 245, 240;
-  --silver-detail: 200, 192, 200;
-  --bg-hero-start: 8, 8, 10;
-  --bg-hero-end: 18, 14, 20;
+  /* Semiconductor Electric Blue Palette */
+  --glass-bg: 8, 9, 13;
+  --glass-charcoal: 20, 24, 36;
+  --pink-pale: 190, 215, 255;
+  --pink-coral: 91, 139, 247;
+  --pink-deep: 59, 130, 246;
+  --highlight-warm: 240, 246, 255;
+  --silver-detail: 148, 163, 184;
+  --bg-hero-start: 8, 9, 13;
+  --bg-hero-end: 12, 14, 20;
   
-  /* Legacy colors (for existing sections) */
-  --color-dark-1: 20, 20, 20;
-  --color-dark-2: 85, 85, 85;
-  --color-dark-3: 150, 150, 150;
-  --color-light-1: 200, 200, 200;
+  /* Legacy colors */
+  --color-dark-1: 15, 17, 24;
+  --color-dark-2: 71, 85, 105;
+  --color-dark-3: 148, 163, 184;
+  --color-light-1: 240, 244, 248;
   
   --bg-dark: rgb(var(--color-dark-1));
   --text-light: rgb(var(--color-light-1));
   --text-muted: rgb(var(--color-dark-2));
   --text-dim: rgb(var(--color-dark-3));
-  --accent: rgb(var(--pink-coral));
+  --accent: rgb(91, 139, 247);
   --border-color: rgba(var(--silver-detail), 0.15);
   --border-soft: rgba(var(--silver-detail), 0.08);
 }
