@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4NKA8V9EF1QTT8KB6MXXA2Y",
+  "session_id": "8070bd12-faf5-4a7f-8e5c-f4689edd7781",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-11T13:44:26.7111847Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "app.js"
+  ],
+  "agent": "Antigravity",
+  "model": "",
+  "turn_id": "076f94ae163f",
+  "checkpoint_transcript_start": 1533,
+  "transcript_lines_at_start": 1533,
+  "session_metrics": {
+    "turn_count": 15
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-11T13:44:26.6155516Z",
+    "agent_lines": 1,
+    "agent_removed": 1,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 1,
+    "total_lines_changed": 2,
+    "agent_percentage": 100,
+    "metric_version": 2
+  }
+}
