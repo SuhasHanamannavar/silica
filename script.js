@@ -194,9 +194,9 @@
 
     function resizeChipCanvas() {
       cdpr = Math.min(window.devicePixelRatio || 1, 2);
-      const container = chipCanvas.parentElement;
-      cw = container.clientWidth || window.innerWidth;
-      ch = container.clientHeight || window.innerHeight;
+      // container is position:fixed, use window dims
+      cw = window.innerWidth;
+      ch = window.innerHeight;
       chipCanvas.width = cw * cdpr;
       chipCanvas.height = ch * cdpr;
       chipCanvas.style.width = cw + 'px';
