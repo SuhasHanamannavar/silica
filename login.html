@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
+      color-scheme: dark;
       --bg-black: #000000;
       --bg-surface: #0A0A0A;
       --bg-card: #111111;
@@ -165,9 +166,10 @@
     }
     .form-input {
       width: 100%;
-      background: var(--bg-input);
+      background: #0A0A0A !important;
+      background-color: #0A0A0A !important;
       border: 1px solid var(--line-strong);
-      color: var(--ink-primary);
+      color: #FFFFFF !important;
       font-family: var(--sans);
       font-size: 14px;
       padding: 12px 14px;
@@ -176,10 +178,31 @@
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     .form-input:focus {
+      background: #0A0A0A !important;
+      background-color: #0A0A0A !important;
+      color: #FFFFFF !important;
       border-color: var(--accent-dim);
       box-shadow: 0 0 0 3px var(--accent-soft);
     }
     .form-input::placeholder { color: var(--ink-faint); }
+
+    /* Prevent browser autofill from turning inputs light blue or white */
+    .form-input:-webkit-autofill,
+    .form-input:-webkit-autofill:hover,
+    .form-input:-webkit-autofill:focus,
+    .form-input:-webkit-autofill:active,
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px #0A0A0A inset !important;
+      box-shadow: 0 0 0 1000px #0A0A0A inset !important;
+      -webkit-text-fill-color: #FFFFFF !important;
+      caret-color: #FFFFFF !important;
+      color: #FFFFFF !important;
+      border-color: var(--line-strong) !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
 
     .form-options {
       display: flex;

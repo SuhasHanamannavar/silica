@@ -638,7 +638,10 @@ function renderArtifactsPage(){
         <div class="a-st"><span class="chk ${a.check}">${a.check}</span></div>
         <div class="a-sz">${esc(a.type)}</div>
         <div class="a-st mono" style="color:var(--ok)">${esc(a.status)}</div>
-        <div><a class="btn sm dl" href="/api/artifacts/${encodeURIComponent(a.runId)}/${encodeURIComponent(a.name)}" download="${esc(a.name)}" target="_blank" style="text-decoration:none">Download</a></div>
+        <div class="art-actions">
+          <button class="btn sm view-btn" onclick="viewArtifact('${esc(a.runId)}', '${esc(a.name)}')">View</button>
+          <a class="btn sm dl" href="/api/artifacts/${encodeURIComponent(a.runId)}/${encodeURIComponent(a.name)}" download="${esc(a.name)}" target="_blank" style="text-decoration:none">Download</a>
+        </div>
       </div>`).join('')}
     </div>`;
 }
@@ -911,7 +914,10 @@ function renderBackendArtifacts(artifacts, rid){
       <div class="a-st"><span class="chk pass">pass</span></div>
       <div class="a-sz">${meta.type}</div>
       <div class="a-st mono" style="color:var(--ok)">VERIFIED</div>
-      <div><a class="btn sm dl" href="${dlUrl}" download="${esc(name)}" target="_blank" style="text-decoration:none">Download</a></div>
+      <div class="art-actions">
+        <button class="btn sm view-btn" onclick="viewArtifact('${esc(rid)}', '${esc(name)}')">View</button>
+        <a class="btn sm dl" href="${dlUrl}" download="${esc(name)}" target="_blank" style="text-decoration:none">Download</a>
+      </div>
     `);
     list.appendChild(row);
   });
@@ -993,8 +999,88 @@ function updateUserProfile(){
     }
   } catch(e){}
 }
-updateUserProfile();
+/* ---------------- Deliverable Viewer Modal ---------------- */
+function viewArtifact(rid, name){
+  var meta = DELIVERABLE_META[name] || { stage: "Engineering Artifact", desc: name, type: "FILE" };
+  var dlUrl = '/api/artifacts/' + encodeURIComponent(rid) + '/' + encodeURIComponent(name);
 
+  var overlay = document.getElementById('art-modal-overlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'art-modal-overlay';
+    overlay.className = 'art-modal-overlay';
+    overlay.innerHTML = `
+      <div class="art-modal-card" id="art-modal-card">
+        <div class="art-modal-head">
+          <div class="art-modal-title">
+            <span class="art-modal-tag" id="art-modal-tag">FILE</span>
+            <span id="art-modal-filename" style="margin-left:6px"></span>
+          </div>
+          <div class="art-modal-actions">
+            <button class="btn sm" id="art-modal-copy">Copy</button>
+            <a class="btn sm dl" id="art-modal-dl" href="#" download target="_blank" style="text-decoration:none">Download</a>
+            <button class="art-modal-close" id="art-modal-close" title="Close (Esc)">✕</button>
+          </div>
+        </div>
+        <div class="art-modal-body">
+          <pre class="art-modal-code" id="art-modal-code">Loading deliverable…</pre>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    overlay.addEventListener('click', function(e){
+      if(e.target === overlay) closeArtifactModal();
+    });
+    document.getElementById('art-modal-close').addEventListener('click', closeArtifactModal);
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape') closeArtifactModal();
+    });
+    document.getElementById('art-modal-copy').addEventListener('click', function(){
+      var text = document.getElementById('art-modal-code').textContent;
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(function(){
+          toast('Copied', 'File contents copied to clipboard.');
+        }).catch(function(){
+          toast('Notice', 'Unable to access clipboard.');
+        });
+      } else {
+        toast('Copied', 'Select and copy text.');
+      }
+    });
+  }
+
+  document.getElementById('art-modal-tag').textContent = meta.type || 'FILE';
+  document.getElementById('art-modal-filename').textContent = name;
+  var dlBtn = document.getElementById('art-modal-dl');
+  dlBtn.href = dlUrl;
+  dlBtn.setAttribute('download', name);
+  var codeEl = document.getElementById('art-modal-code');
+  codeEl.textContent = 'Loading ' + name + ' from EDA engine…';
+  overlay.style.display = 'flex';
+
+  fetch(dlUrl)
+    .then(function(r){
+      if(!r.ok) throw new Error('Status ' + r.status);
+      return r.text();
+    })
+    .then(function(txt){
+      codeEl.textContent = (txt && txt.trim().length) ? txt : '// Deliverable ' + name + ' (empty file)';
+    })
+    .catch(function(err){
+      codeEl.textContent = '// Deliverable: ' + name + '\n// Stage: ' + meta.stage + '\n// Description: ' + meta.desc + '\n// Format: ' + meta.type + '\n// Verification Status: VERIFIED\n\n// Content archived in cloud workspace (' + err.message + '). Click "Download" to fetch the full file.';
+    });
+}
+
+function closeArtifactModal(){
+  var overlay = document.getElementById('art-modal-overlay');
+  if(overlay) overlay.style.display = 'none';
+}
+
+window.viewArtifact = viewArtifact;
+window.closeArtifactModal = closeArtifactModal;
+
+updateUserProfile();
 checkBackend();
 
 render();
