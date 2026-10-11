@@ -544,7 +544,7 @@
 
       // Chip animation parameters
       const cx = cw / 2;
-      const cy = ch / 2;
+      const cy = ch * 0.58;
       const baseSize = Math.min(cw, ch) * 0.18;
       
       let rotY, rotX, floatY;
