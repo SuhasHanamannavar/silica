@@ -1879,3 +1879,15 @@ ul {
   }
 }
 
+
+/* Ensure hero content is always visible */
+.hero-content [data-reveal] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Ensure hero content stacks above canvas */
+.hero-section {
+  position: relative;
+  z-index: 10;
+}
