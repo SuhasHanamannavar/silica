@@ -537,10 +537,86 @@
     stroke-width: 1;
     transition: all 0.35s;
     cursor: pointer;
+    transform-origin: center;
+  }
+  .die-svg .region[data-part="cells"] {
+    animation: dieScan 4s linear infinite, dieGlow 3s ease-in-out infinite;
+  }
+  .die-svg .region[data-part="sram"] {
+    animation: dieGlow 3.5s ease-in-out infinite;
+    animation-delay: 0.6s;
+  }
+  .die-svg .region[data-part="power"] {
+    animation: diePower 2s ease-in-out infinite;
+  }
+  .die-svg .region[data-part="pll"] {
+    animation: dieGlow 2.8s ease-in-out infinite;
+    animation-delay: 1.2s;
+  }
+  .die-svg .region[data-part="io"] {
+    animation: dieIO 2.5s ease-in-out infinite;
   }
   .die-svg .region:hover, .die-svg .region.active {
     fill: var(--accent-soft);
     stroke: var(--accent);
+    stroke-width: 1.5;
+    filter: drop-shadow(0 0 8px var(--accent-dim));
+    animation-play-state: paused;
+  }
+  @keyframes dieScan {
+    0% { fill: rgba(255, 255, 255, 0.02); }
+    20% { fill: rgba(212, 160, 58, 0.08); }
+    40% { fill: rgba(255, 255, 255, 0.02); }
+    60% { fill: rgba(212, 160, 58, 0.06); }
+    80% { fill: rgba(255, 255, 255, 0.02); }
+    100% { fill: rgba(255, 255, 255, 0.02); }
+  }
+  @keyframes dieGlow {
+    0%, 100% {
+      stroke: var(--line-strong);
+      stroke-width: 1;
+      filter: none;
+    }
+    50% {
+      stroke: rgba(212, 160, 58, 0.5);
+      stroke-width: 1.5;
+      filter: drop-shadow(0 0 6px rgba(212, 160, 58, 0.3));
+    }
+  }
+  @keyframes diePower {
+    0%, 100% {
+      fill: rgba(255, 255, 255, 0.02);
+      stroke: var(--line-strong);
+    }
+    50% {
+      fill: rgba(212, 160, 58, 0.12);
+      stroke: rgba(212, 160, 58, 0.6);
+      filter: drop-shadow(0 0 4px rgba(212, 160, 58, 0.4));
+    }
+  }
+  @keyframes dieIO {
+    0%, 100% {
+      stroke: var(--line-strong);
+      stroke-width: 1;
+    }
+    25% {
+      stroke: rgba(212, 160, 58, 0.35);
+      stroke-width: 1.2;
+    }
+    50% {
+      stroke: var(--line-strong);
+      stroke-width: 1;
+    }
+    75% {
+      stroke: rgba(212, 160, 58, 0.35);
+      stroke-width: 1.2;
+    }
+  }
+  @keyframes dieScanLine {
+    0% { transform: translateY(-290px); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(290px); opacity: 0; }
   }
   .die-svg text {
     font-family: var(--mono);
@@ -930,6 +1006,13 @@
     <div class="die-grid">
       <div class="reveal">
         <svg class="die-svg" viewBox="0 0 400 400" id="dieSvg">
+          <defs>
+            <linearGradient id="scanGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:rgba(212,160,58,0);stop-opacity:0" />
+              <stop offset="50%" style="stop-color:rgba(212,160,58,0.25);stop-opacity:1" />
+              <stop offset="100%" style="stop-color:rgba(212,160,58,0);stop-opacity:0" />
+            </linearGradient>
+          </defs>
           <rect x="10" y="10" width="380" height="380" fill="none" stroke="var(--line-strong)" stroke-width="1" rx="4"/>
           <rect class="region" data-part="io" x="10" y="10" width="380" height="36" rx="2"/>
           <rect class="region" data-part="io" x="10" y="354" width="380" height="36" rx="2"/>
@@ -941,6 +1024,7 @@
           <rect class="region" data-part="sram" x="242" y="58" width="112" height="84" rx="2"/>
           <rect class="region" data-part="sram" x="242" y="152" width="112" height="84" rx="2"/>
           <rect class="region" data-part="pll" x="242" y="246" width="112" height="96" rx="2"/>
+          <rect x="46" y="58" width="308" height="284" fill="url(#scanGrad)" opacity="0.6" style="animation:dieScanLine 3s linear infinite; pointer-events:none;"/>
           <text x="62" y="32">I/O RING</text>
           <text x="62" y="200" style="fill:var(--ink-primary)">STANDARD-CELL CORE</text>
           <text x="256" y="106">SRAM MACRO</text>
