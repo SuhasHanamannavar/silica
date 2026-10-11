@@ -1,0 +1,2029 @@
+hey me and my friend are building a project and the file u can see also i have cloned it so sharing file to u and i am collaborator on tht repo   :- https://github.com/SuhasHanamannavar/silica.git  so thing is for this project we have training and want to deploy model in hugging face and we want to run the model in server using aws server and also use aws authentication and database and using vercel for deployment so first do one thing and like got throught the project file and first understand the whole project completely and then guide me through hugging face and aws things
+
+---
+
+ok so first lets finish the hugging face one and u dont do anything for now see give me  a walktrough  for me to do model trainning in hugging face for me see like it should be if i give a prompt these 4 operations it will perform Specification, RTL Design,Functional Verification, Synthesis and for each of them a model should be trained in hugging face so like this analyse and give me a prompt. give me in copy paste or markdown format
+
+---
+
+what is lora?
+
+---
+
+The browser session hit a navigation error, but the Colab runtime keeps running server-side. Here's the final status.
+
+✅ Training is LIVE on Colab T4 GPU — RTL adapter in progress
+
+Confirmed executing:
+
+• ✅ Runtime: Tesla T4 GPU (16GB VRAM)
+
+• ✅ Dependencies installed (cell 1 done)
+
+• ✅ Training cell running: === Silica RTL LoRA training -> SILICAM/silica-rtl-lora-v1 ===
+
+• ✅ 7B model download reached 81% (12.3/15.2 GB) before my browser connection dropped — it keeps running on Google's servers
+
+• ✅ With only 5 examples, training itself is ~1–2 min, then it auto-pushes to Hugging Face at SILICAM/silica-rtl-lora-v1
+
+Open this link to watch it finish:
+https://colab.research.google.com/drive/REDACTED
+
+To train the other 3 adapters (spec / verif / synth):
+
+In cell 2, just change STAGE=rtl → STAGE=spec (or verif, synth) and re-run that cell only (Ctrl+Enter). Each takes ~5 min (download is cached after the first run).
+
+Everything already delivered:
+
+Item	Status	
+4 datasets on HF (SILICAM/silica-{spec,rtl,verif,synth}-data)	✅ Uploaded	
+4 model repos on HF (...-lora-v1)	✅ Created	
+train_colab.py (QLoRA, 4-bit, SFTTrainer)	✅ Pushed to GitHub (commit ca009ad)	
+Colab notebook (T4, 2 cells, Run all)	✅ Running	
+RTL LoRA adapter	🔄 Training now, auto-pushes on completion
+
+export SILICA_LLM_MODEL="SILICAM/silica-rtl-lora-v1"
+
+
+see this much above things are done noe tell what to do
+
+---
+
+ok what u are telling me to do give it in proper step by step walkthrough format
+
+---
+
+can u do phase 1?
+
+---
+
+see tht google collab is in my friends laptop ?
+
+---
+
+see what ever tokens u want tell me as everything till now was in my friends laptop so list it out so i will sent it to my friend and when he sends it i will give it to u
+
+---
+
+REDACTED
+
+---
+
+check it then i will run it
+
+---
+
+cell 1
+Sun Oct 11 05:45:24 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.82.07              Driver Version: 580.82.07      CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla T4                       Off |   00000000:00:04.0 Off |                    0 |
+| N/A   39C    P8              9W /   70W |       0MiB /  15360MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.1/43.1 MB 20.5 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 945.8/945.8 kB 64.0 MB/s eta 0:00:00
+
+cell2
+/content/silica
+
+cell 3
+=== Silica RTL LoRA training -> SILICAM/silica-rtl-lora-v1 ===
+Note: Environment variable`HF_TOKEN` is set and is the current active token independently from the token you've just configured.
+GPU: Tesla T4
+Precision: bf16
+config.json: 100% 663/663 [00:00<00:00, 3.00MB/s]
+tokenizer_config.json: 100% 7.30k/7.30k [00:00<00:00, 3.42MB/s]
+vocab.json: 100% 2.78M/2.78M [00:00<00:00, 13.5MB/s]
+merges.txt: 100% 1.67M/1.67M [00:00<00:00, 14.8MB/s]
+tokenizer.json: 100% 7.03M/7.03M [00:00<00:00, 22.6MB/s]
+model.safetensors.index.json: 100% 27.8k/27.8k [00:00<00:00, 39.2MB/s]
+Downloading bytes:           |  0.00B            
+Reconstructing (incomplete total...): |          |  0.00B /  0.00B            
+
+Fetching 4 files:   0% 0/4 [00:00<?, ?it/s]
+Reconstructing (incomplete total...):   0% 0.00/4.93G [00:00<?, ?B/s]         
+Reconstructing (incomplete total...):   0% 0.00/15.2G [00:00<?, ?B/s]
+Reconstructing (incomplete total...):   0% 0.00/15.2G [00:00<?, ?B/s]
+Downloading bytes:   1% 216M/15.2G [00:02<01:03, 237MB/s,  205MB/s  ]
+Downloading bytes:   3% 435M/15.2G [00:03<01:10, 209MB/s,  260MB/s  ]
+Downloading bytes:   4% 580M/15.2G [00:03<01:19, 183MB/s,  218MB/s  ]
+Downloading bytes:   4% 638M/15.2G [00:04<01:11, 205MB/s,  179MB/s  ]
+Downloading bytes:   5% 690M/15.2G [00:04<01:17, 187MB/s,  199MB/s  ]
+Downloading bytes:   5% 720M/15.2G [00:04<01:24, 173MB/s,  187MB/s  ]
+Downloading bytes:   6% 958M/15.2G [00:05<00:48, 296MB/s,  291MB/s  ]
+Downloading bytes:   7% 1.09G/15.2G [00:05<00:47, 298MB/s,  271MB/s  ]
+Downloading bytes:   9% 1.31G/15.2G [00:06<00:42, 327MB/s,  339MB/s  ]
+Downloading bytes:   9% 1.37G/15.2G [00:07<01:01, 224MB/s,  264MB/s  ]
+Reconstructing (incomplete total...):   7% 1.08G/15.2G [00:07<01:10, 201MB/s,  144MB/s  ]
+Downloading bytes:  14% 2.11G/15.2G [00:09<00:41, 319MB/s,  313MB/s  ]
+Downloading bytes:  14% 2.14G/15.2G [00:09<00:46, 283MB/s,  319MB/s  ]
+Downloading bytes:  29% 4.40G/15.2G [00:20<00:42, 255MB/s,  243MB/s  ]
+Downloading bytes:  30% 4.51G/15.2G [00:20<00:48, 223MB/s,  239MB/s  ]
+Downloading bytes:  30% 4.62G/15.2G [00:21<00:58, 182MB/s,  182MB/s  ]
+Downloading bytes:  31% 4.73G/15.2G [00:22<01:08, 153MB/s,  179MB/s  ]
+Downloading bytes:  31% 4.75G/15.2G [00:22<01:15, 138MB/s,  153MB/s  ]
+Downloading bytes:  32% 4.81G/15.2G [00:22<01:29, 117MB/s,  104MB/s  ]
+Downloading bytes:  33% 4.99G/15.2G [00:23<01:05, 157MB/s,  141MB/s  ]
+Downloading bytes:  33% 5.04G/15.2G [00:24<01:10, 144MB/s,  171MB/s  ]
+Downloading bytes:  33% 5.06G/15.2G [00:24<01:35, 106MB/s,  144MB/s  ]
+Downloading bytes:  33% 5.09G/15.2G [00:24<01:17, 132MB/s,  116MB/s  ]
+Downloading bytes:  34% 5.16G/15.2G [00:25<01:09, 145MB/s,  114MB/s  ]
+
+Downloading bytes:  34% 5.18G/15.2G [00:25<01:05, 153MB/s,  145MB/s  ]
+Downloading bytes:  35% 5.26G/15.2G [00:25<00:54, 182MB/s,  173MB/s  ]
+Downloading bytes:  35% 5.31G/15.2G [00:26<01:07, 147MB/s,  167MB/s  ]
+Downloading bytes:  35% 5.33G/15.2G [00:26<01:19, 125MB/s,  147MB/s  ]
+Reconstructing (incomplete total...):  16% 2.45G/15.2G [00:26<02:27, 86.8MB/s, 71.2MB/s  ]
+Reconstructing (incomplete total...):  16% 2.46G/15.2G [00:26<02:31, 84.2MB/s, 86.8MB/s  ]
+Reconstructing (incomplete total...):  16% 2.47G/15.2G [00:26<02:24, 88.3MB/s, 84.2MB/s  ]
+Reconstructing (incomplete total...):  17% 2.51G/15.2G [00:27<02:18, 91.7MB/s, 88.3MB/s  ]
+Downloading bytes:  38% 5.80G/15.2G [00:31<00:33, 284MB/s,  273MB/s  ]
+Downloading bytes:  43% 6.54G/15.2G [00:38<00:28, 307MB/s,  306MB/s  ]
+Downloading bytes:  46% 7.02G/15.2G [00:52<00:54, 150MB/s,  150MB/s  ]
+Reconstructing (incomplete total...):  30% 4.57G/15.2G [00:52<01:03, 169MB/s,  169MB/s  ]
+Downloading bytes:  46% 7.02G/15.2G [00:53<26:46, 5.11MB/s, 5.14MB/s  ]
+Downloading bytes:  46% 7.06G/15.2G [00:54<11:21, 12.0MB/s, 9.45MB/s  ]
+Downloading bytes:  47% 7.09G/15.2G [00:54<06:13, 21.8MB/s, 16.7MB/s  ]
+Reconstructing (incomplete total...):  34% 5.25G/15.2G [00:54<02:10, 76.6MB/s, 76.6MB/s  ]
+Downloading bytes:  50% 7.58G/15.2G [00:57<00:29, 262MB/s,  253MB/s  ]
+Downloading bytes:  55% 8.32G/15.2G [01:03<00:19, 346MB/s,  320MB/s  ]
+Downloading bytes:  55% 8.37G/15.2G [01:03<00:32, 211MB/s,  346MB/s  ]
+Downloading bytes:  60% 9.08G/15.2G [01:22<00:19, 321MB/s,  321MB/s  ]
+Reconstructing (incomplete total...):  45% 6.93G/15.2G [01:22<01:04, 128MB/s,  128MB/s  ]
+Downloading bytes:  60% 9.09G/15.2G [01:23<11:19, 9.04MB/s, 8.71MB/s  ]
+Reconstructing (incomplete total...):  51% 7.71G/15.2G [01:23<01:41, 74.2MB/s, 74.9MB/s  ]
+Downloading bytes:  64% 9.69G/15.2G [01:25<00:17, 322MB/s,  304MB/s  ]
+Reconstructing (incomplete total...):  51% 7.74G/15.2G [01:25<02:02, 60.9MB/s, 73.7MB/s  ]
+Reconstructing (incomplete total...):  51% 7.76G/15.2G [01:25<02:00, 62.2MB/s, 60.9MB/s  ]
+Downloading bytes:  64% 9.73G/15.2G [01:25<00:28, 194MB/s,  322MB/s  ]
+Downloading bytes:  64% 9.79G/15.2G [01:26<00:24, 220MB/s,  203MB/s  ]
+Reconstructing (incomplete total...):  51% 7.83G/15.2G [01:26<02:03, 59.9MB/s, 64.9MB/s  ]
+Downloading bytes:  64% 9.82G/15.2G [01:27<01:07, 80.3MB/s,  220MB/s  ]
+Reconstructing (incomplete total...):  52% 7.86G/15.2G [01:27<01:59, 61.7MB/s, 61.0MB/s  ]
+Downloading bytes:  65% 9.86G/15.2G [01:27<01:07, 79.3MB/s, 78.1MB/s  ]
+Reconstructing (incomplete total...):  52% 7.90G/15.2G [01:29<03:52, 31.5MB/s, 60.4MB/s  ]
+Reconstructing (incomplete total...):  52% 7.91G/15.2G [01:29<03:30, 34.8MB/s, 31.5MB/s  ]
+Reconstructing (incomplete total...):  52% 7.93G/15.2G [01:29<02:53, 42.1MB/s, 34.8MB/s  ]
+Downloading bytes:  69% 10.4G/15.2G [01:33<00:21, 220MB/s,  212MB/s  ]
+Downloading bytes:  69% 10.6G/15.2G [01:35<00:42, 110MB/s,  108MB/s  ]
+Downloading bytes:  75% 11.4G/15.2G [01:38<00:20, 183MB/s,  201MB/s  ]
+Downloading bytes:  79% 12.0G/15.2G [01:50<00:13, 233MB/s,  229MB/s  ]
+Downloading bytes:  81% 12.4G/15.2G [01:56<00:14, 195MB/s,  165MB/s  ]
+
+Fetching 4 files:  50% 2/4 [01:56<02:08, 64.26s/it]
+Downloading bytes:  85% 13.0G/15.2G [02:09<00:08, 270MB/s,  250MB/s  ]
+
+Downloading bytes:  87% 13.2G/15.2G [02:09<00:06, 314MB/s,  303MB/s  ]
+Downloading bytes:  87% 13.2G/15.2G [02:22<00:06, 314MB/s,  314MB/s  ]
+Reconstructing (incomplete total...):  90% 13.8G/15.2G [02:25<00:15, 93.3MB/s,  110MB/s  ]
+Reconstructing (incomplete total...):  96% 14.6G/15.2G [02:31<00:05, 105MB/s, 93.3MB/s  ] 
+Reconstructing (incomplete total...): 100% 15.2G/15.2G [02:40<00:00, 90.0MB/s,  105MB/s  ]
+
+Fetching 4 files: 100% 4/4 [02:41<00:00, 40.32s/it]
+Download complete: 100% 13.2G/13.2G [02:41<00:00, 314MB/s,  314MB/s  ]
+Download complete: 100% 13.2G/13.2G [02:41<00:00, 81.8MB/s,  314MB/s  ]
+Reconstruction complete: 100% 15.2G/15.2G [02:41<00:00, 94.4MB/s, 90.0MB/s  ]
+Loading weights: 100% 339/339 [01:01<00:00,  5.53it/s]
+generation_config.json: 100% 242/242 [00:00<00:00, 1.12MB/s]
+data_rtl.jsonl: 100% 15.5k/15.5k [00:00<00:00, 3.72MB/s]
+Generating train split: 100% 5/5 [00:00<00:00, 105.12 examples/s]
+Map: 100% 5/5 [00:00<00:00, 459.47 examples/s]
+Traceback (most recent call last):
+  File "/content/silica/training/train_colab.py", line 43, in <module>
+    trainer = SFTTrainer(model=model, train_dataset=ds, dataset_text_field="text", max_seq_length=1024,
+                         tokenizer=tok, args=args, peft_config=peft)
+TypeError: SFTTrainer.__init__() got an unexpected keyword argument 'dataset_text_field'
+
+cell 4
+=== Silica SPEC LoRA training -> SILICAM/silica-spec-lora-v1 ===
+Note: Environment variable`HF_TOKEN` is set and is the current active token independently from the token you've just configured.
+GPU: Tesla T4
+Precision: bf16
+Loading weights: 100% 339/339 [01:00<00:00,  5.57it/s]
+data_spec.jsonl: 100% 9.76k/9.76k [00:00<00:00, 3.18MB/s]
+Generating train split: 100% 5/5 [00:00<00:00, 121.93 examples/s]
+Map: 100% 5/5 [00:00<00:00, 477.84 examples/s]
+Traceback (most recent call last):
+  File "/content/silica/training/train_colab.py", line 43, in <module>
+    trainer = SFTTrainer(model=model, train_dataset=ds, dataset_text_field="text", max_seq_length=1024,
+                         tokenizer=tok, args=args, peft_config=peft)
+TypeError: SFTTrainer.__init__() got an unexpected keyword argument 'dataset_text_field'
+
+
+cell 5
+=== Silica VERIF LoRA training -> SILICAM/silica-verif-lora-v1 ===
+Note: Environment variable`HF_TOKEN` is set and is the current active token independently from the token you've just configured.
+GPU: Tesla T4
+Precision: bf16
+Loading weights: 100% 339/339 [01:00<00:00,  5.63it/s]
+data_verif.jsonl: 100% 18.7k/18.7k [00:00<00:00, 6.79MB/s]
+Generating train split: 100% 5/5 [00:00<00:00, 124.31 examples/s]
+Map: 100% 5/5 [00:00<00:00, 458.89 examples/s]
+Traceback (most recent call last):
+  File "/content/silica/training/train_colab.py", line 43, in <module>
+    trainer = SFTTrainer(model=model, train_dataset=ds, dataset_text_field="text", max_seq_length=1024,
+                         tokenizer=tok, args=args, peft_config=peft)
+TypeError: SFTTrainer.__init__() got an unexpected keyword argument 'dataset_text_field'
+
+cell 6
+=== Silica SYNTH LoRA training -> SILICAM/silica-synth-lora-v1 ===
+Note: Environment variable`HF_TOKEN` is set and is the current active token independently from the token you've just configured.
+GPU: Tesla T4
+Precision: bf16
+Loading weights: 100% 339/339 [01:00<00:00,  5.64it/s]
+data_synth.jsonl: 100% 7.69k/7.69k [00:00<00:00, 1.68MB/s]
+Generating train split: 100% 5/5 [00:00<00:00, 123.31 examples/s]
+Map: 100% 5/5 [00:00<00:00, 410.31 examples/s]
+Traceback (most recent call last):
+  File "/content/silica/training/train_colab.py", line 43, in <module>
+    trainer = SFTTrainer(model=model, train_dataset=ds, dataset_text_field="text", max_seq_length=1024,
+                         tokenizer=tok, args=args, peft_config=peft)
+TypeError: SFTTrainer.__init__() got an unexpected keyword argument 'dataset_text_field'
+
+---
+
+see you aid run in cell 2 but dont give like half give me full what to run where and how
+
+---
+
+remote: Enumerating objects: 7, done.
+remote: Counting objects: 100% (7/7), done.
+remote: Compressing objects: 100% (1/1), done.
+remote: Total 4 (delta 3), reused 4 (delta 3), pack-reused 0 (from 0)
+Unpacking objects: 100% (4/4), 984 bytes | 328.00 KiB/s, done.
+From https://github.com/SuhasHanamannavar/silica
+   2fa05d8..bda0c8f  main       -> origin/main
+Updating 2fa05d8..bda0c8f
+Fast-forward
+ training/train_colab.py | 46 +++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 37 insertions(+), 9 deletions(-)
+/content/silica
+
+
+=== Silica RTL LoRA training -> SILICAM/silica-rtl-lora-v1 ===
+Note: Environment variable`HF_TOKEN` is set and is the current active token independently from the token you've just configured.
+GPU: Tesla T4
+Precision: bf16
+Loading weights: 100% 339/339 [01:00<00:00,  5.64it/s]
+Notice: SFTConfig route (SFTConfig.__init__() got an unexpected keyword argument 'max_seq_length'. Did you mean 'max_length'?), using robust Trainer pipeline...
+Map: 100% 5/5 [00:00<00:00, 83.30 examples/s]
+  0% 0/3 [00:00<?, ?it/s]Traceback (most recent call last):
+  File "/content/silica/training/train_colab.py", line 70, in <module>
+    trainer.train()
+    ~~~~~~~~~~~~~^^
+  File "/usr/local/lib/python3.13/dist-packages/transformers/trainer.py", line 1549, in train
+    return inner_training_loop(
+        args=args,
+    ...<2 lines>...
+        ignore_keys_for_eval=ignore_keys_for_eval,
+    )
+  File "/usr/local/lib/python3.13/dist-packages/transformers/trainer.py", line 1631, in _inner_training_loop
+    self._run_epoch(
+    ~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<9 lines>...
+        steps_trained_in_current_epoch=steps_trained_in_current_epoch,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/lib/python3.13/dist-packages/transformers/trainer.py", line 1871, in _run_epoch
+    tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/trainer.py", line 2043, in training_step
+    loss = self.compute_loss(model, inputs, num_items_in_batch=num_items_in_batch)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/trainer.py", line 2117, in compute_loss
+    outputs = model(**inputs)
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/accelerate/utils/operations.py", line 943, in forward
+    return model_forward(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/accelerate/utils/operations.py", line 931, in __call__
+    return convert_to_fp32(self.model_forward(*args, **kwargs))
+                           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/amp/autocast_mode.py", line 44, in decorate_autocast
+    return func(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/peft/peft_model.py", line 2120, in forward
+    return self.base_model(
+           ~~~~~~~~~~~~~~~^
+        input_ids=input_ids,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/peft/tuners/tuners_utils.py", line 359, in forward
+    return self.model(*args, **kwargs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/utils/generic.py", line 939, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2/modeling_qwen2.py", line 452, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ~~~~~~~~~~^
+        input_ids=input_ids,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/utils/generic.py", line 1068, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/utils/output_capturing.py", line 287, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2/modeling_qwen2.py", line 388, in forward
+    hidden_states = decoder_layer(
+        hidden_states,
+    ...<5 lines>...
+        **kwargs,
+    )
+  File "/usr/local/lib/python3.13/dist-packages/transformers/modeling_layers.py", line 110, in __call__
+    return super().__call__(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2/modeling_qwen2.py", line 282, in forward
+    hidden_states, _ = self.self_attn(
+                       ~~~~~~~~~~~~~~^
+        hidden_states=hidden_states,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2/modeling_qwen2.py", line 220, in forward
+    attn_output, attn_weights = attention_interface(
+                                ~~~~~~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<7 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/usr/local/lib/python3.13/dist-packages/transformers/integrations/sdpa_attention.py", line 158, in sdpa_attention_forward
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+        query,
+    ...<6 lines>...
+        **sdpa_kwargs,
+    )
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 224.00 MiB. GPU 0 has a total capacity of 14.56 GiB of which 175.75 MiB is free. Including non-PyTorch memory, this process has 14.39 GiB memory in use. Of the allocated memory 14.20 GiB is allocated by PyTorch, and 63.62 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting REDACTED:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+  0%|          | 0/3 [00:06<?, ?it/s]
+
+---
+
+remote: Enumerating objects: 7, done.
+remote: Counting objects: 100% (7/7), done.
+remote: Compressing objects: 100% (1/1), done.
+remote: Total 4 (delta 3), reused 4 (delta 3), pack-reused 0 (from 0)
+Unpacking objects: 100% (4/4), 850 bytes | 850.00 KiB/s, done.
+From https://github.com/SuhasHanamannavar/silica
+   bda0c8f..398e319  main       -> origin/main
+Updating bda0c8f..398e319
+Fast-forward
+ training/train_colab.py | 80 +++++++++++++++++++++++++++----------------------
+ 1 file changed, 45 insertions(+), 35 deletions(-)
+/content/silica
+
+
+=== Silica RTL LoRA training -> SILICAM/silica-rtl-lora-v1 ===
+Note: Environment variable`HF_TOKEN` is set and is the current active token independently from the token you've just configured.
+GPU: Tesla T4
+Precision: bf16
+Loading weights: 100% 339/339 [01:00<00:00,  5.64it/s]
+trainable params: 40,370,176 || all params: 7,655,986,688 || trainable%: 0.5273
+Map: 100% 5/5 [00:00<00:00, 69.68 examples/s]
+{'loss': '1.407', 'grad_norm': '0.5084', 'learning_rate': '0.0001667', 'epoch': '1'}
+{'loss': '1.021', 'grad_norm': '0.389', 'learning_rate': '0.0001', 'epoch': '2'}
+{'loss': '0.8746', 'grad_norm': '0.4179', 'learning_rate': '3.333e-05', 'epoch': '3'}
+{'train_runtime': '221.7', 'train_samples_per_second': '0.068', 'train_steps_per_second': '0.027', 'train_loss': '1.101', 'epoch': '3'}
+100% 6/6 [03:41<00:00, 36.95s/it]
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+Processing Files (0 / 1)      :   0% 49.4k/162M [00:02<1:55:59, 23.2kB/s, 4.70kB/s  ]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+Processing Files (0 / 1)      :   0% 613k/162M [00:02<09:49, 273kB/s, 57.2kB/s  ]    
+New Data Upload               :   1% 564k/67.0M [00:02<05:33, 199kB/s, 52.8kB/s  ]
+
+  ...adapter_model.safetensors:   0% 613k/162M [00:00<03:50, 699kB/s]
+
+  ...adapter_model.safetensors:   0% 613k/162M [00:00<04:18, 621kB/s]
+
+  ...adapter_model.safetensors:   0% 613k/162M [00:01<04:47, 559kB/s]
+
+  ...adapter_model.safetensors:   0% 613k/162M [00:01<05:16, 509kB/s]
+
+  ...adapter_model.safetensors:   0% 613k/162M [00:01<05:45, 466kB/s]
+
+Processing Files (0 / 1)      :   1% 1.18M/162M [00:03<05:48, 460kB/s,  106kB/s  ]
+New Data Upload               :   1% 1.13M/161M [00:03<07:11, 371kB/s,  102kB/s  ]
+
+Processing Files (0 / 1)      :   1% 1.74M/162M [00:03<03:23, 784kB/s,  157kB/s  ]
+New Data Upload               :   1% 1.69M/161M [00:03<04:07, 647kB/s,  153kB/s  ]
+
+  ...adapter_model.safetensors:   1% 1.74M/162M [00:01<02:22, 1.12MB/s]
+
+Processing Files (0 / 1)      :   2% 3.43M/162M [00:03<01:21, 1.94MB/s,  309kB/s  ]
+New Data Upload               :   2% 3.39M/161M [00:03<01:35, 1.66MB/s,  305kB/s  ]
+
+  ...adapter_model.safetensors:   2% 3.43M/162M [00:01<01:19, 1.98MB/s]
+
+  ...adapter_model.safetensors:   2% 3.43M/162M [00:01<01:24, 1.87MB/s]
+
+Processing Files (0 / 1)      :   4% 5.69M/162M [00:04<00:47, 3.31MB/s,  506kB/s  ]
+New Data Upload               :   3% 5.64M/161M [00:04<00:53, 2.93MB/s,  502kB/s  ]
+
+Processing Files (0 / 1)      :   4% 6.26M/162M [00:04<00:43, 3.55MB/s,  553kB/s  ]
+New Data Upload               :   4% 6.21M/161M [00:04<00:48, 3.19MB/s,  549kB/s  ]
+
+  ...adapter_model.safetensors:   4% 6.26M/162M [00:02<00:52, 2.93MB/s]
+
+Processing Files (0 / 1)      :   5% 7.39M/162M [00:04<00:38, 4.03MB/s,  645kB/s  ]
+New Data Upload               :   5% 7.34M/161M [00:04<00:41, 3.70MB/s,  641kB/s  ]
+
+Processing Files (0 / 1)      :   6% 9.08M/162M [00:04<00:26, 5.83MB/s,  792kB/s  ]
+New Data Upload               :   6% 9.03M/161M [00:04<00:28, 5.43MB/s,  788kB/s  ]
+
+Processing Files (0 / 1)      :   6% 10.2M/162M [00:04<00:22, 6.74MB/s,  886kB/s  ]
+New Data Upload               :   6% 10.2M/161M [00:04<00:23, 6.35MB/s,  883kB/s  ]
+
+Processing Files (0 / 1)      :   8% 13.6M/162M [00:04<00:12, 11.9MB/s, 1.18MB/s  ]
+New Data Upload               :   8% 13.5M/161M [00:04<00:13, 11.4MB/s, 1.18MB/s  ]
+
+Processing Files (0 / 1)      :   9% 15.3M/162M [00:04<00:11, 13.0MB/s, 1.32MB/s  ]
+New Data Upload               :   9% 15.2M/161M [00:04<00:11, 12.5MB/s, 1.32MB/s  ]
+
+  ...adapter_model.safetensors:   9% 15.3M/162M [00:02<00:26, 5.61MB/s]
+
+Processing Files (0 / 1)      :  12% 18.7M/162M [00:04<00:09, 14.5MB/s, 1.60MB/s  ]
+New Data Upload               :  12% 18.6M/161M [00:04<00:10, 14.1MB/s, 1.60MB/s  ]
+
+Processing Files (0 / 1)      :  13% 20.4M/162M [00:05<00:09, 15.0MB/s, 1.74MB/s  ]
+New Data Upload               :  13% 20.3M/161M [00:05<00:09, 14.7MB/s, 1.74MB/s  ]
+
+Processing Files (0 / 1)      :  15% 23.8M/162M [00:05<00:07, 19.3MB/s, 2.02MB/s  ]
+New Data Upload               :  15% 23.7M/161M [00:05<00:07, 19.1MB/s, 2.02MB/s  ]
+
+Processing Files (0 / 1)      :  17% 27.2M/162M [00:05<00:05, 22.9MB/s, 2.31MB/s  ]
+New Data Upload               :  17% 27.1M/161M [00:05<00:05, 22.7MB/s, 2.30MB/s  ]
+
+Processing Files (0 / 1)      :  19% 30.5M/162M [00:05<00:05, 25.7MB/s, 2.59MB/s  ]
+New Data Upload               :  19% 30.5M/161M [00:05<00:05, 25.5MB/s, 2.58MB/s  ]
+
+Processing Files (0 / 1)      :  21% 33.9M/162M [00:05<00:04, 27.9MB/s, 2.86MB/s  ]
+New Data Upload               :  21% 33.9M/161M [00:05<00:04, 27.8MB/s, 2.86MB/s  ]
+
+Processing Files (0 / 1)      :  23% 37.3M/162M [00:05<00:04, 29.5MB/s, 3.14MB/s  ]
+New Data Upload               :  23% 37.3M/161M [00:05<00:04, 29.4MB/s, 3.13MB/s  ]
+
+Processing Files (0 / 1)      :  25% 40.7M/162M [00:05<00:03, 30.7MB/s, 3.41MB/s  ]
+New Data Upload               :  25% 40.7M/161M [00:05<00:03, 30.6MB/s, 3.40MB/s  ]
+
+  ...adapter_model.safetensors:  25% 40.7M/162M [00:03<00:10, 11.2MB/s]
+
+Processing Files (0 / 1)      :  28% 44.7M/162M [00:05<00:04, 25.7MB/s, 3.69MB/s  ]
+New Data Upload               :  28% 44.6M/161M [00:05<00:04, 25.7MB/s, 3.69MB/s  ]
+
+Processing Files (0 / 1)      :  29% 47.5M/162M [00:05<00:04, 26.3MB/s, 3.91MB/s  ]
+New Data Upload               :  29% 47.4M/161M [00:05<00:04, 26.3MB/s, 3.91MB/s  ]
+
+Processing Files (0 / 1)      :  31% 50.9M/162M [00:06<00:03, 28.2MB/s, 4.17MB/s  ]
+New Data Upload               :  31% 50.8M/161M [00:06<00:03, 28.2MB/s, 4.17MB/s  ]
+
+Processing Files (0 / 1)      :  34% 54.3M/162M [00:06<00:03, 29.7MB/s, 4.43MB/s  ]
+New Data Upload               :  34% 54.2M/161M [00:06<00:03, 29.6MB/s, 4.43MB/s  ]
+
+Processing Files (0 / 1)      :  36% 57.7M/162M [00:06<00:03, 30.7MB/s, 4.68MB/s  ]
+New Data Upload               :  36% 57.6M/161M [00:06<00:03, 30.7MB/s, 4.68MB/s  ]
+
+Processing Files (0 / 1)      :  38% 61.1M/162M [00:06<00:03, 31.6MB/s, 4.94MB/s  ]
+New Data Upload               :  38% 61.0M/161M [00:06<00:03, 31.6MB/s, 4.94MB/s  ]
+
+Processing Files (0 / 1)      :  40% 64.4M/162M [00:06<00:03, 32.2MB/s, 5.19MB/s  ]
+New Data Upload               :  40% 64.4M/161M [00:06<00:03, 32.1MB/s, 5.19MB/s  ]
+
+Processing Files (0 / 1)      :  42% 67.8M/162M [00:06<00:02, 32.6MB/s, 5.44MB/s  ]
+New Data Upload               :  42% 67.8M/161M [00:06<00:02, 32.6MB/s, 5.43MB/s  ]
+
+  ...adapter_model.safetensors:  42% 67.8M/162M [00:04<00:06, 15.0MB/s]
+
+Processing Files (0 / 1)      :  44% 71.2M/162M [00:06<00:03, 25.4MB/s, 5.64MB/s  ]
+New Data Upload               :  44% 71.2M/161M [00:06<00:03, 25.4MB/s, 5.63MB/s  ]
+
+Processing Files (0 / 1)      :  46% 74.6M/162M [00:06<00:03, 27.5MB/s, 5.88MB/s  ]
+New Data Upload               :  46% 74.6M/161M [00:06<00:03, 27.5MB/s, 5.88MB/s  ]
+
+Processing Files (0 / 1)      :  48% 77.4M/162M [00:06<00:03, 27.6MB/s, 6.07MB/s  ]
+New Data Upload               :  48% 77.4M/161M [00:06<00:03, 27.6MB/s, 6.07MB/s  ]
+
+Processing Files (0 / 1)      :  50% 80.3M/162M [00:07<00:02, 27.7MB/s, 6.26MB/s  ]
+New Data Upload               :  50% 80.2M/161M [00:07<00:02, 27.7MB/s, 6.26MB/s  ]
+
+Processing Files (0 / 1)      :  52% 83.6M/162M [00:07<00:02, 29.4MB/s, 6.50MB/s  ]
+New Data Upload               :  52% 83.6M/161M [00:07<00:02, 29.4MB/s, 6.49MB/s  ]
+
+Processing Files (0 / 1)      :  54% 87.0M/162M [00:07<00:02, 30.6MB/s, 6.73MB/s  ]
+New Data Upload               :  54% 87.0M/161M [00:07<00:02, 30.6MB/s, 6.73MB/s  ]
+
+Processing Files (0 / 1)      :  56% 90.4M/162M [00:07<00:02, 31.5MB/s, 6.96MB/s  ]
+New Data Upload               :  56% 90.4M/161M [00:07<00:02, 31.5MB/s, 6.96MB/s  ]
+
+Processing Files (0 / 1)      :  58% 93.8M/162M [00:07<00:02, 32.1MB/s, 7.19MB/s  ]
+New Data Upload               :  58% 93.8M/161M [00:07<00:02, 32.1MB/s, 7.19MB/s  ]
+
+  ...adapter_model.safetensors:  58% 93.8M/162M [00:05<00:03, 17.2MB/s]
+
+Processing Files (0 / 1)      :  60% 97.2M/162M [00:07<00:02, 25.2MB/s, 7.36MB/s  ]
+New Data Upload               :  60% 97.2M/161M [00:07<00:02, 25.2MB/s, 7.35MB/s  ]
+
+Processing Files (0 / 1)      :  62% 101M/162M [00:07<00:02, 27.3MB/s, 7.58MB/s  ] 
+New Data Upload               :  62% 101M/161M [00:07<00:02, 27.3MB/s, 7.58MB/s  ] 
+
+Processing Files (0 / 1)      :  64% 104M/162M [00:07<00:01, 28.9MB/s, 7.80MB/s  ]
+New Data Upload               :  64% 104M/161M [00:07<00:01, 28.9MB/s, 7.80MB/s  ]
+
+Processing Files (0 / 1)      :  66% 107M/162M [00:07<00:01, 30.2MB/s, 8.03MB/s  ]
+New Data Upload               :  66% 107M/161M [00:07<00:01, 30.2MB/s, 8.02MB/s  ]
+
+Processing Files (0 / 1)      :  69% 111M/162M [00:08<00:01, 31.1MB/s, 8.24MB/s  ]
+New Data Upload               :  69% 111M/161M [00:08<00:01, 31.1MB/s, 8.24MB/s  ]
+
+Processing Files (0 / 1)      :  71% 114M/162M [00:08<00:01, 31.9MB/s, 8.46MB/s  ]
+New Data Upload               :  71% 114M/161M [00:08<00:01, 31.9MB/s, 8.46MB/s  ]
+
+Processing Files (0 / 1)      :  72% 116M/162M [00:08<00:01, 27.5MB/s, 8.53MB/s  ]
+New Data Upload               :  72% 116M/161M [00:08<00:01, 27.5MB/s, 8.53MB/s  ]
+
+Processing Files (0 / 1)      :  75% 122M/162M [00:08<00:01, 35.9MB/s, 8.93MB/s  ]
+New Data Upload               :  75% 121M/161M [00:08<00:01, 35.9MB/s, 8.93MB/s  ]
+
+  ...adapter_model.safetensors:  75% 122M/162M [00:06<00:02, 19.1MB/s]
+
+Processing Files (0 / 1)      :  77% 125M/162M [00:08<00:01, 27.1MB/s, 9.06MB/s  ]
+New Data Upload               :  77% 125M/161M [00:08<00:01, 27.1MB/s, 9.06MB/s  ]
+
+Processing Files (0 / 1)      :  79% 128M/162M [00:08<00:01, 28.6MB/s, 9.27MB/s  ]
+New Data Upload               :  79% 128M/161M [00:08<00:01, 28.6MB/s, 9.27MB/s  ]
+
+  ...adapter_model.safetensors:  79% 128M/162M [00:06<00:01, 19.3MB/s]
+
+Processing Files (0 / 1)      :  81% 132M/162M [00:08<00:01, 23.8MB/s, 9.40MB/s  ]
+New Data Upload               :  81% 132M/161M [00:08<00:01, 23.8MB/s, 9.39MB/s  ]
+
+  ...adapter_model.safetensors:  81% 132M/162M [00:06<00:01, 19.2MB/s]
+
+Processing Files (0 / 1)      :  83% 134M/162M [00:09<00:01, 19.7MB/s, 9.45MB/s  ]
+New Data Upload               :  83% 134M/161M [00:09<00:01, 19.7MB/s, 9.45MB/s  ]
+
+  ...adapter_model.safetensors:  83% 134M/162M [00:07<00:01, 19.0MB/s]
+
+  ...adapter_model.safetensors:  83% 134M/162M [00:07<00:01, 18.8MB/s]
+
+  ...adapter_model.safetensors:  83% 134M/162M [00:07<00:01, 18.5MB/s]
+
+Processing Files (0 / 1)      :  86% 138M/162M [00:09<00:01, 14.6MB/s, 9.47MB/s  ]
+New Data Upload               :  86% 138M/161M [00:09<00:01, 14.6MB/s, 9.47MB/s  ]
+
+  ...adapter_model.safetensors:  86% 138M/162M [00:07<00:01, 18.5MB/s]
+
+Processing Files (0 / 1)      :  87% 140M/162M [00:09<00:01, 12.9MB/s, 9.45MB/s  ]
+New Data Upload               :  87% 140M/161M [00:09<00:01, 12.9MB/s, 9.45MB/s  ]
+
+  ...adapter_model.safetensors:  87% 140M/162M [00:07<00:01, 18.3MB/s]
+
+Processing Files (0 / 1)      :  89% 143M/162M [00:09<00:01, 14.0MB/s, 9.57MB/s  ]
+New Data Upload               :  89% 143M/161M [00:09<00:01, 14.0MB/s, 9.57MB/s  ]
+
+Processing Files (0 / 1)      :  89% 143M/162M [00:09<00:01, 11.7MB/s, 9.49MB/s  ]
+New Data Upload               :  89% 143M/161M [00:09<00:01, 11.7MB/s, 9.49MB/s  ]
+
+Processing Files (0 / 1)      :  90% 145M/162M [00:10<00:01, 12.6MB/s, 9.55MB/s  ]
+New Data Upload               :  90% 145M/161M [00:10<00:01, 12.6MB/s, 9.55MB/s  ]
+
+Processing Files (0 / 1)      :  91% 147M/162M [00:10<00:01, 13.5MB/s, 9.61MB/s  ]
+New Data Upload               :  91% 147M/161M [00:10<00:01, 13.5MB/s, 9.61MB/s  ]
+
+  ...adapter_model.safetensors:  91% 147M/162M [00:08<00:00, 18.0MB/s]
+
+Processing Files (0 / 1)      :  93% 150M/162M [00:10<00:00, 14.8MB/s, 9.73MB/s  ]
+New Data Upload               :  93% 150M/161M [00:10<00:00, 14.8MB/s, 9.73MB/s  ]
+
+  ...adapter_model.safetensors:  93% 150M/162M [00:08<00:00, 17.9MB/s]
+
+Processing Files (0 / 1)      :  95% 153M/162M [00:10<00:00, 15.5MB/s, 9.85MB/s  ]
+New Data Upload               :  95% 153M/161M [00:10<00:00, 15.5MB/s, 9.84MB/s  ]
+
+  ...adapter_model.safetensors:  95% 153M/162M [00:08<00:00, 17.9MB/s]
+
+Processing Files (0 / 1)      :  97% 157M/162M [00:10<00:00, 15.9MB/s, 9.96MB/s  ]
+New Data Upload               :  97% 157M/161M [00:10<00:00, 15.9MB/s, 9.96MB/s  ]
+
+  ...adapter_model.safetensors:  97% 157M/162M [00:08<00:00, 17.9MB/s]
+
+Processing Files (0 / 1)      :  98% 158M/162M [00:10<00:00, 13.5MB/s, 9.93MB/s  ]
+New Data Upload               :  98% 158M/161M [00:10<00:00, 13.5MB/s, 9.93MB/s  ]
+
+Processing Files (0 / 1)      :  99% 160M/162M [00:11<00:00, 14.1MB/s, 9.99MB/s  ]
+New Data Upload               :  99% 160M/161M [00:11<00:00, 14.1MB/s, 9.99MB/s  ]
+
+  ...adapter_model.safetensors:  99% 160M/162M [00:09<00:00, 17.7MB/s]
+
+Processing Files (0 / 1)      : 100% 162M/162M [00:11<00:00, 11.8MB/s, 9.95MB/s  ]
+New Data Upload               : 100% 161M/161M [00:11<00:00, 11.8MB/s, 9.95MB/s  ]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:09<00:00, 17.4MB/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:09<00:00, 17.2MB/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:09<00:00, 17.1MB/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:09<00:00, 16.9MB/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:09<00:00, 16.7MB/s]
+
+Processing Files (1 / 1)      : 100% 162M/162M [00:11<00:00, 4.71MB/s, 9.47MB/s  ]
+New Data Upload               : 100% 161M/161M [00:11<00:00, 4.71MB/s, 9.47MB/s  ]
+
+
+Validating                    :           |   0%            
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]     
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:09<00:00, 16.4MB/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:09<00:00, 16.2MB/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 16.0MB/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 16.0MB/s]
+
+
+Processing Files (1 / 1)      : 100% 162M/162M [00:12<00:00, 13.2MB/s, 9.21MB/s  ]
+New Data Upload               : 100% 161M/161M [00:12<00:00, 13.2MB/s, 9.21MB/s  ]
+Validating                    : 100% 1/1 [00:00<00:00,  2.85/s]
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 16.0MB/s]
+README.md: 100% 5.17k/5.17k [00:00<00:00, 1.39MB/s]
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            
+
+  ...mpkxcu0f91/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+Processing Files (1 / 1)      : 100% 11.4M/11.4M [00:01<00:00, 9.06MB/s, 1.11MB/s  ]
+
+
+Validating                    :           |   0%            
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]     
+
+  ...mpkxcu0f91/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpkxcu0f91/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpkxcu0f91/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpkxcu0f91/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Processing Files (1 / 1)      : 100% 11.4M/11.4M [00:01<00:00, 7.04MB/s, 1.07MB/s  ]
+New Data Upload               : |          |  0.00B /  0.00B,  0.00B/s  
+Validating                    : 100% 1/1 [00:00<00:00,  2.77/s]
+  ...mpkxcu0f91/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+DONE. Adapter pushed to https://huggingface.co/SILICAM/silica-rtl-lora-v1
+
+---
+
+cell 4
+=== Silica SPEC LoRA training -> SILICAM/silica-spec-lora-v1 ===
+Note: Environment variable`HF_TOKEN` is set and is the current active token independently from the token you've just configured.
+GPU: Tesla T4
+Precision: bf16
+Loading weights: 100% 339/339 [01:00<00:00,  5.64it/s]
+trainable params: 40,370,176 || all params: 7,655,986,688 || trainable%: 0.5273
+Map: 100% 5/5 [00:00<00:00, 101.01 examples/s]
+{'loss': '1.228', 'grad_norm': '0.2284', 'learning_rate': '0.0001667', 'epoch': '1'}
+{'loss': '1.171', 'grad_norm': '0.476', 'learning_rate': '0.0001', 'epoch': '2'}
+{'loss': '1.003', 'grad_norm': '0.5293', 'learning_rate': '3.333e-05', 'epoch': '3'}
+{'train_runtime': '164', 'train_samples_per_second': '0.091', 'train_steps_per_second': '0.037', 'train_loss': '1.134', 'epoch': '3'}
+100% 6/6 [02:43<00:00, 27.33s/it]
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+Processing Files (0 / 1)      :   0% 49.4k/162M [00:00<26:44, 101kB/s,   ???B/s  ]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+Processing Files (0 / 1)      :   0% 617k/162M [00:02<09:37, 279kB/s, 58.0kB/s  ] 
+New Data Upload               :   1% 567k/67.0M [00:02<04:30, 246kB/s, 53.9kB/s  ]
+
+  ...adapter_model.safetensors:   0% 617k/162M [00:01<09:03, 296kB/s]
+
+  ...adapter_model.safetensors:   0% 617k/162M [00:02<09:32, 281kB/s]
+
+  ...adapter_model.safetensors:   0% 617k/162M [00:02<10:00, 268kB/s]
+
+  ...adapter_model.safetensors:   0% 617k/162M [00:02<10:29, 256kB/s]
+
+  ...adapter_model.safetensors:   0% 617k/162M [00:02<10:58, 245kB/s]
+
+  ...adapter_model.safetensors:   0% 617k/162M [00:02<11:26, 234kB/s]
+
+Processing Files (0 / 1)      :   1% 1.18M/162M [00:03<05:59, 446kB/s,  107kB/s  ]
+New Data Upload               :   1% 1.13M/134M [00:03<05:19, 416kB/s,  103kB/s  ]
+
+  ...adapter_model.safetensors:   1% 1.18M/162M [00:02<06:10, 433kB/s]
+
+Processing Files (0 / 1)      :   1% 2.32M/162M [00:03<02:32, 1.04MB/s,  211kB/s  ]
+New Data Upload               :   2% 2.27M/134M [00:03<02:12, 992kB/s,  207kB/s  ]
+
+  ...adapter_model.safetensors:   1% 2.32M/162M [00:02<03:18, 804kB/s]
+
+Processing Files (0 / 1)      :   2% 2.89M/162M [00:03<02:02, 1.29MB/s,  259kB/s  ]
+New Data Upload               :   2% 2.84M/161M [00:03<02:07, 1.24MB/s,  255kB/s  ]
+
+Processing Files (0 / 1)      :   2% 4.02M/162M [00:03<01:11, 2.21MB/s,  361kB/s  ]
+New Data Upload               :   2% 3.97M/161M [00:03<01:13, 2.13MB/s,  358kB/s  ]
+
+  ...adapter_model.safetensors:   2% 4.02M/162M [00:03<02:03, 1.27MB/s]
+
+Processing Files (0 / 1)      :   4% 5.72M/162M [00:03<00:44, 3.50MB/s,  511kB/s  ]
+New Data Upload               :   4% 5.67M/161M [00:03<00:45, 3.41MB/s,  507kB/s  ]
+
+  ...adapter_model.safetensors:   4% 5.72M/162M [00:03<01:31, 1.71MB/s]
+
+Processing Files (0 / 1)      :   5% 7.42M/162M [00:03<00:33, 4.63MB/s,  657kB/s  ]
+New Data Upload               :   5% 7.37M/161M [00:03<00:33, 4.54MB/s,  653kB/s  ]
+
+Processing Files (0 / 1)      :   5% 7.99M/162M [00:04<00:32, 4.77MB/s,  703kB/s  ]
+New Data Upload               :   5% 7.94M/161M [00:04<00:32, 4.69MB/s,  699kB/s  ]
+
+Processing Files (0 / 1)      :   6% 10.3M/162M [00:04<00:19, 7.73MB/s,  903kB/s  ]
+New Data Upload               :   6% 10.2M/161M [00:04<00:19, 7.62MB/s,  899kB/s  ]
+
+Processing Files (0 / 1)      :   8% 12.5M/162M [00:04<00:14, 10.6MB/s, 1.10MB/s  ]
+New Data Upload               :   8% 12.5M/161M [00:04<00:14, 10.5MB/s, 1.10MB/s  ]
+
+Processing Files (0 / 1)      :   8% 13.1M/162M [00:04<00:15, 9.51MB/s, 1.14MB/s  ]
+New Data Upload               :   8% 13.1M/161M [00:04<00:15, 9.42MB/s, 1.14MB/s  ]
+
+Processing Files (0 / 1)      :  10% 15.9M/162M [00:04<00:10, 13.9MB/s, 1.39MB/s  ]
+New Data Upload               :  10% 15.9M/161M [00:04<00:10, 13.8MB/s, 1.38MB/s  ]
+
+Processing Files (0 / 1)      :  12% 18.8M/162M [00:04<00:08, 17.5MB/s, 1.63MB/s  ]
+New Data Upload               :  12% 18.7M/161M [00:04<00:08, 17.4MB/s, 1.63MB/s  ]
+
+Processing Files (0 / 1)      :  14% 22.2M/162M [00:04<00:06, 21.8MB/s, 1.92MB/s  ]
+New Data Upload               :  14% 22.1M/161M [00:04<00:06, 21.7MB/s, 1.92MB/s  ]
+
+  ...adapter_model.safetensors:  14% 22.2M/162M [00:04<00:26, 5.23MB/s]
+
+Processing Files (0 / 1)      :  16% 25.6M/162M [00:04<00:06, 19.7MB/s, 2.19MB/s  ]
+New Data Upload               :  16% 25.5M/161M [00:04<00:06, 19.6MB/s, 2.19MB/s  ]
+
+Processing Files (0 / 1)      :  17% 27.3M/162M [00:04<00:07, 19.0MB/s, 2.33MB/s  ]
+New Data Upload               :  17% 27.2M/161M [00:04<00:07, 19.0MB/s, 2.32MB/s  ]
+
+Processing Files (0 / 1)      :  18% 29.0M/162M [00:05<00:07, 18.5MB/s, 2.46MB/s  ]
+New Data Upload               :  18% 28.9M/161M [00:05<00:07, 18.5MB/s, 2.45MB/s  ]
+
+Processing Files (0 / 1)      :  21% 34.1M/162M [00:05<00:04, 27.0MB/s, 2.89MB/s  ]
+New Data Upload               :  21% 34.1M/161M [00:05<00:04, 27.0MB/s, 2.89MB/s  ]
+
+  ...adapter_model.safetensors:  21% 34.1M/162M [00:04<00:17, 7.19MB/s]
+
+Processing Files (0 / 1)      :  24% 39.2M/162M [00:05<00:04, 26.3MB/s, 3.29MB/s  ]
+New Data Upload               :  24% 39.2M/161M [00:05<00:04, 26.3MB/s, 3.29MB/s  ]
+
+Processing Files (0 / 1)      :  25% 40.9M/162M [00:05<00:05, 24.1MB/s, 3.41MB/s  ]
+New Data Upload               :  25% 40.9M/161M [00:05<00:05, 24.1MB/s, 3.41MB/s  ]
+
+Processing Files (0 / 1)      :  27% 44.3M/162M [00:05<00:04, 26.5MB/s, 3.68MB/s  ]
+New Data Upload               :  27% 44.3M/161M [00:05<00:04, 26.5MB/s, 3.68MB/s  ]
+
+Processing Files (0 / 1)      :  30% 47.7M/162M [00:05<00:03, 28.5MB/s, 3.95MB/s  ]
+New Data Upload               :  30% 47.7M/161M [00:05<00:03, 28.5MB/s, 3.95MB/s  ]
+
+Processing Files (0 / 1)      :  32% 51.1M/162M [00:05<00:03, 29.9MB/s, 4.22MB/s  ]
+New Data Upload               :  32% 51.1M/161M [00:05<00:03, 29.9MB/s, 4.21MB/s  ]
+
+Processing Files (0 / 1)      :  34% 54.6M/162M [00:05<00:03, 31.0MB/s, 4.48MB/s  ]
+New Data Upload               :  34% 54.5M/161M [00:05<00:03, 31.0MB/s, 4.48MB/s  ]
+
+Processing Files (0 / 1)      :  35% 56.3M/162M [00:05<00:03, 27.0MB/s, 4.59MB/s  ]
+New Data Upload               :  35% 56.2M/161M [00:05<00:03, 27.0MB/s, 4.59MB/s  ]
+
+Processing Files (0 / 1)      :  38% 61.4M/162M [00:06<00:02, 33.9MB/s, 5.00MB/s  ]
+New Data Upload               :  38% 61.3M/161M [00:06<00:02, 33.9MB/s, 4.99MB/s  ]
+
+  ...adapter_model.safetensors:  38% 61.4M/162M [00:05<00:09, 10.9MB/s]
+
+Processing Files (0 / 1)      :  42% 68.2M/162M [00:06<00:02, 33.8MB/s, 5.50MB/s  ]
+New Data Upload               :  42% 68.1M/161M [00:06<00:02, 33.8MB/s, 5.50MB/s  ]
+
+  ...adapter_model.safetensors:  42% 68.2M/162M [00:05<00:08, 11.7MB/s]
+
+Processing Files (0 / 1)      :  44% 71.6M/162M [00:06<00:03, 27.2MB/s, 5.70MB/s  ]
+New Data Upload               :  44% 71.5M/161M [00:06<00:03, 27.2MB/s, 5.70MB/s  ]
+
+Processing Files (0 / 1)      :  46% 75.0M/162M [00:06<00:03, 28.6MB/s, 5.95MB/s  ]
+New Data Upload               :  46% 75.0M/161M [00:06<00:03, 28.6MB/s, 5.95MB/s  ]
+
+Processing Files (0 / 1)      :  49% 78.4M/162M [00:06<00:02, 29.8MB/s, 6.19MB/s  ]
+New Data Upload               :  49% 78.4M/161M [00:06<00:02, 29.8MB/s, 6.19MB/s  ]
+
+Processing Files (0 / 1)      :  51% 81.8M/162M [00:06<00:02, 30.9MB/s, 6.43MB/s  ]
+New Data Upload               :  51% 81.8M/161M [00:06<00:02, 30.9MB/s, 6.43MB/s  ]
+
+Processing Files (0 / 1)      :  51% 83.0M/162M [00:06<00:03, 25.6MB/s, 6.47MB/s  ]
+New Data Upload               :  51% 82.9M/161M [00:06<00:03, 25.6MB/s, 6.47MB/s  ]
+
+Processing Files (0 / 1)      :  55% 88.6M/162M [00:06<00:02, 34.1MB/s, 6.91MB/s  ]
+New Data Upload               :  55% 88.6M/161M [00:06<00:02, 34.1MB/s, 6.90MB/s  ]
+
+  ...adapter_model.safetensors:  55% 88.6M/162M [00:06<00:05, 13.5MB/s]
+
+Processing Files (0 / 1)      :  59% 95.5M/162M [00:07<00:01, 34.0MB/s, 7.37MB/s  ]
+New Data Upload               :  59% 95.4M/161M [00:07<00:01, 34.0MB/s, 7.37MB/s  ]
+
+  ...adapter_model.safetensors:  59% 95.5M/162M [00:06<00:04, 14.1MB/s]
+
+Processing Files (0 / 1)      :  62% 101M/162M [00:07<00:01, 30.7MB/s, 7.68MB/s  ] 
+New Data Upload               :  62% 101M/161M [00:07<00:01, 30.6MB/s, 7.68MB/s  ] 
+
+Processing Files (0 / 1)      :  63% 102M/162M [00:07<00:02, 27.7MB/s, 7.76MB/s  ]
+New Data Upload               :  63% 102M/161M [00:07<00:02, 27.7MB/s, 7.76MB/s  ]
+
+Processing Files (0 / 1)      :  65% 106M/162M [00:07<00:01, 29.1MB/s, 7.99MB/s  ]
+New Data Upload               :  65% 106M/161M [00:07<00:01, 29.1MB/s, 7.98MB/s  ]
+
+Processing Files (0 / 1)      :  68% 109M/162M [00:07<00:01, 30.3MB/s, 8.21MB/s  ]
+New Data Upload               :  68% 109M/161M [00:07<00:01, 30.3MB/s, 8.20MB/s  ]
+
+  ...adapter_model.safetensors:  68% 109M/162M [00:07<00:03, 15.0MB/s]
+
+Processing Files (0 / 1)      :  72% 116M/162M [00:07<00:01, 31.8MB/s, 8.65MB/s  ]
+New Data Upload               :  72% 116M/161M [00:07<00:01, 31.8MB/s, 8.64MB/s  ]
+
+  ...adapter_model.safetensors:  72% 116M/162M [00:07<00:02, 15.5MB/s]
+
+Processing Files (0 / 1)      :  75% 122M/162M [00:08<00:01, 30.6MB/s, 8.99MB/s  ]
+New Data Upload               :  75% 122M/161M [00:08<00:01, 30.6MB/s, 8.98MB/s  ]
+
+  ...adapter_model.safetensors:  75% 122M/162M [00:07<00:02, 15.9MB/s]
+
+Processing Files (0 / 1)      :  77% 125M/162M [00:08<00:01, 25.8MB/s, 9.12MB/s  ]
+New Data Upload               :  77% 125M/161M [00:08<00:01, 25.8MB/s, 9.12MB/s  ]
+
+  ...adapter_model.safetensors:  77% 125M/162M [00:07<00:02, 15.9MB/s]
+
+  ...adapter_model.safetensors:  77% 125M/162M [00:07<00:02, 15.7MB/s]
+
+Processing Files (0 / 1)      :  80% 128M/162M [00:08<00:01, 19.6MB/s, 9.18MB/s  ]
+New Data Upload               :  80% 128M/161M [00:08<00:01, 19.6MB/s, 9.18MB/s  ]
+
+  ...adapter_model.safetensors:  80% 128M/162M [00:08<00:02, 15.7MB/s]
+
+Processing Files (0 / 1)      :  82% 132M/162M [00:08<00:01, 18.8MB/s, 9.31MB/s  ]
+New Data Upload               :  82% 132M/161M [00:08<00:01, 18.8MB/s, 9.31MB/s  ]
+
+  ...adapter_model.safetensors:  82% 132M/162M [00:08<00:01, 15.8MB/s]
+
+Processing Files (0 / 1)      :  86% 138M/162M [00:08<00:01, 22.3MB/s, 9.67MB/s  ]
+New Data Upload               :  86% 138M/161M [00:08<00:01, 22.3MB/s, 9.67MB/s  ]
+
+  ...adapter_model.safetensors:  86% 138M/162M [00:08<00:01, 16.1MB/s]
+
+Processing Files (0 / 1)      :  87% 140M/162M [00:09<00:01, 18.3MB/s, 9.65MB/s  ]
+New Data Upload               :  87% 140M/161M [00:09<00:01, 18.3MB/s, 9.65MB/s  ]
+
+  ...adapter_model.safetensors:  87% 140M/162M [00:08<00:01, 15.9MB/s]
+
+Processing Files (0 / 1)      :  89% 143M/162M [00:09<00:01, 17.9MB/s, 9.77MB/s  ]
+New Data Upload               :  89% 143M/161M [00:09<00:01, 17.9MB/s, 9.77MB/s  ]
+
+  ...adapter_model.safetensors:  89% 143M/162M [00:08<00:01, 16.0MB/s]
+
+Processing Files (0 / 1)      :  91% 147M/162M [00:09<00:00, 17.6MB/s, 9.89MB/s  ]
+New Data Upload               :  91% 147M/161M [00:09<00:00, 17.6MB/s, 9.89MB/s  ]
+
+  ...adapter_model.safetensors:  91% 147M/162M [00:09<00:00, 16.0MB/s]
+
+Processing Files (0 / 1)      :  91% 147M/162M [00:09<00:01, 12.3MB/s, 9.73MB/s  ]
+New Data Upload               :  91% 147M/161M [00:09<00:01, 12.3MB/s, 9.73MB/s  ]
+
+Processing Files (0 / 1)      :  93% 150M/162M [00:09<00:00, 16.1MB/s, 9.93MB/s  ]
+New Data Upload               :  93% 150M/161M [00:09<00:00, 16.1MB/s, 9.93MB/s  ]
+
+  ...adapter_model.safetensors:  93% 150M/162M [00:09<00:00, 15.8MB/s]
+
+Processing Files (0 / 1)      :  95% 153M/162M [00:10<00:00, 16.4MB/s, 10.0MB/s  ]
+New Data Upload               :  95% 153M/161M [00:10<00:00, 16.4MB/s, 10.0MB/s  ]
+
+  ...adapter_model.safetensors:  95% 153M/162M [00:09<00:00, 15.9MB/s]
+
+Processing Files (0 / 1)      :  97% 157M/162M [00:10<00:00, 16.5MB/s, 10.2MB/s  ]
+New Data Upload               :  97% 157M/161M [00:10<00:00, 16.5MB/s, 10.2MB/s  ]
+
+  ...adapter_model.safetensors:  97% 157M/162M [00:09<00:00, 15.9MB/s]
+
+Processing Files (0 / 1)      :  99% 160M/162M [00:10<00:00, 16.6MB/s, 10.3MB/s  ]
+New Data Upload               :  99% 160M/161M [00:10<00:00, 16.6MB/s, 10.3MB/s  ]
+
+  ...adapter_model.safetensors:  99% 160M/162M [00:10<00:00, 15.9MB/s]
+
+  ...adapter_model.safetensors:  99% 160M/162M [00:10<00:00, 15.7MB/s]
+
+Processing Files (0 / 1)      : 100% 162M/162M [00:10<00:00, 11.7MB/s, 10.1MB/s  ]
+New Data Upload               : 100% 161M/161M [00:10<00:00, 11.7MB/s, 10.1MB/s  ]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 15.6MB/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 15.4MB/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 15.3MB/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 15.1MB/s]
+
+Processing Files (1 / 1)      : 100% 162M/162M [00:11<00:00, 5.95MB/s, 9.72MB/s  ]
+New Data Upload               : 100% 161M/161M [00:11<00:00, 5.95MB/s, 9.72MB/s  ]
+
+
+Validating                    :           |   0%            
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]     
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 14.8MB/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 14.7MB/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:11<00:00, 14.6MB/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:11<00:00, 14.4MB/s]
+
+
+Processing Files (1 / 1)      : 100% 162M/162M [00:11<00:00, 13.8MB/s, 9.41MB/s  ]
+New Data Upload               : 100% 161M/161M [00:11<00:00, 13.8MB/s, 9.40MB/s  ]
+Validating                    : 100% 1/1 [00:00<00:00,  2.49/s]
+  ...adapter_model.safetensors: 100% 162M/162M [00:11<00:00, 14.4MB/s]
+README.md: 100% 5.17k/5.17k [00:00<00:00, 1.44MB/s]
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            
+
+  ...mpeq3s3rme/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+Processing Files (1 / 1)      : 100% 11.4M/11.4M [00:00<00:00, 30.7MB/s,   ???B/s  ]
+
+
+Validating                    :           |   0%            
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]     
+
+  ...mpeq3s3rme/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpeq3s3rme/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpeq3s3rme/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpeq3s3rme/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpeq3s3rme/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpeq3s3rme/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpeq3s3rme/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpeq3s3rme/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpeq3s3rme/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpeq3s3rme/tokenizer.json: 100% 11.4M/11.4M [00:01<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:01<?, ?/s]
+
+  ...mpeq3s3rme/tokenizer.json: 100% 11.4M/11.4M [00:01<?, ?B/s]
+
+
+Processing Files (1 / 1)      : 100% 11.4M/11.4M [00:01<00:00, 8.18MB/s, 1.03MB/s  ]
+New Data Upload               : |          |  0.00B /  0.00B,  0.00B/s  
+Validating                    : 100% 1/1 [00:01<00:00,  1.02s/]
+  ...mpeq3s3rme/tokenizer.json: 100% 11.4M/11.4M [00:01<?, ?B/s]
+DONE. Adapter pushed to https://huggingface.co/SILICAM/silica-spec-lora-v1
+
+
+cell 5
+=== Silica VERIF LoRA training -> SILICAM/silica-verif-lora-v1 ===
+Note: Environment variable`HF_TOKEN` is set and is the current active token independently from the token you've just configured.
+GPU: Tesla T4
+Precision: bf16
+Loading weights: 100% 339/339 [01:00<00:00,  5.64it/s]
+trainable params: 40,370,176 || all params: 7,655,986,688 || trainable%: 0.5273
+Map: 100% 5/5 [00:00<00:00, 96.21 examples/s]
+{'loss': '1.358', 'grad_norm': '0.5127', 'learning_rate': '0.0001667', 'epoch': '1'}
+{'loss': '0.9966', 'grad_norm': '0.3856', 'learning_rate': '0.0001', 'epoch': '2'}
+{'loss': '0.8593', 'grad_norm': '0.415', 'learning_rate': '3.333e-05', 'epoch': '3'}
+{'train_runtime': '238.1', 'train_samples_per_second': '0.063', 'train_steps_per_second': '0.025', 'train_loss': '1.071', 'epoch': '3'}
+100% 6/6 [03:58<00:00, 39.68s/it]
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+Processing Files (0 / 1)      :   0% 49.4k/162M [00:00<32:07, 83.8kB/s,   ???B/s  ]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:02<?, ?B/s]
+
+Processing Files (0 / 1)      :   0% 613k/162M [00:02<11:21, 236kB/s, 57.1kB/s  ]  
+New Data Upload               :   1% 563k/67.0M [00:02<05:19, 208kB/s, 53.1kB/s  ]
+
+  ...adapter_model.safetensors:   0% 613k/162M [00:02<10:34, 254kB/s]
+
+  ...adapter_model.safetensors:   0% 613k/162M [00:02<11:03, 243kB/s]
+
+  ...adapter_model.safetensors:   0% 613k/162M [00:02<11:32, 232kB/s]
+
+  ...adapter_model.safetensors:   0% 613k/162M [00:02<12:00, 223kB/s]
+
+  ...adapter_model.safetensors:   0% 613k/162M [00:02<12:29, 215kB/s]
+
+  ...adapter_model.safetensors:   0% 613k/162M [00:02<12:58, 207kB/s]
+
+Processing Files (0 / 1)      :   1% 1.18M/162M [00:03<06:44, 396kB/s,  106kB/s  ]
+New Data Upload               :   1% 1.13M/161M [00:03<07:15, 368kB/s,  102kB/s  ]
+
+  ...adapter_model.safetensors:   1% 1.18M/162M [00:02<06:56, 385kB/s]
+
+Processing Files (0 / 1)      :   1% 2.30M/162M [00:03<02:49, 937kB/s,  208kB/s  ]
+New Data Upload               :   1% 2.25M/161M [00:03<02:59, 888kB/s,  204kB/s  ]
+
+  ...adapter_model.safetensors:   1% 2.30M/162M [00:03<03:40, 721kB/s]
+
+Processing Files (0 / 1)      :   2% 3.99M/162M [00:03<01:22, 1.90MB/s,  359kB/s  ]
+New Data Upload               :   2% 3.95M/161M [00:03<01:26, 1.82MB/s,  355kB/s  ]
+
+  ...adapter_model.safetensors:   2% 3.99M/162M [00:03<02:12, 1.19MB/s]
+
+  ...adapter_model.safetensors:   2% 3.99M/162M [00:03<02:16, 1.15MB/s]
+
+Processing Files (0 / 1)      :   4% 5.69M/162M [00:04<00:57, 2.71MB/s,  503kB/s  ]
+New Data Upload               :   3% 5.64M/161M [00:04<00:59, 2.62MB/s,  500kB/s  ]
+
+  ...adapter_model.safetensors:   4% 5.69M/162M [00:03<01:40, 1.55MB/s]
+
+Processing Files (0 / 1)      :   5% 7.38M/162M [00:04<00:41, 3.68MB/s,  647kB/s  ]
+New Data Upload               :   5% 7.33M/161M [00:04<00:43, 3.58MB/s,  644kB/s  ]
+
+  ...adapter_model.safetensors:   5% 7.38M/162M [00:03<01:20, 1.91MB/s]
+
+Processing Files (0 / 1)      :   7% 11.3M/162M [00:04<00:22, 6.81MB/s,  992kB/s  ]
+New Data Upload               :   7% 11.3M/161M [00:04<00:22, 6.67MB/s,  989kB/s  ]
+
+  ...adapter_model.safetensors:   7% 11.3M/162M [00:04<00:53, 2.79MB/s]
+
+Processing Files (0 / 1)      :   8% 13.0M/162M [00:04<00:20, 7.16MB/s, 1.13MB/s  ]
+New Data Upload               :   8% 13.0M/161M [00:04<00:21, 7.05MB/s, 1.12MB/s  ]
+
+Processing Files (0 / 1)      :  10% 16.4M/162M [00:04<00:13, 10.7MB/s, 1.42MB/s  ]
+New Data Upload               :  10% 16.3M/161M [00:04<00:13, 10.6MB/s, 1.42MB/s  ]
+
+Processing Files (0 / 1)      :  11% 17.5M/162M [00:04<00:13, 10.8MB/s, 1.51MB/s  ]
+New Data Upload               :  11% 17.5M/161M [00:04<00:13, 10.7MB/s, 1.51MB/s  ]
+
+Processing Files (0 / 1)      :  13% 20.9M/162M [00:05<00:09, 15.1MB/s, 1.80MB/s  ]
+New Data Upload               :  13% 20.9M/161M [00:05<00:09, 15.0MB/s, 1.79MB/s  ]
+
+  ...adapter_model.safetensors:  13% 20.9M/162M [00:04<00:30, 4.60MB/s]
+
+Processing Files (0 / 1)      :  16% 26.0M/162M [00:05<00:07, 18.6MB/s, 2.22MB/s  ]
+New Data Upload               :  16% 25.9M/161M [00:05<00:07, 18.5MB/s, 2.21MB/s  ]
+
+  ...adapter_model.safetensors:  16% 26.0M/162M [00:04<00:24, 5.47MB/s]
+
+Processing Files (0 / 1)      :  18% 29.4M/162M [00:05<00:07, 18.0MB/s, 2.48MB/s  ]
+New Data Upload               :  18% 29.3M/161M [00:05<00:07, 18.0MB/s, 2.47MB/s  ]
+
+Processing Files (0 / 1)      :  19% 31.1M/162M [00:05<00:07, 17.8MB/s, 2.61MB/s  ]
+New Data Upload               :  19% 31.0M/161M [00:05<00:07, 17.7MB/s, 2.60MB/s  ]
+
+Processing Files (0 / 1)      :  21% 34.5M/162M [00:05<00:05, 21.2MB/s, 2.88MB/s  ]
+New Data Upload               :  21% 34.4M/161M [00:05<00:06, 21.2MB/s, 2.88MB/s  ]
+
+Processing Files (0 / 1)      :  23% 37.8M/162M [00:05<00:05, 24.1MB/s, 3.15MB/s  ]
+New Data Upload               :  23% 37.8M/161M [00:05<00:05, 24.1MB/s, 3.15MB/s  ]
+
+Processing Files (0 / 1)      :  24% 39.5M/162M [00:05<00:05, 22.3MB/s, 3.28MB/s  ]
+New Data Upload               :  24% 39.5M/161M [00:05<00:05, 22.2MB/s, 3.27MB/s  ]
+
+Processing Files (0 / 1)      :  28% 44.6M/162M [00:05<00:03, 29.7MB/s, 3.69MB/s  ]
+New Data Upload               :  28% 44.6M/161M [00:05<00:03, 29.7MB/s, 3.69MB/s  ]
+
+  ...adapter_model.safetensors:  28% 44.6M/162M [00:05<00:14, 8.19MB/s]
+
+Processing Files (0 / 1)      :  32% 51.4M/162M [00:06<00:03, 31.4MB/s, 4.22MB/s  ]
+New Data Upload               :  32% 51.3M/161M [00:06<00:03, 31.4MB/s, 4.22MB/s  ]
+
+  ...adapter_model.safetensors:  32% 51.4M/162M [00:05<00:12, 9.09MB/s]
+
+Processing Files (0 / 1)      :  34% 54.8M/162M [00:06<00:04, 25.9MB/s, 4.44MB/s  ]
+New Data Upload               :  34% 54.7M/161M [00:06<00:04, 25.9MB/s, 4.44MB/s  ]
+
+Processing Files (0 / 1)      :  36% 58.1M/162M [00:06<00:03, 27.5MB/s, 4.70MB/s  ]
+New Data Upload               :  36% 58.1M/161M [00:06<00:03, 27.5MB/s, 4.69MB/s  ]
+
+Processing Files (0 / 1)      :  38% 61.5M/162M [00:06<00:03, 29.0MB/s, 4.95MB/s  ]
+New Data Upload               :  38% 61.5M/161M [00:06<00:03, 28.9MB/s, 4.95MB/s  ]
+
+Processing Files (0 / 1)      :  40% 64.9M/162M [00:06<00:03, 30.1MB/s, 5.20MB/s  ]
+New Data Upload               :  40% 64.9M/161M [00:06<00:03, 30.1MB/s, 5.20MB/s  ]
+
+Processing Files (0 / 1)      :  42% 68.3M/162M [00:06<00:03, 31.1MB/s, 5.45MB/s  ]
+New Data Upload               :  42% 68.3M/161M [00:06<00:03, 31.0MB/s, 5.45MB/s  ]
+
+Processing Files (0 / 1)      :  45% 72.3M/162M [00:06<00:02, 33.3MB/s, 5.74MB/s  ]
+New Data Upload               :  45% 72.2M/161M [00:06<00:02, 33.3MB/s, 5.74MB/s  ]
+
+  ...adapter_model.safetensors:  45% 72.3M/162M [00:06<00:07, 11.4MB/s]
+
+Processing Files (0 / 1)      :  48% 77.3M/162M [00:07<00:02, 29.8MB/s, 6.08MB/s  ]
+New Data Upload               :  48% 77.3M/161M [00:07<00:02, 29.7MB/s, 6.08MB/s  ]
+
+Processing Files (0 / 1)      :  49% 78.5M/162M [00:07<00:03, 25.3MB/s, 6.12MB/s  ]
+New Data Upload               :  49% 78.4M/161M [00:07<00:03, 25.3MB/s, 6.12MB/s  ]
+
+Processing Files (0 / 1)      :  51% 81.9M/162M [00:07<00:02, 27.4MB/s, 6.36MB/s  ]
+New Data Upload               :  51% 81.8M/161M [00:07<00:02, 27.4MB/s, 6.36MB/s  ]
+
+Processing Files (0 / 1)      :  53% 85.2M/162M [00:07<00:02, 29.1MB/s, 6.60MB/s  ]
+New Data Upload               :  53% 85.2M/161M [00:07<00:02, 29.1MB/s, 6.59MB/s  ]
+
+Processing Files (0 / 1)      :  55% 88.6M/162M [00:07<00:02, 30.3MB/s, 6.83MB/s  ]
+New Data Upload               :  55% 88.6M/161M [00:07<00:02, 30.3MB/s, 6.83MB/s  ]
+
+Processing Files (0 / 1)      :  57% 92.0M/162M [00:07<00:02, 31.2MB/s, 7.06MB/s  ]
+New Data Upload               :  57% 92.0M/161M [00:07<00:02, 31.2MB/s, 7.06MB/s  ]
+
+Processing Files (0 / 1)      :  59% 95.4M/162M [00:07<00:02, 31.9MB/s, 7.29MB/s  ]
+New Data Upload               :  59% 95.4M/161M [00:07<00:02, 31.9MB/s, 7.29MB/s  ]
+
+Processing Files (0 / 1)      :  61% 98.8M/162M [00:07<00:01, 32.4MB/s, 7.51MB/s  ]
+New Data Upload               :  61% 98.7M/161M [00:07<00:01, 32.4MB/s, 7.51MB/s  ]
+
+  ...adapter_model.safetensors:  61% 98.8M/162M [00:07<00:04, 13.6MB/s]
+
+Processing Files (0 / 1)      :  63% 102M/162M [00:07<00:02, 25.3MB/s, 7.67MB/s  ] 
+New Data Upload               :  63% 102M/161M [00:07<00:02, 25.3MB/s, 7.67MB/s  ] 
+
+Processing Files (0 / 1)      :  65% 106M/162M [00:08<00:02, 27.3MB/s, 7.89MB/s  ]
+New Data Upload               :  65% 106M/161M [00:08<00:02, 27.3MB/s, 7.89MB/s  ]
+
+Processing Files (0 / 1)      :  67% 109M/162M [00:08<00:01, 29.0MB/s, 8.11MB/s  ]
+New Data Upload               :  67% 109M/161M [00:08<00:01, 29.0MB/s, 8.11MB/s  ]
+
+Processing Files (0 / 1)      :  70% 112M/162M [00:08<00:01, 30.2MB/s, 8.33MB/s  ]
+New Data Upload               :  70% 112M/161M [00:08<00:01, 30.2MB/s, 8.33MB/s  ]
+
+Processing Files (0 / 1)      :  72% 116M/162M [00:08<00:01, 31.2MB/s, 8.55MB/s  ]
+New Data Upload               :  72% 116M/161M [00:08<00:01, 31.2MB/s, 8.54MB/s  ]
+
+Processing Files (0 / 1)      :  73% 118M/162M [00:08<00:01, 30.1MB/s, 8.71MB/s  ]
+New Data Upload               :  73% 118M/161M [00:08<00:01, 30.1MB/s, 8.70MB/s  ]
+
+Processing Files (0 / 1)      :  75% 122M/162M [00:08<00:01, 31.1MB/s, 8.92MB/s  ]
+New Data Upload               :  75% 122M/161M [00:08<00:01, 31.1MB/s, 8.91MB/s  ]
+
+  ...adapter_model.safetensors:  75% 122M/162M [00:08<00:02, 15.1MB/s]
+
+  ...adapter_model.safetensors:  75% 122M/162M [00:08<00:02, 14.9MB/s]
+
+Processing Files (0 / 1)      :  78% 125M/162M [00:08<00:01, 20.1MB/s, 8.98MB/s  ]
+New Data Upload               :  78% 125M/161M [00:08<00:01, 20.1MB/s, 8.97MB/s  ]
+
+  ...adapter_model.safetensors:  78% 125M/162M [00:08<00:02, 15.0MB/s]
+
+Processing Files (0 / 1)      :  80% 129M/162M [00:09<00:01, 19.0MB/s, 9.11MB/s  ]
+New Data Upload               :  80% 129M/161M [00:09<00:01, 19.0MB/s, 9.11MB/s  ]
+
+  ...adapter_model.safetensors:  80% 129M/162M [00:08<00:02, 15.0MB/s]
+
+Processing Files (0 / 1)      :  82% 132M/162M [00:09<00:01, 18.3MB/s, 9.24MB/s  ]
+New Data Upload               :  82% 132M/161M [00:09<00:01, 18.3MB/s, 9.24MB/s  ]
+
+Processing Files (0 / 1)      :  84% 136M/162M [00:09<00:01, 22.3MB/s, 9.49MB/s  ]
+New Data Upload               :  84% 136M/161M [00:09<00:01, 22.3MB/s, 9.49MB/s  ]
+
+Processing Files (0 / 1)      :  85% 138M/162M [00:09<00:01, 21.9MB/s, 9.58MB/s  ]
+New Data Upload               :  85% 138M/161M [00:09<00:01, 21.9MB/s, 9.58MB/s  ]
+
+Processing Files (0 / 1)      :  87% 140M/162M [00:09<00:01, 20.7MB/s, 9.64MB/s  ]
+New Data Upload               :  87% 140M/161M [00:09<00:01, 20.7MB/s, 9.64MB/s  ]
+
+  ...adapter_model.safetensors:  87% 140M/162M [00:09<00:01, 15.4MB/s]
+
+  ...adapter_model.safetensors:  87% 140M/162M [00:09<00:01, 15.2MB/s]
+
+Processing Files (0 / 1)      :  89% 143M/162M [00:09<00:01, 15.9MB/s, 9.68MB/s  ]
+New Data Upload               :  89% 143M/161M [00:09<00:01, 15.9MB/s, 9.68MB/s  ]
+
+  ...adapter_model.safetensors:  89% 143M/162M [00:09<00:01, 15.3MB/s]
+
+Processing Files (0 / 1)      :  91% 146M/162M [00:10<00:00, 16.2MB/s, 9.80MB/s  ]
+New Data Upload               :  91% 146M/161M [00:10<00:00, 16.2MB/s, 9.80MB/s  ]
+
+  ...adapter_model.safetensors:  91% 146M/162M [00:09<00:00, 15.3MB/s]
+
+Processing Files (0 / 1)      :  93% 150M/162M [00:10<00:00, 16.4MB/s, 9.92MB/s  ]
+New Data Upload               :  93% 150M/161M [00:10<00:00, 16.4MB/s, 9.91MB/s  ]
+
+Processing Files (0 / 1)      :  93% 150M/162M [00:10<00:00, 13.3MB/s, 9.83MB/s  ]
+New Data Upload               :  93% 150M/161M [00:10<00:00, 13.3MB/s, 9.83MB/s  ]
+
+Processing Files (0 / 1)      :  94% 152M/162M [00:10<00:00, 14.1MB/s, 9.89MB/s  ]
+New Data Upload               :  94% 152M/161M [00:10<00:00, 14.1MB/s, 9.89MB/s  ]
+
+Processing Files (0 / 1)      :  95% 153M/162M [00:10<00:00, 14.7MB/s, 9.95MB/s  ]
+New Data Upload               :  95% 153M/161M [00:10<00:00, 14.7MB/s, 9.94MB/s  ]
+
+  ...adapter_model.safetensors:  95% 153M/162M [00:10<00:00, 15.2MB/s]
+
+Processing Files (0 / 1)      :  97% 157M/162M [00:10<00:00, 15.5MB/s, 10.1MB/s  ]
+New Data Upload               :  97% 157M/161M [00:10<00:00, 15.5MB/s, 10.1MB/s  ]
+
+  ...adapter_model.safetensors:  97% 157M/162M [00:10<00:00, 15.2MB/s]
+
+Processing Files (0 / 1)      :  99% 160M/162M [00:10<00:00, 15.9MB/s, 10.2MB/s  ]
+New Data Upload               :  99% 160M/161M [00:10<00:00, 15.9MB/s, 10.2MB/s  ]
+
+  ...adapter_model.safetensors:  99% 160M/162M [00:10<00:00, 15.3MB/s]
+
+Processing Files (0 / 1)      : 100% 162M/162M [00:11<00:00, 13.1MB/s, 10.1MB/s  ]
+New Data Upload               : 100% 161M/161M [00:11<00:00, 13.1MB/s, 10.1MB/s  ]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 15.1MB/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 15.0MB/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 14.8MB/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 14.7MB/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:11<00:00, 14.6MB/s]
+
+Processing Files (1 / 1)      : 100% 162M/162M [00:11<00:00, 5.35MB/s, 9.65MB/s  ]
+New Data Upload               : 100% 161M/161M [00:11<00:00, 5.35MB/s, 9.64MB/s  ]
+
+
+Validating                    :           |   0%            
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]     
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:11<00:00, 14.3MB/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:11<00:00, 14.2MB/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:11<00:00, 14.1MB/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:11<00:00, 14.0MB/s]
+
+
+Processing Files (1 / 1)      : 100% 162M/162M [00:12<00:00, 13.3MB/s, 9.36MB/s  ]
+New Data Upload               : 100% 161M/161M [00:12<00:00, 13.3MB/s, 9.36MB/s  ]
+Validating                    : 100% 1/1 [00:00<00:00,  2.71/s]
+  ...adapter_model.safetensors: 100% 162M/162M [00:11<00:00, 14.0MB/s]
+README.md: 100% 5.17k/5.17k [00:00<00:00, 1.50MB/s]
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            
+
+  ...mpa3ec6r5s/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+Processing Files (1 / 1)      : 100% 11.4M/11.4M [00:00<00:00, 30.9MB/s,   ???B/s  ]
+
+
+Validating                    :           |   0%            
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]     
+
+  ...mpa3ec6r5s/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpa3ec6r5s/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpa3ec6r5s/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpa3ec6r5s/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpa3ec6r5s/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpa3ec6r5s/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpa3ec6r5s/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpa3ec6r5s/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpa3ec6r5s/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mpa3ec6r5s/tokenizer.json: 100% 11.4M/11.4M [00:01<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:01<?, ?/s]
+
+  ...mpa3ec6r5s/tokenizer.json: 100% 11.4M/11.4M [00:01<?, ?B/s]
+
+
+Processing Files (1 / 1)      : 100% 11.4M/11.4M [00:01<00:00, 8.20MB/s, 1.03MB/s  ]
+New Data Upload               : |          |  0.00B /  0.00B,  0.00B/s  
+Validating                    : 100% 1/1 [00:01<00:00,  1.02s/]
+  ...mpa3ec6r5s/tokenizer.json: 100% 11.4M/11.4M [00:01<?, ?B/s]
+DONE. Adapter pushed to https://huggingface.co/SILICAM/silica-verif-lora-v1
+
+
+cell 6
+=== Silica SYNTH LoRA training -> SILICAM/silica-synth-lora-v1 ===
+Note: Environment variable`HF_TOKEN` is set and is the current active token independently from the token you've just configured.
+GPU: Tesla T4
+Precision: bf16
+Loading weights: 100% 339/339 [01:00<00:00,  5.64it/s]
+trainable params: 40,370,176 || all params: 7,655,986,688 || trainable%: 0.5273
+Map: 100% 5/5 [00:00<00:00, 90.91 examples/s]
+{'loss': '1.61', 'grad_norm': '0.7916', 'learning_rate': '0.0001667', 'epoch': '1'}
+{'loss': '1.141', 'grad_norm': '0.7544', 'learning_rate': '0.0001', 'epoch': '2'}
+{'loss': '0.9445', 'grad_norm': '0.685', 'learning_rate': '3.333e-05', 'epoch': '3'}
+{'train_runtime': '162.9', 'train_samples_per_second': '0.092', 'train_steps_per_second': '0.037', 'train_loss': '1.232', 'epoch': '3'}
+100% 6/6 [02:42<00:00, 27.15s/it]
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+Processing Files (0 / 1)      :   0% 49.4k/162M [00:00<27:32, 97.7kB/s,   ???B/s  ]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:00<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+  ...adapter_model.safetensors:   0% 49.4k/162M [00:01<?, ?B/s]
+
+Processing Files (0 / 1)      :   0% 612k/162M [00:02<09:43, 276kB/s, 57.6kB/s  ]  
+New Data Upload               :   1% 563k/67.1M [00:02<04:33, 243kB/s, 53.5kB/s  ]
+
+  ...adapter_model.safetensors:   0% 612k/162M [00:01<09:06, 294kB/s]
+
+  ...adapter_model.safetensors:   0% 612k/162M [00:02<09:35, 279kB/s]
+
+  ...adapter_model.safetensors:   0% 612k/162M [00:02<10:04, 266kB/s]
+
+  ...adapter_model.safetensors:   0% 612k/162M [00:02<10:33, 254kB/s]
+
+  ...adapter_model.safetensors:   0% 612k/162M [00:02<11:01, 243kB/s]
+
+  ...adapter_model.safetensors:   0% 612k/162M [00:02<11:30, 233kB/s]
+
+Processing Files (0 / 1)      :   1% 1.18M/162M [00:03<06:02, 442kB/s,  106kB/s  ]
+New Data Upload               :   2% 1.13M/67.1M [00:03<02:40, 411kB/s,  103kB/s  ]
+
+  ...adapter_model.safetensors:   1% 1.18M/162M [00:02<06:12, 430kB/s]
+
+Processing Files (0 / 1)      :   1% 2.30M/162M [00:03<02:34, 1.03MB/s,  209kB/s  ]
+New Data Upload               :   2% 2.25M/134M [00:03<02:14, 981kB/s,  205kB/s  ] 
+
+  ...adapter_model.safetensors:   1% 2.30M/162M [00:02<03:19, 798kB/s]
+
+Processing Files (0 / 1)      :   2% 3.99M/162M [00:03<01:16, 2.06MB/s,  361kB/s  ]
+New Data Upload               :   3% 3.94M/134M [00:03<01:05, 1.98MB/s,  357kB/s  ]
+
+  ...adapter_model.safetensors:   2% 3.99M/162M [00:03<02:00, 1.30MB/s]
+
+Processing Files (0 / 1)      :   4% 5.68M/162M [00:03<00:50, 3.11MB/s,  510kB/s  ]
+New Data Upload               :   4% 5.63M/134M [00:03<00:42, 3.01MB/s,  506kB/s  ]
+
+Processing Files (0 / 1)      :   4% 6.24M/162M [00:03<00:46, 3.37MB/s,  557kB/s  ]
+New Data Upload               :   5% 6.20M/134M [00:03<00:39, 3.28MB/s,  553kB/s  ]
+
+  ...adapter_model.safetensors:   4% 6.24M/162M [00:03<01:23, 1.86MB/s]
+
+Processing Files (0 / 1)      :   5% 7.93M/162M [00:03<00:33, 4.54MB/s,  701kB/s  ]
+New Data Upload               :   6% 7.88M/134M [00:03<00:28, 4.44MB/s,  697kB/s  ]
+
+  ...adapter_model.safetensors:   5% 7.93M/162M [00:03<01:08, 2.23MB/s]
+
+Processing Files (0 / 1)      :   7% 11.9M/162M [00:04<00:18, 8.29MB/s, 1.05MB/s  ]
+New Data Upload               :   9% 11.8M/134M [00:04<00:14, 8.16MB/s, 1.04MB/s  ]
+
+  ...adapter_model.safetensors:   7% 11.9M/162M [00:03<00:47, 3.17MB/s]
+
+Processing Files (0 / 1)      :  10% 15.8M/162M [00:04<00:12, 11.2MB/s, 1.38MB/s  ]
+New Data Upload               :  10% 15.8M/161M [00:04<00:13, 11.1MB/s, 1.38MB/s  ]
+
+Processing Files (0 / 1)      :  10% 16.4M/162M [00:04<00:14, 10.3MB/s, 1.42MB/s  ]
+New Data Upload               :  10% 16.3M/161M [00:04<00:14, 10.2MB/s, 1.42MB/s  ]
+
+Processing Files (0 / 1)      :  12% 19.8M/162M [00:04<00:09, 14.6MB/s, 1.71MB/s  ]
+New Data Upload               :  12% 19.7M/161M [00:04<00:09, 14.5MB/s, 1.71MB/s  ]
+
+Processing Files (0 / 1)      :  13% 20.9M/162M [00:04<00:10, 13.9MB/s, 1.80MB/s  ]
+New Data Upload               :  13% 20.8M/161M [00:04<00:10, 13.8MB/s, 1.80MB/s  ]
+
+  ...adapter_model.safetensors:  13% 20.9M/162M [00:04<00:28, 4.92MB/s]
+
+Processing Files (0 / 1)      :  15% 24.3M/162M [00:04<00:09, 15.0MB/s, 2.07MB/s  ]
+New Data Upload               :  15% 24.2M/161M [00:04<00:09, 14.9MB/s, 2.07MB/s  ]
+
+Processing Files (0 / 1)      :  17% 27.1M/162M [00:04<00:07, 17.7MB/s, 2.30MB/s  ]
+New Data Upload               :  17% 27.0M/161M [00:04<00:07, 17.7MB/s, 2.30MB/s  ]
+
+Processing Files (0 / 1)      :  19% 30.5M/162M [00:05<00:06, 21.4MB/s, 2.59MB/s  ]
+New Data Upload               :  19% 30.4M/161M [00:05<00:06, 21.3MB/s, 2.58MB/s  ]
+
+  ...adapter_model.safetensors:  19% 30.5M/162M [00:04<00:19, 6.55MB/s]
+
+Processing Files (0 / 1)      :  21% 33.9M/162M [00:05<00:06, 19.6MB/s, 2.84MB/s  ]
+New Data Upload               :  21% 33.8M/161M [00:05<00:06, 19.5MB/s, 2.84MB/s  ]
+
+Processing Files (0 / 1)      :  22% 35.5M/162M [00:05<00:06, 18.9MB/s, 2.96MB/s  ]
+New Data Upload               :  22% 35.5M/161M [00:05<00:06, 18.9MB/s, 2.96MB/s  ]
+
+Processing Files (0 / 1)      :  24% 38.9M/162M [00:05<00:05, 22.5MB/s, 3.24MB/s  ]
+New Data Upload               :  24% 38.9M/161M [00:05<00:05, 22.4MB/s, 3.23MB/s  ]
+
+Processing Files (0 / 1)      :  26% 42.3M/162M [00:05<00:04, 25.3MB/s, 3.51MB/s  ]
+New Data Upload               :  26% 42.3M/161M [00:05<00:04, 25.3MB/s, 3.50MB/s  ]
+
+Processing Files (0 / 1)      :  27% 44.0M/162M [00:05<00:05, 23.0MB/s, 3.63MB/s  ]
+New Data Upload               :  27% 44.0M/161M [00:05<00:05, 23.0MB/s, 3.62MB/s  ]
+
+Processing Files (0 / 1)      :  28% 45.7M/162M [00:05<00:05, 21.3MB/s, 3.74MB/s  ]
+New Data Upload               :  28% 45.6M/161M [00:05<00:05, 21.3MB/s, 3.74MB/s  ]
+
+Processing Files (0 / 1)      :  30% 49.1M/162M [00:05<00:04, 24.8MB/s, 4.01MB/s  ]
+New Data Upload               :  30% 49.0M/161M [00:05<00:04, 24.8MB/s, 4.00MB/s  ]
+
+Processing Files (0 / 1)      :  32% 52.5M/162M [00:05<00:03, 27.3MB/s, 4.27MB/s  ]
+New Data Upload               :  32% 52.4M/161M [00:05<00:03, 27.3MB/s, 4.26MB/s  ]
+
+Processing Files (0 / 1)      :  35% 55.9M/162M [00:06<00:03, 29.1MB/s, 4.53MB/s  ]
+New Data Upload               :  35% 55.8M/161M [00:06<00:03, 29.1MB/s, 4.52MB/s  ]
+
+Processing Files (0 / 1)      :  37% 59.2M/162M [00:06<00:03, 30.4MB/s, 4.78MB/s  ]
+New Data Upload               :  37% 59.2M/161M [00:06<00:03, 30.4MB/s, 4.78MB/s  ]
+
+Processing Files (0 / 1)      :  39% 62.6M/162M [00:06<00:03, 31.4MB/s, 5.04MB/s  ]
+New Data Upload               :  39% 62.6M/161M [00:06<00:03, 31.4MB/s, 5.03MB/s  ]
+
+Processing Files (0 / 1)      :  41% 66.6M/162M [00:06<00:02, 33.7MB/s, 5.33MB/s  ]
+New Data Upload               :  41% 66.5M/161M [00:06<00:02, 33.7MB/s, 5.33MB/s  ]
+
+Processing Files (0 / 1)      :  43% 68.8M/162M [00:06<00:03, 30.3MB/s, 5.48MB/s  ]
+New Data Upload               :  43% 68.8M/161M [00:06<00:03, 30.3MB/s, 5.48MB/s  ]
+
+Processing Files (0 / 1)      :  44% 71.7M/162M [00:06<00:03, 29.6MB/s, 5.68MB/s  ]
+New Data Upload               :  44% 71.6M/161M [00:06<00:03, 29.6MB/s, 5.68MB/s  ]
+
+Processing Files (0 / 1)      :  45% 72.8M/162M [00:06<00:03, 24.1MB/s, 5.73MB/s  ]
+New Data Upload               :  45% 72.7M/161M [00:06<00:03, 24.1MB/s, 5.73MB/s  ]
+
+Processing Files (0 / 1)      :  47% 76.2M/162M [00:06<00:03, 26.9MB/s, 5.97MB/s  ]
+New Data Upload               :  47% 76.1M/161M [00:06<00:03, 26.9MB/s, 5.97MB/s  ]
+
+Processing Files (0 / 1)      :  49% 79.6M/162M [00:06<00:02, 28.9MB/s, 6.21MB/s  ]
+New Data Upload               :  49% 79.5M/161M [00:06<00:02, 28.9MB/s, 6.21MB/s  ]
+
+Processing Files (0 / 1)      :  51% 83.0M/162M [00:06<00:02, 30.3MB/s, 6.45MB/s  ]
+New Data Upload               :  51% 82.9M/161M [00:06<00:02, 30.3MB/s, 6.45MB/s  ]
+
+Processing Files (0 / 1)      :  53% 86.3M/162M [00:07<00:02, 31.2MB/s, 6.68MB/s  ]
+New Data Upload               :  53% 86.3M/161M [00:07<00:02, 31.2MB/s, 6.68MB/s  ]
+
+Processing Files (0 / 1)      :  56% 89.7M/162M [00:07<00:02, 32.0MB/s, 6.92MB/s  ]
+New Data Upload               :  56% 89.7M/161M [00:07<00:02, 32.0MB/s, 6.91MB/s  ]
+
+Processing Files (0 / 1)      :  58% 93.1M/162M [00:07<00:02, 32.4MB/s, 7.15MB/s  ]
+New Data Upload               :  58% 93.1M/161M [00:07<00:02, 32.4MB/s, 7.14MB/s  ]
+
+Processing Files (0 / 1)      :  59% 94.8M/162M [00:07<00:02, 27.8MB/s, 7.23MB/s  ]
+New Data Upload               :  59% 94.7M/161M [00:07<00:02, 27.7MB/s, 7.23MB/s  ]
+
+Processing Files (0 / 1)      :  62% 99.9M/162M [00:07<00:01, 34.5MB/s, 7.60MB/s  ]
+New Data Upload               :  62% 99.8M/161M [00:07<00:01, 34.5MB/s, 7.60MB/s  ]
+
+  ...adapter_model.safetensors:  62% 99.9M/162M [00:07<00:04, 14.1MB/s]
+
+Processing Files (0 / 1)      :  65% 105M/162M [00:07<00:01, 30.3MB/s, 7.90MB/s  ] 
+New Data Upload               :  65% 105M/161M [00:07<00:01, 30.3MB/s, 7.90MB/s  ] 
+
+Processing Files (0 / 1)      :  66% 107M/162M [00:07<00:02, 26.9MB/s, 7.98MB/s  ]
+New Data Upload               :  66% 107M/161M [00:07<00:02, 26.9MB/s, 7.98MB/s  ]
+
+Processing Files (0 / 1)      :  68% 110M/162M [00:07<00:01, 28.7MB/s, 8.20MB/s  ]
+New Data Upload               :  68% 110M/161M [00:07<00:01, 28.7MB/s, 8.20MB/s  ]
+
+Processing Files (0 / 1)      :  69% 111M/162M [00:07<00:02, 24.1MB/s, 8.23MB/s  ]
+New Data Upload               :  69% 111M/161M [00:07<00:02, 24.1MB/s, 8.23MB/s  ]
+
+Processing Files (0 / 1)      :  71% 115M/162M [00:08<00:01, 26.8MB/s, 8.45MB/s  ]
+New Data Upload               :  71% 115M/161M [00:08<00:01, 26.8MB/s, 8.45MB/s  ]
+
+  ...adapter_model.safetensors:  71% 115M/162M [00:07<00:03, 14.9MB/s]
+
+Processing Files (0 / 1)      :  72% 116M/162M [00:08<00:02, 18.6MB/s, 8.45MB/s  ]
+New Data Upload               :  72% 116M/161M [00:08<00:02, 18.6MB/s, 8.45MB/s  ]
+
+Processing Files (0 / 1)      :  73% 118M/162M [00:08<00:02, 18.2MB/s, 8.52MB/s  ]
+New Data Upload               :  73% 118M/161M [00:08<00:02, 18.2MB/s, 8.52MB/s  ]
+
+  ...adapter_model.safetensors:  73% 118M/162M [00:07<00:02, 14.8MB/s]
+
+Processing Files (0 / 1)      :  75% 121M/162M [00:08<00:02, 17.7MB/s, 8.66MB/s  ]
+New Data Upload               :  75% 121M/161M [00:08<00:02, 17.7MB/s, 8.66MB/s  ]
+
+  ...adapter_model.safetensors:  75% 121M/162M [00:08<00:02, 14.9MB/s]
+
+Processing Files (0 / 1)      :  77% 125M/162M [00:08<00:02, 17.4MB/s, 8.80MB/s  ]
+New Data Upload               :  77% 125M/161M [00:08<00:02, 17.4MB/s, 8.80MB/s  ]
+
+Processing Files (0 / 1)      :  80% 129M/162M [00:08<00:01, 21.9MB/s, 9.05MB/s  ]
+New Data Upload               :  80% 129M/161M [00:08<00:01, 21.9MB/s, 9.05MB/s  ]
+
+Processing Files (0 / 1)      :  82% 132M/162M [00:08<00:01, 24.6MB/s, 9.26MB/s  ]
+New Data Upload               :  82% 132M/161M [00:08<00:01, 24.6MB/s, 9.26MB/s  ]
+
+Processing Files (0 / 1)      :  83% 134M/162M [00:09<00:01, 22.7MB/s, 9.32MB/s  ]
+New Data Upload               :  83% 134M/161M [00:09<00:01, 22.7MB/s, 9.32MB/s  ]
+
+  ...adapter_model.safetensors:  83% 134M/162M [00:08<00:01, 15.4MB/s]
+
+Processing Files (0 / 1)      :  87% 141M/162M [00:09<00:00, 27.2MB/s, 9.73MB/s  ]
+New Data Upload               :  87% 141M/161M [00:09<00:00, 27.2MB/s, 9.73MB/s  ]
+
+  ...adapter_model.safetensors:  87% 141M/162M [00:08<00:01, 15.8MB/s]
+
+Processing Files (0 / 1)      :  91% 147M/162M [00:09<00:00, 28.1MB/s, 10.1MB/s  ]
+New Data Upload               :  91% 147M/161M [00:09<00:00, 28.1MB/s, 10.1MB/s  ]
+
+  ...adapter_model.safetensors:  91% 147M/162M [00:09<00:00, 16.1MB/s]
+
+  ...adapter_model.safetensors:  91% 147M/162M [00:09<00:00, 16.0MB/s]
+
+Processing Files (0 / 1)      :  93% 150M/162M [00:09<00:00, 20.5MB/s, 10.1MB/s  ]
+New Data Upload               :  93% 150M/161M [00:09<00:00, 20.5MB/s, 10.1MB/s  ]
+
+  ...adapter_model.safetensors:  93% 150M/162M [00:09<00:00, 16.0MB/s]
+
+Processing Files (0 / 1)      :  95% 153M/162M [00:09<00:00, 19.4MB/s, 10.2MB/s  ]
+New Data Upload               :  95% 153M/161M [00:09<00:00, 19.4MB/s, 10.2MB/s  ]
+
+  ...adapter_model.safetensors:  95% 153M/162M [00:09<00:00, 16.0MB/s]
+
+Processing Files (0 / 1)      :  97% 157M/162M [00:10<00:00, 18.6MB/s, 10.3MB/s  ]
+New Data Upload               :  97% 157M/161M [00:10<00:00, 18.6MB/s, 10.3MB/s  ]
+
+Processing Files (0 / 1)      :  97% 157M/162M [00:10<00:00, 15.4MB/s, 10.2MB/s  ]
+New Data Upload               :  97% 157M/161M [00:10<00:00, 15.4MB/s, 10.2MB/s  ]
+
+Processing Files (0 / 1)      :  99% 160M/162M [00:10<00:00, 19.0MB/s, 10.4MB/s  ]
+New Data Upload               :  99% 160M/161M [00:10<00:00, 19.0MB/s, 10.4MB/s  ]
+
+  ...adapter_model.safetensors:  99% 160M/162M [00:09<00:00, 16.0MB/s]
+
+Processing Files (0 / 1)      : 100% 162M/162M [00:10<00:00, 14.8MB/s, 10.4MB/s  ]
+New Data Upload               : 100% 161M/161M [00:10<00:00, 14.8MB/s, 10.4MB/s  ]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 15.9MB/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 15.7MB/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 15.5MB/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 15.4MB/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 15.3MB/s]
+
+Processing Files (1 / 1)      : 100% 162M/162M [00:11<00:00, 5.77MB/s, 9.87MB/s  ]
+New Data Upload               : 100% 161M/161M [00:11<00:00, 5.77MB/s, 9.87MB/s  ]
+
+
+Validating                    :           |   0%            
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]     
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 15.0MB/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 14.8MB/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:10<00:00, 14.7MB/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...adapter_model.safetensors: 100% 162M/162M [00:11<00:00, 14.6MB/s]
+
+
+Processing Files (1 / 1)      : 100% 162M/162M [00:11<00:00, 14.0MB/s, 9.57MB/s  ]
+New Data Upload               : 100% 161M/161M [00:11<00:00, 13.9MB/s, 9.56MB/s  ]
+Validating                    : 100% 1/1 [00:00<00:00,  2.59/s]
+  ...adapter_model.safetensors: 100% 162M/162M [00:11<00:00, 14.6MB/s]
+README.md: 100% 5.17k/5.17k [00:00<00:00, 1.45MB/s]
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            
+
+  ...mp1sxki4f5/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+Processing Files (1 / 1)      : 100% 11.4M/11.4M [00:00<00:00, 30.1MB/s,   ???B/s  ]
+
+
+Validating                    :           |   0%            
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]     
+
+  ...mp1sxki4f5/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mp1sxki4f5/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mp1sxki4f5/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mp1sxki4f5/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mp1sxki4f5/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mp1sxki4f5/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mp1sxki4f5/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mp1sxki4f5/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mp1sxki4f5/tokenizer.json: 100% 11.4M/11.4M [00:00<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:00<?, ?/s]
+
+  ...mp1sxki4f5/tokenizer.json: 100% 11.4M/11.4M [00:01<?, ?B/s]
+
+
+Validating                    :   0% 0/1 [00:01<?, ?/s]
+
+  ...mp1sxki4f5/tokenizer.json: 100% 11.4M/11.4M [00:01<?, ?B/s]
+
+
+Processing Files (1 / 1)      : 100% 11.4M/11.4M [00:01<00:00, 8.03MB/s, 1.03MB/s  ]
+New Data Upload               : |          |  0.00B /  0.00B,  0.00B/s  
+Validating                    : 100% 1/1 [00:01<00:00,  1.04s/]
+  ...mp1sxki4f5/tokenizer.json: 100% 11.4M/11.4M [00:01<?, ?B/s]
+DONE. Adapter pushed to https://huggingface.co/SILICAM/silica-synth-lora-v1
+
+---
+
+ok before proceed to phase 2 my friend got one main i want you to see it and tell me what it tells and is there anything we are missing so we can proceed next so tell and explain me if anything is missing tell me i will complete it and if any integration is mandatory so tht also we will do it 
+mai:- 
+Suhas Hanamannavar,
+
+Your team VLSI has completed web check-in. You’re ready to build!
+
+As team leader, you receive the setup and credits instructions for your team. Credits are allocated once per team, not per member.
+
+Join the neatHack Discord
+Join our Discord for event announcements, help with setup and credits, and support from organisers and mentors.
+
+https://neatlogs.com/discord
+
+1. Build with neatlogs — free throughout the hackathon
+All neatlogs paid plans are available to you for free for the duration of neatHack. We believe no good idea should be held back by a paywall.
+
+Sign up at https://app.neatlogs.com and create your project.
+
+Start with our step-by-step setup guide, with screenshots, a ready-to-use coding-agent prompt, and troubleshooting: https://neatlogs.com/hackathon/neatlogs-setup-guide.html
+
+For framework-specific instructions, see https://docs.neatlogs.com.
+
+Run your agent and verify that its traces appear in the dashboard. Use those traces to investigate failures and verify your fixes.
+
+2. Set up Entire
+Follow the Entire guide for neatHack: https://hack.entire.io/neathacks-2026/
+
+Connect your GitHub repository, install the CLI, and capture your first checkpoint.
+
+Explore Trails and optional Graph/Brain features. Include an accessible checkpoint link and ID in your submission.
+
+3. Access cfo.ai paid plans for free
+Use the dedicated neatHack signup link to access any cfo.ai paid plan for free: https://cfo.ai/neathacks
+
+A card is required during signup. Immediately after signing up, cancel your subscription in Settings → Billing. You won’t be billed if you cancel immediately.
+
+The neatHack team will provide your cfo.ai credits directly.
+
+Use cfo.ai to plan your agent’s pricing, costs, revenue, and runway. Include the resulting business plan in your submission.
+
+4. Claim your Crustdata credits
+Get 5,000 Crustdata credits to build with company and people data.
+
+Use promo code: NEATLOGS-OCT2026
+
+Open https://app.crustdata.com and select “Have a promo code?” below Continue. Add the code before signing up with your email. Use email signup, not “Continue with Google”, so the code can be applied. Already have an account, or need help? Contact the neatHack organisers at https://neatlogs.com/discord.
+
+API documentation: https://www.crustdata.com/api-documentation
+
+Before you build
+Every project must use neatlogs, Entire, and cfo.ai. Keep evidence of all three for your submission and demo.
+
+Hackathon guide: https://neatlogs.com/hackathon
+
+Build-log skill: https://neatlogs.com/hackathon/skill
+
+View your team: https://neatlogs.com/hackathon/check-in
+
+---
+
+hey wait i am importing or connect silica github repo to entire still not done it
+
+---
+
+see under tht suhas that is orinal
+
+---
+
+see that silica got synced what to do
+
+---
+
+export NEATLOGS_API_KEY="REDACTED"
+
+see i sent you api key and also tht scrrenshotd of link u sent

@@ -1,0 +1,42 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4MYPAC0ZBCERCXX3JCEVW5V",
+  "session_id": "8070bd12-faf5-4a7f-8e5c-f4689edd7781",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-11T07:44:04.9943173Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "silica_agents/orchestrator.py"
+  ],
+  "agent": "Antigravity",
+  "model": "",
+  "turn_id": "ca9148e5552f",
+  "initial_attribution": {
+    "calculated_at": "2026-10-11T07:44:04.8001659Z",
+    "agent_lines": 21,
+    "agent_removed": 1,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 21,
+    "total_lines_changed": 22,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 45,
+      "user_lines_removed": 45,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "deploy.sh": 45
+      },
+      "user_removed_per_file": {
+        "deploy.sh": 45
+      }
+    }
+  ]
+}
