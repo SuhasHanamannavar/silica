@@ -1,0 +1,17 @@
+in whose vercel did u deployed
+
+---
+
+Suhas(sita): Authentication done ?? , database done???
+ Suhas(sita): Model running succesfully???
+just answer dont change anything
+
+---
+
+so can i say tht every thing is perfect done and model can answer or predict and work correctly
+
+---
+
+https://silica-kappa.vercel.app/
+
+SEE MY FRIEND UPDATED THE FRONTEND SO go through it and again do whatever is needed and check weather everything is working or not
