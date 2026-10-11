@@ -36,42 +36,52 @@ def fmt(b):
                      for s,u,a in zip(b["system"], b["user"], b["assistant"])]}
 ds = ds.map(fmt, batched=True)
 
-trained = False
-try:
-    from trl import SFTTrainer, SFTConfig
-    sft_args = SFTConfig(
-        output_dir=f"./silica-{STAGE}", num_train_epochs=3, per_device_train_batch_size=2,
-        gradient_accumulation_steps=4, learning_rate=2e-4, fp16=not use_bf16, bf16=use_bf16,
-        logging_steps=2, save_strategy="no", report_to="none", push_to_hub=True,
-        hub_model_id=OUTPUT_REPO, hub_token=HF_TOKEN, dataset_text_field="text", max_seq_length=1024
-    )
-    trainer = SFTTrainer(model=model, train_dataset=ds, processing_class=tok, args=sft_args, peft_config=peft)
-    trainer.train()
-    trainer.push_to_hub()
-    tok.push_to_hub(OUTPUT_REPO, token=HF_TOKEN)
-    trained = True
-except Exception as e:
-    print(f"Notice: SFTConfig route ({e}), using robust Trainer pipeline...")
+from peft import get_peft_model, prepare_model_for_kbit_training
+from transformers import Trainer, DataCollatorForSeq2Seq
 
-if not trained:
-    from peft import get_peft_model
-    from transformers import Trainer, DataCollatorForSeq2Seq
-    peft_model = get_peft_model(model, peft)
-    def tok_fn(b):
-        res = tok(b["text"], truncation=True, max_length=1024)
-        res["labels"] = [list(x) for x in res["input_ids"]]
-        return res
-    tokenized_ds = ds.map(tok_fn, batched=True, remove_columns=ds.column_names)
-    args = TrainingArguments(output_dir=f"./silica-{STAGE}", num_train_epochs=3, per_device_train_batch_size=2,
-        gradient_accumulation_steps=4, learning_rate=2e-4, fp16=not use_bf16, bf16=use_bf16, logging_steps=2,
-        save_strategy="no", report_to="none", push_to_hub=True, hub_model_id=OUTPUT_REPO, hub_token=HF_TOKEN)
-    trainer = Trainer(model=peft_model, train_dataset=tokenized_ds, args=args,
-                      data_collator=DataCollatorForSeq2Seq(tok, pad_to_multiple_of=8, return_tensors="pt"))
-    trainer.train()
-    trainer.model.save_pretrained(f"./silica-{STAGE}")
-    trainer.model.push_to_hub(OUTPUT_REPO, token=HF_TOKEN)
-    tok.push_to_hub(OUTPUT_REPO, token=HF_TOKEN)
+# Optimize memory for Tesla T4 QLoRA
+model.gradient_checkpointing_enable()
+model = prepare_model_for_kbit_training(model)
+peft_model = get_peft_model(model, peft)
+peft_model.print_trainable_parameters()
+
+def tok_fn(b):
+    res = tok(b["text"], truncation=True, max_length=768)
+    res["labels"] = [list(x) for x in res["input_ids"]]
+    return res
+
+tokenized_ds = ds.map(tok_fn, batched=True, remove_columns=ds.column_names)
+
+args = TrainingArguments(
+    output_dir=f"./silica-{STAGE}",
+    num_train_epochs=3,
+    per_device_train_batch_size=1,
+    gradient_accumulation_steps=4,
+    gradient_checkpointing=True,
+    learning_rate=2e-4,
+    fp16=not use_bf16,
+    bf16=use_bf16,
+    logging_steps=2,
+    save_strategy="no",
+    report_to="none",
+    push_to_hub=True,
+    hub_model_id=OUTPUT_REPO,
+    hub_token=HF_TOKEN
+)
+
+trainer = Trainer(
+    model=peft_model,
+    train_dataset=tokenized_ds,
+    args=args,
+    data_collator=DataCollatorForSeq2Seq(tok, pad_to_multiple_of=8, return_tensors="pt")
+)
+
+trainer.train()
+trainer.model.save_pretrained(f"./silica-{STAGE}")
+trainer.model.push_to_hub(OUTPUT_REPO, token=HF_TOKEN)
+tok.push_to_hub(OUTPUT_REPO, token=HF_TOKEN)
 
 print(f"DONE. Adapter pushed to https://huggingface.co/{OUTPUT_REPO}")
+
 
 
