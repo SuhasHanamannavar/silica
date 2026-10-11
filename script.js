@@ -661,7 +661,6 @@
       drawSemiconductorChip(params);
     }
   }
-  }
   // --- Smooth scroll for anchor links ---
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', (e) => {
