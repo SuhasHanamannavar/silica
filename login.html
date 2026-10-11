@@ -10,9 +10,15 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="login-page">
-  <!-- Background Canvas -->
+
+  <!-- Background particle canvas -->
   <div class="login-canvas-bg">
     <canvas id="bg-canvas"></canvas>
+  </div>
+
+  <!-- Subtle ambient glow behind card -->
+  <div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;pointer-events:none;z-index:1;">
+    <div style="width:100%;height:100%;border-radius:50%;background:radial-gradient(circle,rgba(232,138,154,0.12) 0%,rgba(245,198,208,0.04) 30%,transparent 70%);"></div>
   </div>
 
   <!-- Back link -->
@@ -66,7 +72,7 @@
   </div>
 
   <script>
-    // --- Background particle system for login page ---
+    // --- Background particle system (bottle-inspired starfield) ---
     (function() {
       const canvas = document.getElementById('bg-canvas');
       if (!canvas) return;
@@ -92,19 +98,22 @@
         reset(initial) {
           this.x = Math.random() * cw;
           this.y = Math.random() * ch;
-          this.size = Math.random() * 1.2 + 0.3;
-          this.baseAlpha = Math.random() * 0.35 + 0.08;
+          this.size = Math.random() * 1.2 + 0.2;
+          this.baseAlpha = Math.random() * 0.4 + 0.08;
           this.alpha = this.baseAlpha;
-          this.speedX = (Math.random() - 0.5) * 0.12;
-          this.speedY = (Math.random() - 0.5) * 0.08 - 0.04;
-          this.pulseSpeed = Math.random() * 0.015 + 0.004;
+          this.speedX = (Math.random() - 0.5) * 0.08;
+          this.speedY = (Math.random() - 0.5) * 0.06 - 0.02;
+          this.pulseSpeed = Math.random() * 0.015 + 0.003;
           this.pulseOffset = Math.random() * Math.PI * 2;
-          this.tint = Math.random() > 0.88 ? 'pink' : 'white';
+          const r = Math.random();
+          if (r > 0.88) this.tint = 'pink';
+          else if (r > 0.5) this.tint = 'warm';
+          else this.tint = 'white';
         }
         update(dt) {
           this.x += this.speedX * dt;
           this.y += this.speedY * dt;
-          this.alpha = this.baseAlpha * (0.6 + 0.4 * Math.sin(animTime * this.pulseSpeed + this.pulseOffset));
+          this.alpha = this.baseAlpha * (0.5 + 0.5 * Math.sin(animTime * this.pulseSpeed + this.pulseOffset));
           if (this.x < -10) this.x = cw + 10;
           if (this.x > cw + 10) this.x = -10;
           if (this.y < -10) this.y = ch + 10;
@@ -114,22 +123,24 @@
           ctx.beginPath();
           ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
           if (this.tint === 'pink') {
-            ctx.fillStyle = `rgba(245, 198, 208, ${this.alpha * 0.7})`;
+            ctx.fillStyle = `rgba(245, 198, 208, ${this.alpha * 0.85})`;
+          } else if (this.tint === 'warm') {
+            ctx.fillStyle = `rgba(255, 235, 225, ${this.alpha * 0.75})`;
           } else {
-            ctx.fillStyle = `rgba(255, 245, 240, ${this.alpha})`;
+            ctx.fillStyle = `rgba(255, 250, 248, ${this.alpha})`;
           }
           ctx.fill();
         }
       }
 
       resize();
-      const count = Math.min(100, Math.floor((cw * ch) / 18000));
+      const count = Math.min(140, Math.floor((cw * ch) / 13000));
       const particles = [];
       for (let i = 0; i < count; i++) particles.push(new Particle());
 
       window.addEventListener('resize', () => {
         resize();
-        const newCount = Math.min(100, Math.floor((cw * ch) / 18000));
+        const newCount = Math.min(140, Math.floor((cw * ch) / 13000));
         while (particles.length < newCount) particles.push(new Particle());
         while (particles.length > newCount) particles.pop();
       });
@@ -139,11 +150,22 @@
         const dt = Math.min(32, now - lastTime);
         lastTime = now;
         animTime += dt;
-        ctx.clearRect(0, 0, cw, ch);
+
+        // Subtle vignette
+        const vignette = ctx.createRadialGradient(
+          cw / 2, ch / 2, ch * 0.1,
+          cw / 2, ch / 2, ch * 0.9
+        );
+        vignette.addColorStop(0, 'rgba(232, 138, 154, 0.02)');
+        vignette.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+        ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, cw, ch);
+
         particles.forEach(p => {
           if (!prefersReducedMotion) p.update(dt * 0.06);
           p.draw();
         });
+
         requestAnimationFrame(render);
       }
       requestAnimationFrame(render);
@@ -155,7 +177,7 @@
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
       const remember = document.getElementById('remember').checked;
-      
+
       const btn = event.target.querySelector('button[type="submit"]');
       const originalText = btn.textContent;
       btn.textContent = 'Signing in...';
@@ -187,7 +209,7 @@
           } else {
             showLoginError('Please enter a valid email and password');
           }
-        }, 600);
+        }, 650);
       }).finally(() => {
         btn.textContent = originalText;
         btn.disabled = false;
@@ -202,7 +224,6 @@
       if (!errorEl) {
         errorEl = document.createElement('div');
         errorEl.className = 'login-error';
-        errorEl.style.cssText = 'font-family:Inter,sans-serif;font-size:13px;color:rgba(232,100,100,0.85);text-align:center;margin-bottom:16px;padding:10px;background:rgba(100,20,30,0.15);border:1px solid rgba(232,100,100,0.2);border-radius:8px;';
         form.insertBefore(errorEl, form.querySelector('.form-options'));
       }
       errorEl.textContent = message;
@@ -212,11 +233,6 @@
     function showForgotPassword() {
       alert('Password reset is not available in this demo. Please contact your system administrator.');
       return false;
-    }
-
-    // Check if already logged in
-    if (localStorage.getItem('silica_token') || localStorage.getItem('silica_session')) {
-      // Don't auto-redirect, let user sign out if needed
     }
   </script>
 </body>
