@@ -670,9 +670,6 @@ document.addEventListener('click', e=>{
 function checkBackend(){
   fetch('/api/health').then(r=>r.json()).then(d=>{
     if(d && d.tools_available){ state.backend=true; state.backendTools=d.tools; }
-    var b=document.querySelector('.proto-badge, .badge.proto, .sidebar .badge');
-    if(b){ b.textContent = state.backend ? 'LIVE EDA BACKEND' : 'CONNECTING TO BACKEND…';
-           b.style.color = state.backend ? 'var(--ok)' : 'var(--warn)'; }
     var bo=document.getElementById('backend-opts'); if(bo){ bo.style.display = state.backend ? 'block':'none'; }
     var nn=document.getElementById('np-note'); if(nn){ nn.textContent = state.backend ? 'Starting a run executes the REAL multi-agent EDA pipeline (Verilator + Yosys), emitting 46 formal deliverables.' : 'Starting a run dispatches the workflow.'; }
   }).catch(function(){});

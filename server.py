@@ -561,6 +561,11 @@ class Handler(BaseHTTPRequestHandler):
             pdir = os.path.join(DATA, pid)
             if not os.path.isdir(pdir): self._send(404, {"error": "project not found"}); return
             rtl = payload.get("rtl")
+            new_prompt = payload.get("prompt") or payload.get("spec")
+            if new_prompt:
+                meta = jread(os.path.join(pdir, "project.json"), {})
+                meta["spec"] = new_prompt
+                jwrite(os.path.join(pdir, "project.json"), meta)
             use_broken = payload.get("demo_broken", False)
             if use_broken: rtl = BROKEN_RTL
             rid = uuid.uuid4().hex[:8]

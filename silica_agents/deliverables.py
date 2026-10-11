@@ -187,19 +187,27 @@ en   --> [Interface] ---> [Execution Datapath] ---> Out |
     files_created.append("ppa_targets.json")
 
     # 7. Memory and Register Specifications
+    regs = spec.get("registers")
+    if regs:
+        reg_table = "\n".join([f"| {r['offset']} | `{r['name']}` | {r['width']} | {r['access']} | 0x00000000 | {r['desc']} |" for r in regs])
+        reg_fields = "\n".join([f"- `{r['name']}`: {r['desc']}" for r in regs])
+    else:
+        reg_table = """| 0x00 | `CTRL_REG` | 32 | RW | 0x00000000 | Bit 0: Enable, Bit 1: Soft Reset, Bit 2: IRQ Enable |
+| 0x04 | `STATUS_REG` | 32 | RO | 0x00000000 | Bit 0: Ready, Bit 1: Overflow Flag, Bit 2: Zero Flag |
+| 0x08 | `DATA_OUT_REG` | 32 | RO | 0x00000000 | Primary datapath output value |
+| 0x0C | `CONFIG_REG` | 32 | RW | 0x00000004 | Operational width parameter and configuration |"""
+        reg_fields = """- `CTRL_REG[0]` (`EN`): Core execution enable. When 1, datapath advances each clock cycle.
+- `STATUS_REG[1]` (`OVF`): Overflow bit. Set high when the datapath reaches its maximum bound."""
+
     mem_reg = f"""# Memory and Register Specifications: {title}
 
 ## 1. Register Map & Control / Status Registers (CSR)
 | Offset | Register Name | Width | Access | Reset Value | Description |
 |:---|:---|:---:|:---:|:---:|:---|
-| 0x00 | `CTRL_REG` | 32 | RW | 0x00000000 | Bit 0: Enable, Bit 1: Soft Reset, Bit 2: IRQ Enable |
-| 0x04 | `STATUS_REG` | 32 | RO | 0x00000000 | Bit 0: Ready, Bit 1: Overflow Flag, Bit 2: Zero Flag |
-| 0x08 | `DATA_OUT_REG` | 32 | RO | 0x00000000 | Primary datapath output value |
-| 0x0C | `CONFIG_REG` | 32 | RW | 0x00000004 | Operational width parameter and configuration |
+{reg_table}
 
 ## 2. Register Field Definitions
-- `CTRL_REG[0]` (`EN`): Core execution enable. When 1, datapath advances each clock cycle.
-- `STATUS_REG[1]` (`OVF`): Overflow bit. Set high when the datapath reaches its maximum bound.
+{reg_fields}
 """
     write_file(artifacts_dir, "memory_register_specifications.md", mem_reg)
     files_created.append("memory_register_specifications.md")

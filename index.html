@@ -382,14 +382,49 @@
     transition: color 0.3s;
   }
   .stage-row:hover .stage-num { color: var(--accent); }
+  .stage-tag-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
   .stage-tag {
     font-family: var(--mono);
     font-size: 10px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--accent);
-    display: block;
-    margin-bottom: 8px;
+    display: inline-block;
+    margin-bottom: 0;
+  }
+  .stage-status-badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: var(--radius-pill);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    line-height: 1.2;
+  }
+  .stage-status-badge.live {
+    color: var(--success);
+    background: var(--success-soft);
+    border: 1px solid rgba(74, 222, 128, 0.25);
+  }
+  .stage-status-badge.soon {
+    color: var(--ink-muted);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--line);
+  }
+  .stage-row.is-soon {
+    opacity: 0.75;
+  }
+  .stage-row.is-soon:hover {
+    opacity: 0.95;
   }
   .stage-row h3 {
     font-size: 20px;
@@ -710,7 +745,6 @@
   <div class="container">
     <div class="hero-grid">
       <div class="reveal">
-        <div class="eyebrow accent">Autonomous Semiconductor Engineering</div>
         <h1 class="h1">
           Silicon<br>
           <span class="accent-text">Crafted</span><br>
@@ -803,19 +837,19 @@
     <div class="section-head reveal">
       <div class="eyebrow">01 / Workflow</div>
       <h2 class="h2">The design journey.</h2>
-      <p class="body-md">Ten disciplined stages from architecture to tapeout. Each stage's output is verified before the next begins.</p>
+      <p class="body-md">Ten disciplined stages from architecture to tapeout. Stages 01–04 (Specification to Logic Synthesis) are available now; stages 05–10 are coming soon.</p>
     </div>
     <div class="stages reveal">
-      <div class="stage-row"><div class="stage-num">01</div><div><span class="stage-tag">Frontend</span><h3>Specification</h3></div><p>Architecture, performance targets, power budget, and die-area envelope. The contract every downstream stage is measured against.</p></div>
-      <div class="stage-row"><div class="stage-num">02</div><div><span class="stage-tag">Frontend</span><h3>RTL Design</h3></div><p>Behavioral description in hardware-description language — registers, datapaths, and finite state machines captured as synthesizable logic.</p></div>
-      <div class="stage-row"><div class="stage-num">03</div><div><span class="stage-tag">Frontend</span><h3>Functional Verification</h3></div><p>Verilator C++ testbenches, assertions, and coverage closure prove the RTL does what the specification requires.</p></div>
-      <div class="stage-row"><div class="stage-num">04</div><div><span class="stage-tag">Frontend</span><h3>Logic Synthesis</h3></div><p>Yosys logic synthesis mapping RTL to standard cells. Gates sized for timing, area, and cell count.</p></div>
-      <div class="stage-row"><div class="stage-num">05</div><div><span class="stage-tag">Backend</span><h3>Floorplanning</h3></div><p>Macro blocks, I/O rings, and power domains arranged on the die. The skeleton on which every later stage is built.</p></div>
-      <div class="stage-row"><div class="stage-num">06</div><div><span class="stage-tag">Backend</span><h3>Placement &amp; Routing</h3></div><p>Standard cells positioned legal-row by legal-row, then interconnected across stacked metal layers without design-rule violation.</p></div>
-      <div class="stage-row"><div class="stage-num">07</div><div><span class="stage-tag">Signoff</span><h3>Timing Analysis</h3></div><p>Static timing closure across all process, voltage, and temperature corners. Setup and hold margins verified before signoff.</p></div>
-      <div class="stage-row"><div class="stage-num">08</div><div><span class="stage-tag">Signoff</span><h3>Physical Verification</h3></div><p>Design-rule check (DRC), layout-versus-schematic (LVS), and antenna checks confirm the geometry is manufacturable.</p></div>
-      <div class="stage-row"><div class="stage-num">09</div><div><span class="stage-tag">Signoff</span><h3>Tapeout Preparation</h3></div><p>Final GDSII/OASIS database, signoff reports, and fabrication handoff package assembled for foundry manufacture.</p></div>
-      <div class="stage-row"><div class="stage-num">10</div><div><span class="stage-tag">Fabrication</span><h3>Silicon</h3></div><p>The database goes to the foundry. Lithography, deposition, and etch turn drawn polygons into working transistors.</p></div>
+      <div class="stage-row"><div class="stage-num">01</div><div><div class="stage-tag-wrap"><span class="stage-tag">Frontend</span><span class="stage-status-badge live">● Available</span></div><h3>Specification</h3></div><p>Architecture, performance targets, power budget, and die-area envelope. The contract every downstream stage is measured against.</p></div>
+      <div class="stage-row"><div class="stage-num">02</div><div><div class="stage-tag-wrap"><span class="stage-tag">Frontend</span><span class="stage-status-badge live">● Available</span></div><h3>RTL Design</h3></div><p>Behavioral description in hardware-description language — registers, datapaths, and finite state machines captured as synthesizable logic.</p></div>
+      <div class="stage-row"><div class="stage-num">03</div><div><div class="stage-tag-wrap"><span class="stage-tag">Frontend</span><span class="stage-status-badge live">● Available</span></div><h3>Functional Verification</h3></div><p>Verilator C++ testbenches, assertions, and coverage closure prove the RTL does what the specification requires.</p></div>
+      <div class="stage-row"><div class="stage-num">04</div><div><div class="stage-tag-wrap"><span class="stage-tag">Frontend</span><span class="stage-status-badge live">● Available</span></div><h3>Logic Synthesis</h3></div><p>Yosys logic synthesis mapping RTL to standard cells. Gates sized for timing, area, and cell count.</p></div>
+      <div class="stage-row is-soon"><div class="stage-num">05</div><div><div class="stage-tag-wrap"><span class="stage-tag">Backend</span><span class="stage-status-badge soon">Soon</span></div><h3>Floorplanning</h3></div><p>Macro blocks, I/O rings, and power domains arranged on the die. The skeleton on which every later stage is built.</p></div>
+      <div class="stage-row is-soon"><div class="stage-num">06</div><div><div class="stage-tag-wrap"><span class="stage-tag">Backend</span><span class="stage-status-badge soon">Soon</span></div><h3>Placement &amp; Routing</h3></div><p>Standard cells positioned legal-row by legal-row, then interconnected across stacked metal layers without design-rule violation.</p></div>
+      <div class="stage-row is-soon"><div class="stage-num">07</div><div><div class="stage-tag-wrap"><span class="stage-tag">Signoff</span><span class="stage-status-badge soon">Soon</span></div><h3>Timing Analysis</h3></div><p>Static timing closure across all process, voltage, and temperature corners. Setup and hold margins verified before signoff.</p></div>
+      <div class="stage-row is-soon"><div class="stage-num">08</div><div><div class="stage-tag-wrap"><span class="stage-tag">Signoff</span><span class="stage-status-badge soon">Soon</span></div><h3>Physical Verification</h3></div><p>Design-rule check (DRC), layout-versus-schematic (LVS), and antenna checks confirm the geometry is manufacturable.</p></div>
+      <div class="stage-row is-soon"><div class="stage-num">09</div><div><div class="stage-tag-wrap"><span class="stage-tag">Signoff</span><span class="stage-status-badge soon">Soon</span></div><h3>Tapeout Preparation</h3></div><p>Final GDSII/OASIS database, signoff reports, and fabrication handoff package assembled for foundry manufacture.</p></div>
+      <div class="stage-row is-soon"><div class="stage-num">10</div><div><div class="stage-tag-wrap"><span class="stage-tag">Fabrication</span><span class="stage-status-badge soon">Soon</span></div><h3>Silicon</h3></div><p>The database goes to the foundry. Lithography, deposition, and etch turn drawn polygons into working transistors.</p></div>
     </div>
   </div>
 </section>

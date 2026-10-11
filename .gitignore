@@ -6,3 +6,4 @@ __pycache__/
 data/silica_sft/
 *.pem
 aws_instance_info.json
+scratch/
