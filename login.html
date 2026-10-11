@@ -4,29 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SILICA — Access & Account Portal</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #08090d;
-      --bg-card: #0d0f17;
-      --bg-input: #121520;
-      --ink: #f0f4f8;
-      --ink-dim: #94a3b8;
-      --ink-faint: #475569;
-      --line: rgba(148, 163, 184, 0.14);
-      --line-strong: rgba(148, 163, 184, 0.28);
-      --blue: #5b8bf7;
-      --blue-bright: #6896ff;
-      --blue-glow: rgba(91, 139, 247, 0.4);
-      --sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --mono: 'B612 Mono', ui-monospace, Menlo, monospace;
+      --bg-light: #F5F5F7;
+      --bg-white: #FFFFFF;
+      --bg-surface: #FAFAFA;
+      --ink-black: #000000;
+      --ink-primary: #111111;
+      --ink-secondary: #666666;
+      --ink-muted: #999999;
+      --ink-faint: #BBBBBB;
+      --line: rgba(0, 0, 0, 0.08);
+      --line-strong: rgba(0, 0, 0, 0.14);
+      --accent: #0F766E;
+      --accent-hover: #0D655E;
+      --accent-soft: rgba(15, 118, 110, 0.08);
+      --accent-dim: rgba(15, 118, 110, 0.5);
+      --success: #16A34A;
+      --fail: #DC2626;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --ease: cubic-bezier(.2, .7, .2, 1);
     }
-    * { margin:0; padding:0; box-sizing:border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: var(--bg);
-      color: var(--ink);
+      background: var(--bg-light);
+      color: var(--ink-primary);
       font-family: var(--sans);
       min-height: 100vh;
       display: flex;
@@ -35,29 +45,33 @@
       padding: 40px 20px;
       overflow-x: hidden;
       position: relative;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Ambient blue glow behind card */
-    .glow {
+    /* Subtle decorative wafer pattern */
+    body::before {
+      content: '';
       position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 650px; height: 650px;
+      top: -200px;
+      right: -200px;
+      width: 600px;
+      height: 600px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(91, 139, 247, 0.12) 0%, rgba(91, 139, 247, 0.03) 45%, transparent 70%);
+      background: radial-gradient(circle, rgba(15, 118, 110, 0.05) 0%, transparent 70%);
       pointer-events: none;
-      z-index: 1;
+      z-index: 0;
     }
 
     /* Back link */
     .back-nav {
       position: fixed;
-      top: 28px; left: 36px;
+      top: 28px;
+      left: 36px;
       font-family: var(--mono);
       font-size: 11px;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--ink-dim);
+      color: var(--ink-secondary);
       text-decoration: none;
       display: flex;
       align-items: center;
@@ -65,30 +79,31 @@
       z-index: 10;
       transition: color 0.2s;
     }
-    .back-nav:hover { color: var(--blue-bright); }
+    .back-nav:hover { color: var(--accent); }
 
-    /* Telemetry badge */
+    /* Status badge */
     .db-badge {
       position: fixed;
-      top: 28px; right: 36px;
+      top: 28px;
+      right: 36px;
       font-family: var(--mono);
       font-size: 10px;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--blue-bright);
+      color: var(--success);
       display: flex;
       align-items: center;
       gap: 8px;
-      background: rgba(91, 139, 247, 0.08);
-      border: 1px solid rgba(91, 139, 247, 0.25);
+      background: rgba(22, 163, 74, 0.06);
+      border: 1px solid rgba(22, 163, 74, 0.2);
       padding: 6px 14px;
       border-radius: 20px;
       z-index: 10;
     }
     .db-dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: #10b981;
-      box-shadow: 0 0 8px #10b981;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--success);
     }
 
     /* Card */
@@ -97,36 +112,41 @@
       z-index: 5;
       width: 100%;
       max-width: 440px;
-      background: var(--bg-card);
-      border: 1px solid var(--line-strong);
-      border-radius: 12px;
-      padding: 38px 36px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(91, 139, 247, 0.08);
+      background: var(--bg-white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 40px 36px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.04);
     }
 
     /* Header */
-    .auth-header { text-align: center; margin-bottom: 28px; }
+    .auth-header { text-align: center; margin-bottom: 32px; }
     .logo-mark {
       display: inline-flex;
-      align-items: center; justify-content: center;
-      width: 32px; height: 32px;
-      border: 1.5px solid var(--blue);
-      border-radius: 6px;
-      color: var(--blue-bright);
-      font-family: var(--mono);
-      font-weight: 700;
-      font-size: 14px;
-      background: rgba(91, 139, 247, 0.1);
-      margin-bottom: 14px;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      margin-bottom: 16px;
+      color: var(--accent);
     }
-    .auth-title { font-size: 24px; font-weight: 600; color: #fff; letter-spacing: -0.02em; }
-    .auth-subtitle { color: var(--ink-dim); font-size: 13px; margin-top: 6px; }
+    .auth-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--ink-black);
+      letter-spacing: -0.02em;
+    }
+    .auth-subtitle {
+      color: var(--ink-secondary);
+      font-size: 14px;
+      margin-top: 6px;
+    }
 
     /* Tabs */
     .auth-tabs {
       display: flex;
       border-bottom: 1px solid var(--line);
-      margin-bottom: 26px;
+      margin-bottom: 28px;
     }
     .tab-btn {
       flex: 1;
@@ -136,16 +156,16 @@
       padding: 10px 0;
       font-family: var(--mono);
       font-size: 11px;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--ink-dim);
+      color: var(--ink-secondary);
       cursor: pointer;
       transition: all 0.25s;
     }
-    .tab-btn:hover { color: #fff; }
+    .tab-btn:hover { color: var(--ink-primary); }
     .tab-btn.active {
-      color: var(--blue-bright);
-      border-bottom-color: var(--blue);
+      color: var(--accent);
+      border-bottom-color: var(--accent);
       font-weight: 600;
     }
 
@@ -155,26 +175,26 @@
       display: block;
       font-family: var(--mono);
       font-size: 10px;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--ink-dim);
-      margin-bottom: 7px;
+      color: var(--ink-secondary);
+      margin-bottom: 8px;
     }
     .form-input {
       width: 100%;
-      background: var(--bg-input);
-      border: 1px solid var(--line);
-      color: #fff;
+      background: var(--bg-white);
+      border: 1px solid var(--line-strong);
+      color: var(--ink-primary);
       font-family: var(--sans);
       font-size: 14px;
-      padding: 11px 14px;
-      border-radius: 6px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     .form-input:focus {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(91, 139, 247, 0.2);
+      border-color: var(--accent-dim);
+      box-shadow: 0 0 0 3px var(--accent-soft);
     }
     .form-input::placeholder { color: var(--ink-faint); }
 
@@ -183,101 +203,108 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 12px;
-      color: var(--ink-dim);
-      margin-bottom: 22px;
+      font-size: 13px;
+      color: var(--ink-secondary);
+      margin-bottom: 24px;
     }
-    .form-checkbox { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-    .form-checkbox input { accent-color: var(--blue); }
-    .form-link { color: var(--blue-bright); text-decoration: none; font-size: 12px; }
+    .form-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .form-checkbox input { accent-color: var(--accent); }
+    .form-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+    }
     .form-link:hover { text-decoration: underline; }
 
     /* Submit Button */
     .btn-submit {
       width: 100%;
-      background: var(--blue);
+      background: var(--accent);
       color: #fff;
       border: none;
       padding: 13px;
-      border-radius: 6px;
-      font-family: var(--mono);
-      font-size: 11px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      font-weight: 600;
+      border-radius: var(--radius-sm);
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
-      box-shadow: 0 0 20px rgba(91, 139, 247, 0.35);
-      transition: all 0.25s;
+      transition: all 0.25s var(--ease);
+      letter-spacing: 0.01em;
     }
     .btn-submit:hover {
-      background: var(--blue-bright);
-      box-shadow: 0 0 25px rgba(91, 139, 247, 0.55);
+      background: var(--accent-hover);
       transform: translateY(-1px);
     }
-    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
     /* Alerts */
     .auth-alert {
-      padding: 10px 14px;
-      border-radius: 6px;
-      font-size: 12px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
       margin-bottom: 18px;
       display: none;
       line-height: 1.5;
     }
     .auth-alert.error {
-      background: rgba(239, 68, 68, 0.12);
-      border: 1px solid rgba(239, 68, 68, 0.35);
-      color: #fca5a5;
+      background: rgba(220, 38, 38, 0.06);
+      border: 1px solid rgba(220, 38, 38, 0.25);
+      color: var(--fail);
     }
     .auth-alert.success {
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      color: #6ee7b7;
+      background: rgba(22, 163, 74, 0.06);
+      border: 1px solid rgba(22, 163, 74, 0.25);
+      color: var(--success);
     }
 
     /* Footer hints */
     .auth-hints {
-      margin-top: 24px;
-      padding-top: 18px;
+      margin-top: 28px;
+      padding-top: 20px;
       border-top: 1px solid var(--line);
       font-family: var(--mono);
-      font-size: 10px;
-      color: var(--ink-faint);
-      line-height: 1.6;
+      font-size: 11px;
+      color: var(--ink-muted);
+      line-height: 1.7;
       text-align: center;
     }
     .auth-hints code {
-      color: var(--ink-dim);
-      background: rgba(148, 163, 184, 0.08);
-      padding: 2px 5px;
+      color: var(--ink-secondary);
+      background: var(--bg-surface);
+      padding: 2px 6px;
       border-radius: 3px;
+      border: 1px solid var(--line);
+    }
+
+    @media (max-width: 640px) {
+      .back-nav, .db-badge { display: none; }
+      .auth-card { padding: 32px 24px; }
     }
   </style>
 </head>
 <body>
-
-  <div class="glow"></div>
-
-  <!-- Top bar -->
   <a href="index.html" class="back-nav">
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-      <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     Back to Silica
   </a>
-
   <div class="db-badge">
     <span class="db-dot"></span>
-    AWS DynamoDB Live (ap-south-1)
+    AWS DynamoDB Live
   </div>
 
   <div class="auth-card">
     <div class="auth-header">
-      <div style="display:flex;justify-content:center;margin-bottom:12px">
-        <svg viewBox="0 0 32 32" width="38" height="38" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="26" height="26" rx="7" stroke="rgba(108,140,255,0.7)"/>
-          <path d="M10 11.5 H21 V16 H11 V20.5 H22.5" stroke="#6C8CFF" stroke-width="2.6"/>
+      <div class="logo-mark">
+        <svg viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="26" height="26" rx="6"/>
+          <path d="M10 11.5 H21 V16 H11 V20.5 H22.5" stroke-width="2.4"/>
         </svg>
       </div>
       <h1 class="auth-title" id="card-title">Sign In</h1>
@@ -298,12 +325,10 @@
         <label class="form-label" for="login-email">Engineer Email</label>
         <input type="email" id="login-email" class="form-input" placeholder="webofjee@gmail.com" required autocomplete="email">
       </div>
-
       <div class="form-group">
         <label class="form-label" for="login-password">Password</label>
         <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
       </div>
-
       <div class="form-options">
         <label class="form-checkbox">
           <input type="checkbox" id="remember" checked>
@@ -311,33 +336,28 @@
         </label>
         <a href="#" class="form-link" onclick="quickFillAdmin(); return false;">Use Seeded Admin</a>
       </div>
-
       <button type="submit" class="btn-submit" id="btn-login-submit">Sign In →</button>
     </form>
 
-    <!-- Sign Up Form (hidden by default) -->
+    <!-- Sign Up Form -->
     <form id="form-signup" style="display:none;" onsubmit="return handleSignup(event)">
       <div class="form-group">
         <label class="form-label" for="signup-name">Full Name</label>
         <input type="text" id="signup-name" class="form-input" placeholder="Suhas Hanamannavar" required autocomplete="name">
       </div>
-
       <div class="form-group">
         <label class="form-label" for="signup-email">Work Email</label>
         <input type="email" id="signup-email" class="form-input" placeholder="engineer@foundry.com" required autocomplete="email">
       </div>
-
       <div class="form-group">
         <label class="form-label" for="signup-password">Password</label>
         <input type="password" id="signup-password" class="form-input" placeholder="•••••••• (min 4 characters)" minlength="4" required autocomplete="new-password">
       </div>
-
       <div class="form-group">
         <label class="form-label" for="signup-company">Organization / Foundry (Optional)</label>
         <input type="text" id="signup-company" class="form-input" placeholder="VLSI Systems / TSMC / Intel">
       </div>
-
-      <button type="submit" class="btn-submit" id="btn-signup-submit">Register in AWS DynamoDB →</button>
+      <button type="submit" class="btn-submit" id="btn-signup-submit">Create Account →</button>
     </form>
 
     <div class="auth-hints">
@@ -356,14 +376,13 @@
       const cardSubtitle = document.getElementById('card-subtitle');
       const alertBox = document.getElementById('alert-box');
       alertBox.style.display = 'none';
-
       if (mode === 'signup') {
         tabLogin.classList.remove('active');
         tabSignup.classList.add('active');
         formLogin.style.display = 'none';
         formSignup.style.display = 'block';
         cardTitle.textContent = 'Create Account';
-        cardSubtitle.textContent = 'Register an engineer profile in AWS DynamoDB';
+        cardSubtitle.textContent = 'Register an engineer profile';
       } else {
         tabSignup.classList.remove('active');
         tabLogin.classList.add('active');
@@ -374,7 +393,6 @@
       }
     }
 
-    // Check URL param ?mode=signup
     const params = new URLSearchParams(window.location.search);
     if (params.get('mode') === 'signup') {
       setMode('signup');
@@ -390,19 +408,16 @@
     function quickFillAdmin() {
       document.getElementById('login-email').value = 'webofjee@gmail.com';
       document.getElementById('login-password').value = 'Suhas@2007';
-      showAlert('Filled seeded admin credentials from AWS DynamoDB. Click Sign In.', false);
+      showAlert('Filled seeded admin credentials. Click Sign In.', false);
     }
 
-    // Sign In Handler
     async function handleLogin(e) {
       e.preventDefault();
       const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
       const btn = document.getElementById('btn-login-submit');
-
-      btn.textContent = 'Authenticating with AWS...';
+      btn.textContent = 'Authenticating…';
       btn.disabled = true;
-
       try {
         const res = await fetch('/api/login', {
           method: 'POST',
@@ -414,7 +429,7 @@
           localStorage.setItem('silica_token', data.token);
           localStorage.setItem('silica_user', data.email || email);
           localStorage.setItem('silica_name', data.name || 'Engineer');
-          showAlert('Authentication verified! Redirecting to EDA Workspace...', false);
+          showAlert('Authentication verified! Redirecting to workspace…', false);
           setTimeout(() => { window.location.href = 'app.html'; }, 700);
         } else {
           showAlert(data.error || 'Invalid email or password.', true);
@@ -427,7 +442,6 @@
       }
     }
 
-    // Sign Up Handler
     async function handleSignup(e) {
       e.preventDefault();
       const name = document.getElementById('signup-name').value.trim();
@@ -435,10 +449,8 @@
       const password = document.getElementById('signup-password').value;
       const company = document.getElementById('signup-company').value.trim();
       const btn = document.getElementById('btn-signup-submit');
-
-      btn.textContent = 'Saving to AWS DynamoDB...';
+      btn.textContent = 'Creating account…';
       btn.disabled = true;
-
       try {
         const res = await fetch('/api/signup', {
           method: 'POST',
@@ -450,7 +462,7 @@
           localStorage.setItem('silica_token', data.token);
           localStorage.setItem('silica_user', email);
           localStorage.setItem('silica_name', name);
-          showAlert('Account saved to AWS DynamoDB successfully! Launching workspace...', false);
+          showAlert('Account created successfully! Launching workspace…', false);
           setTimeout(() => { window.location.href = 'app.html'; }, 900);
         } else {
           showAlert(data.error || 'Failed to create account.', true);
@@ -458,7 +470,7 @@
       } catch (err) {
         showAlert('Registration error: ' + err.message, true);
       } finally {
-        btn.textContent = 'Register in AWS DynamoDB →';
+        btn.textContent = 'Create Account →';
         btn.disabled = false;
       }
     }

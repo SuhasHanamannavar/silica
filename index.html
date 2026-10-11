@@ -4,601 +4,1209 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SILICA — Silicon Crafted</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* ============================================================
+     SILICA Design System — inspired by BUSY.app visual discipline
+     ============================================================ */
   :root {
-    --bg: #0A0B0E;
-    --bg-card: #0E1014;
-    --surface: #13161C;
-    --surface-2: #181C24;
-    --ink: #EDEFF4;
-    --ink-dim: #8E94A3;
-    --ink-faint: #4B5160;
-    --line: rgba(237, 239, 244, 0.12);
-    --line-strong: rgba(237, 239, 244, 0.26);
-    --blue: #6C8CFF;
-    --blue-bright: #829EFF;
-    --blue-glow: rgba(108, 140, 255, 0.4);
-    --display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
-    --sans: 'Instrument Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+    /* Color tokens */
+    --bg-light: #F5F5F7;
+    --bg-white: #FFFFFF;
+    --bg-black: #000000;
+    --bg-card: #FFFFFF;
+    --bg-surface: #FAFAFA;
+    --bg-input: #FFFFFF;
+
+    --ink-black: #000000;
+    --ink-white: #FFFFFF;
+    --ink-primary: #111111;
+    --ink-secondary: #666666;
+    --ink-muted: #999999;
+    --ink-faint: #BBBBBB;
+
+    --line: rgba(0, 0, 0, 0.08);
+    --line-strong: rgba(0, 0, 0, 0.14);
+    --line-dark: rgba(255, 255, 255, 0.12);
+
+    /* Silica accent — sophisticated teal for semiconductor precision */
+    --accent: #0F766E;
+    --accent-hover: #0D655E;
+    --accent-soft: rgba(15, 118, 110, 0.08);
+    --accent-dim: rgba(15, 118, 110, 0.5);
+
+    /* Semantic colors */
+    --success: #16A34A;
+    --success-soft: rgba(22, 163, 74, 0.08);
+    --warning: #D97706;
+    --warning-soft: rgba(217, 119, 6, 0.08);
+    --error: #DC2626;
+    --error-soft: rgba(220, 38, 38, 0.08);
+    --info: #2563EB;
+
+    /* Typography */
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+
+    /* Geometry */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+
+    /* Spacing */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    --space-7: 48px;
+    --space-8: 64px;
+    --space-9: 96px;
+    --space-10: 128px;
+
+    /* Content */
+    --content-max: 1200px;
+    --content-narrow: 960px;
+
+    /* Motion */
+    --ease: cubic-bezier(.2, .7, .2, 1);
   }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html { scroll-behavior: smooth; background: var(--bg); }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body {
-    background: var(--bg);
-    color: var(--ink);
+    background: var(--bg-light);
+    color: var(--ink-primary);
     font-family: var(--sans);
-    font-weight: 300;
+    font-weight: 400;
     line-height: 1.6;
-    overflow-x: hidden;
+    font-size: 16px;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
-  ::selection { background: var(--blue); color: #fff; }
+  ::selection { background: var(--accent); color: #fff; }
 
-  /* ---------- TELEMETRY OVERLAY ---------- */
-  .tele {
-    position: fixed; inset: 0; pointer-events: none; z-index: 100;
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
-    color: var(--ink-dim); text-transform: uppercase;
-    transition: opacity 0.8s ease;
-  }
-  .tele .corner { position: absolute; width: 20px; height: 20px; border: 1px solid var(--line-strong); }
-  .tele .c-tl { top: 22px; left: 22px; border-right: none; border-bottom: none; }
-  .tele .c-tr { top: 22px; right: 22px; border-left: none; border-bottom: none; }
-  .tele .c-bl { bottom: 22px; left: 22px; border-right: none; border-top: none; }
-  .tele .c-br { bottom: 22px; right: 22px; border-left: none; border-top: none; }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
 
-  .tele .tl { position: absolute; top: 68px; left: 48px; line-height: 1.8; }
-  .tele .tr { position: absolute; top: 68px; right: 48px; text-align: right; line-height: 1.8; display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
-  .tele .bl { position: absolute; bottom: 30px; left: 48px; display: flex; gap: 24px; align-items: center; }
-  .tele .bc { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); font-weight: 500; color: var(--blue-bright); }
-  .tele .br { position: absolute; bottom: 30px; right: 48px; text-align: right; }
+  /* ---------- Utility ---------- */
+  .container { max-width: var(--content-max); margin: 0 auto; padding: 0 var(--space-6); }
+  .mono { font-family: var(--mono); }
+  .section { padding: var(--space-10) 0; }
+  .section-light { background: var(--bg-light); }
+  .section-white { background: var(--bg-white); }
+  .section-black { background: var(--bg-black); color: var(--ink-white); }
 
-  .rec-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--blue-bright); display: inline-block;
-    box-shadow: 0 0 8px var(--blue);
-    animation: blink 1.6s steps(2) infinite;
+  .kicker {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-secondary);
+    margin-bottom: var(--space-4);
   }
-  @keyframes blink { 50% { opacity: 0.2; } }
+  .section-black .kicker { color: var(--ink-muted); }
 
-  .center-crosshair {
-    position: fixed; top: 50%; left: 50%; width: 24px; height: 24px;
-    transform: translate(-50%, -50%); pointer-events: none; z-index: 99;
-    opacity: 0.35; transition: opacity 1.2s ease;
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: var(--space-5);
   }
-  .center-crosshair::before, .center-crosshair::after { content: ''; position: absolute; background: var(--line-strong); }
-  .center-crosshair::before { left: 50%; top: 0; width: 1px; height: 100%; transform: translateX(-50%); }
-  .center-crosshair::after { top: 50%; left: 0; height: 1px; width: 100%; transform: translateY(-50%); }
-
-  /* ---------- LAYOUT & REVEAL ---------- */
-  .wrap { max-width: 1320px; margin: 0 auto; padding: 0 48px; }
-  .mono { font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-dim); }
-  .rule { height: 1px; background: var(--line); border: none; margin: 0; }
-  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.9s cubic-bezier(.2,.7,.2,1), transform 0.9s cubic-bezier(.2,.7,.2,1); }
-  .reveal.in { opacity: 1; transform: translateY(0); }
-
-  /* ---------- TOP NAVIGATION ---------- */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 120;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 24px 48px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
-    background: rgba(8, 9, 13, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
-  }
-  nav .brand-link {
-    display: flex; align-items: center; gap: 12px; text-decoration: none; color: #fff;
-  }
-  nav .brand-mark {
-    width: 30px; height: 30px; flex: none; display: flex; align-items: center; justify-content: center;
-  }
-  nav .brand-name {
-    font-family: var(--display); font-size: 19px; letter-spacing: 0.28em; text-indent: 0.28em;
-    font-weight: 600; line-height: 1; color: #fff;
-  }
-  nav .brand-sub {
-    font-family: var(--mono); font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--ink-faint); margin-top: 3px;
-  }
-  nav ul { display: flex; gap: 32px; list-style: none; align-items: center; }
-  nav a { color: var(--ink-dim); text-decoration: none; transition: color 0.25s, opacity 0.25s; }
-  nav a:hover { color: #fff; }
-  nav .workspace-link {
-    color: var(--blue-bright) !important; font-weight: 600;
-    padding: 6px 14px; border: 1px solid var(--blue-dim); border-radius: 4px;
-    background: rgba(91, 139, 247, 0.08); transition: all 0.25s ease;
-  }
-  nav .workspace-link:hover {
-    background: var(--blue); color: #fff !important; border-color: var(--blue);
-    box-shadow: 0 0 16px var(--blue-glow);
-  }
-  nav .nav-auth-link {
-    font-size: 10px;
-    letter-spacing: 0.16em;
-    padding: 6px 10px;
-    transition: all 0.2s;
-  }
-  nav .signup-pill {
-    color: var(--blue-bright) !important;
-    border: 1px solid var(--blue);
-    border-radius: 4px;
-    padding: 5px 12px;
-    background: rgba(91, 139, 247, 0.12);
-  }
-  nav .signup-pill:hover {
-    background: var(--blue);
-    color: #fff !important;
-    box-shadow: 0 0 14px var(--blue-glow);
-  }
-  @media (max-width: 860px) { nav ul { display: none; } }
-
-  /* ---------- HERO SECTION ---------- */
-  #hero {
-    min-height: 100vh; position: relative; display: flex; align-items: center;
-    overflow: hidden; padding: 130px 0 90px;
-    background: radial-gradient(circle at 75% 50%, rgba(91, 139, 247, 0.07) 0%, transparent 60%);
-  }
-  .hero-grid {
-    display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 40px;
-    align-items: center; width: 100%;
-  }
-  @media (max-width: 960px) { .hero-grid { grid-template-columns: 1fr; gap: 50px; } }
-
-  .hero-kicker { display: flex; align-items: center; gap: 14px; margin-bottom: 30px; }
-  .hero-kicker .bar { width: 36px; height: 2px; background: var(--blue); box-shadow: 0 0 8px var(--blue); }
-
-  .hero-title {
-    font-family: var(--sans); font-weight: 400; line-height: 1.05;
-    font-size: clamp(52px, 8.5vw, 112px); letter-spacing: -0.025em; color: #ffffff;
-  }
-  .hero-title .line { display: block; }
-  .hero-title .accent-blue {
-    color: var(--blue); font-weight: 500;
-    text-shadow: 0 0 35px rgba(91, 139, 247, 0.45);
-    display: inline-block;
+  .eyebrow::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: var(--accent);
   }
 
-  .hero-actions { display: flex; gap: 16px; margin-top: 36px; flex-wrap: wrap; }
+  h1, h2, h3, h4 {
+    color: var(--ink-black);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .section-black h1, .section-black h2, .section-black h3, .section-black h4 { color: var(--ink-white); }
+
+  .h1 { font-size: clamp(44px, 6vw, 72px); font-weight: 600; letter-spacing: -0.03em; }
+  .h2 { font-size: clamp(32px, 4.5vw, 52px); font-weight: 600; }
+  .h3 { font-size: clamp(22px, 2.5vw, 28px); font-weight: 600; }
+
+  .body-lg { font-size: 18px; line-height: 1.65; color: var(--ink-secondary); max-width: 640px; }
+  .section-black .body-lg { color: var(--ink-muted); }
+
+  .link-accent { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .link-accent:hover { color: var(--accent-hover); }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 14px 28px;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.25s var(--ease);
+    text-decoration: none;
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+  }
   .btn-primary {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--blue); color: #fff; text-decoration: none;
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
-    font-weight: 600; padding: 14px 28px; border-radius: 4px;
-    box-shadow: 0 0 20px rgba(91, 139, 247, 0.4);
-    transition: all 0.25s ease;
+    background: var(--accent);
+    color: #fff;
   }
   .btn-primary:hover {
-    background: var(--blue-bright); transform: translateY(-2px);
-    box-shadow: 0 0 30px rgba(91, 139, 247, 0.6);
+    background: var(--accent-hover);
+    transform: translateY(-1px);
   }
   .btn-secondary {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: transparent; color: var(--ink); text-decoration: none;
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
-    padding: 14px 24px; border-radius: 4px; border: 1px solid var(--line-strong);
-    transition: all 0.25s ease;
+    background: transparent;
+    color: var(--ink-primary);
+    border-color: var(--line-strong);
   }
-  .btn-secondary:hover { border-color: var(--blue); color: #fff; background: rgba(91, 139, 247, 0.05); }
+  .btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-secondary);
+    padding: 14px 16px;
+  }
+  .btn-ghost:hover { color: var(--ink-primary); }
 
-  /* ---------- 3D ISOMETRIC SEMICONDUCTOR CHIP ---------- */
-  .chip-stage {
-    perspective: 1400px; display: flex; align-items: center; justify-content: center;
-    height: 480px; position: relative;
-  }
-  .chip {
-    position: relative; width: 300px; height: 300px; transform-style: preserve-3d;
-    transform: rotateX(58deg) rotateZ(-32deg);
-    transition: transform 0.2s linear;
-  }
-  .chip .layer {
-    position: absolute; inset: 0;
-    border: 1px solid rgba(148, 163, 184, 0.3);
-    background: rgba(91, 139, 247, 0.02);
-    box-shadow: inset 0 0 30px rgba(91, 139, 247, 0.04);
-  }
-  .chip .layer::before {
-    content: ''; position: absolute; inset: 12px;
-    border: 1px solid rgba(91, 139, 247, 0.15);
-    background-image:
-      linear-gradient(rgba(91, 139, 247, 0.18) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(91, 139, 247, 0.18) 1px, transparent 1px);
-    background-size: 18px 18px;
-  }
-  .chip .l1 { transform: translateZ(0px); border-color: rgba(91, 139, 247, 0.35); }
-  .chip .l2 { transform: translateZ(16px); }
-  .chip .l3 { transform: translateZ(32px); }
-  .chip .l4 { transform: translateZ(48px); background: rgba(91, 139, 247, 0.05); }
-  .chip .l5 { transform: translateZ(64px); border-color: var(--blue); box-shadow: 0 0 15px rgba(91, 139, 247, 0.25); }
-  .chip .core {
-    position: absolute; top: 50%; left: 50%; width: 100px; height: 100px;
-    transform: translate(-50%, -50%) translateZ(72px);
-    border: 1.5px solid var(--blue-bright);
-    background: radial-gradient(circle, rgba(91, 139, 247, 0.6) 0%, rgba(91, 139, 247, 0.15) 50%, transparent 80%);
-    box-shadow: 0 0 35px rgba(91, 139, 247, 0.5);
-  }
-  .chip-label {
-    position: absolute; font-family: var(--mono); font-size: 9px;
-    letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-dim);
-  }
-  .chip-label.a { top: 12%; left: -4%; }
-  .chip-label.a::after { content: ''; display: block; width: 44px; height: 1px; background: var(--blue); margin-top: 6px; box-shadow: 0 0 6px var(--blue); }
-  .chip-label.b { bottom: 12%; right: -2%; }
-  .chip-label.b::after { content: ''; display: block; width: 44px; height: 1px; background: var(--line-strong); margin-top: 6px; }
+  .btn-sm { padding: 10px 18px; font-size: 13px; }
 
-  /* ---------- SECTION HEADINGS ---------- */
-  section { padding: 120px 0; position: relative; }
-  .sec-head {
-    display: flex; justify-content: space-between; align-items: flex-end;
-    margin-bottom: 60px; padding-bottom: 22px; border-bottom: 1px solid var(--line);
-  }
-  .sec-head h2 { font-size: clamp(32px, 5vw, 52px); font-weight: 500; letter-spacing: -0.02em; color: #fff; }
-  .sec-head h2 em { font-style: normal; color: var(--blue); }
-  .sec-head .idx { font-family: var(--mono); font-size: 11px; color: var(--ink-dim); letter-spacing: 0.2em; text-transform: uppercase; }
-
-  /* ---------- WORKFLOW STAGES ---------- */
-  .stage {
-    display: grid; grid-template-columns: 80px 1fr 1.4fr; gap: 40px;
-    align-items: baseline; padding: 32px 0; border-bottom: 1px solid var(--line);
+  /* ---------- Navigation ---------- */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 48px;
+    background: rgba(245, 245, 247, 0.85);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--line);
     transition: background 0.3s;
   }
-  .stage:hover { background: rgba(91, 139, 247, 0.03); }
-  .stage .num { font-family: var(--mono); font-size: 28px; font-weight: 600; color: var(--ink-faint); }
-  .stage:hover .num { color: var(--blue); }
-  .stage h3 { font-size: 22px; font-weight: 500; letter-spacing: -0.01em; color: #fff; }
-  .stage p { color: var(--ink-dim); font-size: 14px; line-height: 1.7; max-width: 540px; }
-  .stage .tag { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--blue); display: block; margin-bottom: 8px; }
-  @media (max-width: 760px) { .stage { grid-template-columns: 50px 1fr; gap: 18px; } .stage p { grid-column: 2; } }
+  nav.scrolled { background: rgba(255, 255, 255, 0.92); }
 
-  /* ---------- ANATOMY (INTERACTIVE DIE SVG) ---------- */
-  .anat-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; align-items: center; }
-  @media (max-width: 920px) { .anat-grid { grid-template-columns: 1fr; } }
-  .die-svg { width: 100%; max-width: 500px; display: block; margin: 0 auto; }
-  .die-svg .region { fill: rgba(148, 163, 184, 0.04); stroke: var(--line-strong); stroke-width: 1; transition: all 0.35s; cursor: pointer; }
-  .die-svg .region:hover, .die-svg .region.active { fill: rgba(91, 139, 247, 0.18); stroke: var(--blue); }
-  .die-svg text { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; fill: var(--ink-dim); pointer-events: none; }
-  .anat-info { min-height: 220px; }
-  .anat-info .t { font-size: 28px; font-weight: 500; margin-bottom: 14px; color: #fff; transition: opacity 0.3s; }
-  .anat-info .d { color: var(--ink-dim); font-size: 14px; line-height: 1.8; max-width: 440px; transition: opacity 0.3s; }
-  .anat-info .spec { margin-top: 22px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--blue); text-transform: uppercase; }
-  .anat-parts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
-  .anat-parts button {
-    background: transparent; border: 1px solid var(--line); color: var(--ink-dim);
-    font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
-    padding: 8px 14px; cursor: pointer; border-radius: 3px; transition: all 0.25s;
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    text-decoration: none;
+    color: var(--ink-black);
   }
-  .anat-parts button:hover, .anat-parts button.active { border-color: var(--blue); color: #fff; background: rgba(91, 139, 247, 0.1); }
+  .nav-brand-mark {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent);
+  }
+  .nav-brand-name {
+    font-family: var(--sans);
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .nav-brand-sub {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-top: 2px;
+  }
 
-  /* ---------- CONFIG ROWS ---------- */
-  .cfg-head { display: grid; grid-template-columns: 60px 1.6fr 1fr 1fr; gap: 24px; padding: 14px 0; border-bottom: 1px solid var(--line-strong); font-family: var(--mono); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-dim); }
-  .cfg-row { display: grid; grid-template-columns: 60px 1.6fr 1fr 1fr; gap: 24px; padding: 24px 0; border-bottom: 1px solid var(--line); align-items: baseline; transition: background 0.3s; cursor: pointer; }
-  .cfg-row:hover { background: rgba(91, 139, 247, 0.03); }
-  .cfg-row .n { font-family: var(--mono); font-size: 12px; color: var(--ink-faint); }
-  .cfg-row:hover .n { color: var(--blue); }
-  .cfg-row .name { font-size: 20px; font-weight: 500; color: #fff; }
-  .cfg-row .name small { display: block; font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-dim); margin-top: 6px; }
-  .cfg-row .val { font-family: var(--mono); font-size: 12px; color: var(--ink); letter-spacing: 0.08em; }
+  .nav-links {
+    display: flex;
+    gap: var(--space-7);
+    list-style: none;
+    align-items: center;
+  }
+  .nav-links a {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--ink-secondary);
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--ink-black); }
 
-  /* ---------- FOOTER ---------- */
-  footer { padding: 90px 0 40px; border-top: 1px solid var(--line); background: #06070a; }
-  .foot-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 60px; }
-  @media (max-width: 760px) { .foot-grid { grid-template-columns: 1fr; gap: 30px; } }
-  .foot-grid .brand { font-size: 20px; font-weight: 600; letter-spacing: 0.28em; color: #fff; margin-bottom: 12px; }
-  .foot-grid .tag { color: var(--ink-dim); font-size: 13px; max-width: 320px; line-height: 1.7; }
-  .foot-grid h4 { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #fff; margin-bottom: 16px; }
+  .nav-cta {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+  }
+  .nav-cta .btn-secondary { padding: 8px 16px; font-size: 13px; }
+  .nav-cta .btn-primary { padding: 8px 18px; font-size: 13px; }
+
+  @media (max-width: 960px) {
+    .nav-links { display: none; }
+    nav { padding: 16px 24px; }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 140px 0 var(--space-10);
+    background: var(--bg-light);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: var(--space-8);
+    align-items: center;
+  }
+  .hero h1 { margin-bottom: var(--space-5); }
+  .hero .body-lg { margin-bottom: var(--space-7); }
+  .hero-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+
+  .hero-visual {
+    position: relative;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .wafer {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #E8E8ED 0%, #D8D8DE 40%, #C8C8CE 100%);
+    box-shadow:
+      0 50px 100px rgba(0, 0, 0, 0.12),
+      inset 0 0 60px rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .wafer::before {
+    content: '';
+    position: absolute;
+    inset: 8%;
+    border-radius: 50%;
+    background:
+      linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%),
+      repeating-linear-gradient(0deg, transparent, transparent 14px, rgba(15, 118, 110, 0.08) 14px, rgba(15, 118, 110, 0.08) 15px),
+      repeating-linear-gradient(90deg, transparent, transparent 14px, rgba(15, 118, 110, 0.08) 14px, rgba(15, 118, 110, 0.08) 15px);
+  }
+  .wafer::after {
+    content: '';
+    position: absolute;
+    right: 6%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18%;
+    height: 36%;
+    background: var(--bg-light);
+    border-radius: 4px;
+  }
+  .wafer-core {
+    position: relative;
+    z-index: 2;
+    width: 30%;
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, var(--accent) 0%, #14B8A6 100%);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px rgba(15, 118, 110, 0.35);
+  }
+  .wafer-label {
+    position: absolute;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-secondary);
+  }
+  .wafer-label.a { top: 12%; left: 8%; }
+  .wafer-label.b { bottom: 14%; right: 22%; }
+
+  @media (max-width: 960px) {
+    .hero-grid { grid-template-columns: 1fr; gap: var(--space-7); }
+    .hero-visual { order: -1; max-width: 320px; margin: 0 auto; }
+  }
+
+  /* ---------- Feature strip ---------- */
+  .feature-strip {
+    padding: var(--space-7) 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-white);
+  }
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-6);
+  }
+  .feature-item {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+  }
+  .feature-icon {
+    width: 36px; height: 36px;
+    flex: none;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-secondary);
+  }
+  .feature-icon svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+  .feature-item h4 {
+    font-size: 17px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--ink-primary);
+  }
+  .feature-item p {
+    font-size: 14px;
+    color: var(--ink-secondary);
+    line-height: 1.6;
+  }
+  @media (max-width: 960px) { .feature-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .feature-grid { grid-template-columns: 1fr; } }
+
+  /* ---------- Section head ---------- */
+  .section-head {
+    margin-bottom: var(--space-8);
+    max-width: 760px;
+  }
+  .section-head h2 { margin-bottom: var(--space-4); }
+
+  /* ---------- Workflow stages ---------- */
+  .stages { border-top: 1px solid var(--line); }
+  .stage-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 1.4fr;
+    gap: var(--space-6);
+    padding: var(--space-5) 0;
+    border-bottom: 1px solid var(--line);
+    align-items: baseline;
+    transition: background 0.3s;
+  }
+  .stage-row:hover { background: var(--accent-soft); }
+  .stage-num {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-muted);
+    transition: color 0.3s;
+  }
+  .stage-row:hover .stage-num { color: var(--accent); }
+  .stage-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .stage-row h3 {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--ink-black);
+  }
+  .stage-row p {
+    font-size: 15px;
+    color: var(--ink-secondary);
+    line-height: 1.7;
+  }
+  @media (max-width: 760px) {
+    .stage-row { grid-template-columns: 40px 1fr; gap: var(--space-3); }
+    .stage-row p { grid-column: 2; }
+  }
+
+  /* ---------- Showcase ---------- */
+  .showcase-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-8);
+    align-items: center;
+  }
+  .showcase-grid.reverse .showcase-text { order: 2; }
+  .showcase-grid.reverse .showcase-visual { order: 1; }
+  .showcase-text h2 { margin-bottom: var(--space-5); }
+  .showcase-text .body-lg { margin-bottom: var(--space-6); }
+
+  .showcase-list { list-style: none; }
+  .showcase-list li {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: var(--space-4);
+    padding: var(--space-4) 0;
+    align-items: flex-start;
+  }
+  .showcase-list li + li { border-top: 1px solid var(--line); }
+  .showcase-list .ic {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent);
+  }
+  .showcase-list .ic svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  .showcase-list h4 { font-size: 17px; font-weight: 500; margin-bottom: 4px; }
+  .showcase-list p { font-size: 14px; color: var(--ink-secondary); }
+
+  .showcase-visual {
+    position: relative;
+  }
+  .visual-panel {
+    background: var(--bg-white);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06);
+  }
+
+  @media (max-width: 960px) {
+    .showcase-grid { grid-template-columns: 1fr; gap: var(--space-7); }
+    .showcase-grid.reverse .showcase-text { order: 1; }
+    .showcase-grid.reverse .showcase-visual { order: 2; }
+  }
+
+  /* ---------- Die diagram ---------- */
+  .die-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: var(--space-8);
+    align-items: center;
+  }
+  .die-svg {
+    width: 100%;
+    max-width: 480px;
+    display: block;
+    margin: 0 auto;
+  }
+  .die-svg .region {
+    fill: rgba(0, 0, 0, 0.02);
+    stroke: var(--line-strong);
+    stroke-width: 1;
+    transition: all 0.35s;
+    cursor: pointer;
+  }
+  .die-svg .region:hover, .die-svg .region.active {
+    fill: var(--accent-soft);
+    stroke: var(--accent);
+  }
+  .die-svg text {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    fill: var(--ink-secondary);
+    pointer-events: none;
+  }
+  .anat-info .t { font-size: 26px; font-weight: 600; margin-bottom: var(--space-3); color: var(--ink-black); }
+  .anat-info .d { color: var(--ink-secondary); font-size: 15px; line-height: 1.75; }
+  .anat-info .spec { margin-top: var(--space-4); font-family: var(--mono); font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; }
+  .anat-parts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: var(--space-5); }
+  .anat-parts button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink-secondary);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: all 0.25s;
+  }
+  .anat-parts button:hover, .anat-parts button.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+  @media (max-width: 920px) { .die-grid { grid-template-columns: 1fr; } }
+
+  /* ---------- Cards grid ---------- */
+  .cards-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+  }
+  .info-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    transition: all 0.3s var(--ease);
+  }
+  .info-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+    border-color: var(--line-strong);
+  }
+  .info-card .card-ic {
+    width: 40px; height: 40px;
+    margin-bottom: var(--space-4);
+    color: var(--accent);
+  }
+  .info-card .card-ic svg { width: 100%; height: 100%; stroke: currentColor; fill: none; stroke-width: 1.5; }
+  .info-card h3 { font-size: 22px; font-weight: 600; margin-bottom: var(--space-3); }
+  .info-card p { font-size: 15px; color: var(--ink-secondary); line-height: 1.65; }
+  .info-card ul { list-style: none; margin-top: var(--space-4); }
+  .info-card li {
+    font-size: 14px;
+    color: var(--ink-secondary);
+    padding: 6px 0;
+    padding-left: 16px;
+    position: relative;
+  }
+  .info-card li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 14px;
+    width: 5px; height: 1px;
+    background: var(--ink-muted);
+  }
+  @media (max-width: 960px) { .cards-3 { grid-template-columns: 1fr; } }
+
+  /* ---------- Config table ---------- */
+  .cfg-table {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--bg-white);
+  }
+  .cfg-head, .cfg-row {
+    display: grid;
+    grid-template-columns: 60px 1.6fr 1fr 1fr;
+    gap: var(--space-5);
+    padding: var(--space-4) var(--space-5);
+    align-items: baseline;
+  }
+  .cfg-head {
+    background: var(--bg-surface);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    border-bottom: 1px solid var(--line);
+  }
+  .cfg-row {
+    border-bottom: 1px solid var(--line);
+    transition: background 0.25s;
+    cursor: pointer;
+  }
+  .cfg-row:last-child { border-bottom: none; }
+  .cfg-row:hover { background: var(--accent-soft); }
+  .cfg-row .n { font-family: var(--mono); font-size: 13px; color: var(--ink-muted); }
+  .cfg-row:hover .n { color: var(--accent); }
+  .cfg-row .name { font-size: 18px; font-weight: 500; color: var(--ink-black); }
+  .cfg-row .name small {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-top: 4px;
+    font-weight: 400;
+  }
+  .cfg-row .val { font-family: var(--mono); font-size: 13px; color: var(--ink-primary); }
+
+  /* ---------- Terminal / Code panel ---------- */
+  .term {
+    background: #0D1117;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .term-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    background: #161B22;
+  }
+  .term-bar .dots { display: flex; gap: 6px; margin-right: 12px; }
+  .term-bar .dots i {
+    width: 10px; height: 10px; border-radius: 50%;
+    display: block;
+  }
+  .term-bar .dots i:nth-child(1) { background: #FF5F56; }
+  .term-bar .dots i:nth-child(2) { background: #FFBD2E; }
+  .term-bar .dots i:nth-child(3) { background: #27C93F; }
+  .term-body {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.75;
+    padding: 20px 24px;
+    color: #C9D1D9;
+    overflow-x: auto;
+  }
+  .term-body .cmd { color: #7EE787; }
+  .term-body .out { color: #8B949E; }
+  .term-body .acc { color: #58A6FF; }
+  .term-body .warn { color: #D29922; }
+  .term-body .err { color: #F85149; }
+
+  /* ---------- CTA Section ---------- */
+  .cta-band {
+    text-align: center;
+    padding: var(--space-10) 0;
+  }
+  .cta-band h2 { margin-bottom: var(--space-4); }
+  .cta-band .body-lg { margin: 0 auto var(--space-7); }
+  .cta-band .hero-actions { justify-content: center; }
+
+  /* ---------- Footer ---------- */
+  footer {
+    background: var(--bg-black);
+    color: var(--ink-white);
+    padding: var(--space-9) 0 var(--space-7);
+  }
+  .foot-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: var(--space-8);
+    margin-bottom: var(--space-8);
+  }
+  .foot-brand {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #fff;
+    margin-bottom: var(--space-3);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .foot-brand svg { color: var(--accent); }
+  .foot-tag { color: var(--ink-muted); font-size: 14px; max-width: 320px; line-height: 1.65; }
+  .foot-grid h4 {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: var(--space-4);
+    font-weight: 500;
+  }
   .foot-grid ul { list-style: none; }
   .foot-grid li { margin-bottom: 10px; }
-  .foot-grid a { color: var(--ink-dim); text-decoration: none; font-size: 13px; transition: color 0.2s; }
-  .foot-grid a:hover { color: var(--blue-bright); }
-  .foot-bottom { display: flex; justify-content: space-between; padding-top: 30px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 10px; color: var(--ink-faint); letter-spacing: 0.15em; flex-wrap: wrap; gap: 16px; }
+  .foot-grid a { color: var(--ink-muted); font-size: 14px; transition: color 0.2s; }
+  .foot-grid a:hover { color: #fff; }
+  .foot-bottom {
+    display: flex;
+    justify-content: space-between;
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--line-dark);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    letter-spacing: 0.04em;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+  @media (max-width: 860px) { .foot-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .foot-grid { grid-template-columns: 1fr; } }
+
+  /* ---------- Reveal animation ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+  }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* ---------- Reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ---------- Scrollbar ---------- */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 5px; border: 2px solid transparent; background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.28); background-clip: padding-box; border: 2px solid transparent; }
 </style>
 </head>
 <body>
 
-  <!-- TELEMETRY HUD OVERLAY -->
-  <div class="tele">
-    <div class="corner c-tl"></div>
-    <div class="corner c-tr"></div>
-    <div class="corner c-bl"></div>
-    <div class="corner c-br"></div>
+<!-- ============ NAVIGATION ============ -->
+<nav id="mainnav">
+  <a href="index.html" class="nav-brand" title="Silica Home">
+    <span class="nav-brand-mark">
+      <svg viewBox="0 0 32 32" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="26" height="26" rx="6"/>
+        <path d="M10 11.5 H21 V16 H11 V20.5 H22.5" stroke-width="2.4"/>
+      </svg>
+    </span>
+    <span>
+      <span class="nav-brand-name">SILICA</span>
+      <div class="nav-brand-sub">Autonomous Chip Engineering</div>
+    </span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#workflow">Workflow</a></li>
+    <li><a href="#anatomy">Die Anatomy</a></li>
+    <li><a href="#technologies">Technologies</a></li>
+    <li><a href="#engineering">Engineering</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="login.html" class="btn-ghost" style="font-size:14px">Sign In</a>
+    <a href="login.html?mode=signup" class="btn-secondary btn-sm">Sign Up</a>
+    <a href="app.html" class="btn-primary btn-sm">Workspace →</a>
+  </div>
+</nav>
 
-    <div class="tl">
-      <p id="fps">61FPS</p>
-      <p id="res">1536X730</p>
-    </div>
-    <div class="tr">
-      <span class="rec-dot"></span>
-      <p id="timer">00:17:07</p>
-    </div>
-    <div class="bl">
-      <span>SILICA / V2.4.1</span>
-      <span><span class="rec-dot" style="margin-right:6px"></span>S · SILICON CRAFTED</span>
-    </div>
-    <div class="bc">
-      <span id="pct">88%</span>
-    </div>
-    <div class="br">
-      <span>NODE 7NM · READY</span>
+<!-- ============ HERO ============ -->
+<section class="hero section-light">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="reveal">
+        <div class="eyebrow">A Semiconductor Design Environment</div>
+        <h1 class="h1">
+          Silicon<br>
+          <span style="color:var(--accent)">Crafted</span><br>
+          with Precision.
+        </h1>
+        <p class="body-lg">
+          From specification through GDSII. Silica orchestrates autonomous EDA agents that invoke real tools — Verilator for verification, Yosys for synthesis — generating every deliverable a foundry expects.
+        </p>
+        <div class="hero-actions">
+          <a href="app.html" class="btn btn-primary">
+            Launch Workspace
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <a href="login.html?mode=signup" class="btn btn-secondary">Create Account</a>
+          <a href="chat.html" class="btn btn-ghost">AI Assistant →</a>
+        </div>
+      </div>
+      <div class="hero-visual reveal">
+        <div class="wafer" aria-hidden="true">
+          <div class="wafer-core"></div>
+          <div class="wafer-label a">M5 · Top Metal</div>
+          <div class="wafer-label b">Substrate · Bulk Si</div>
+        </div>
+      </div>
     </div>
   </div>
+</section>
 
-  <div class="center-crosshair"></div>
+<!-- ============ FEATURE STRIP ============ -->
+<div class="feature-strip section-white">
+  <div class="container">
+    <div class="feature-grid">
+      <div class="feature-item reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div>
+          <h4>Specification-Driven</h4>
+          <p>Describe the chip in natural language. Silica derives every downstream stage against that contract.</p>
+        </div>
+      </div>
+      <div class="feature-item reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <div>
+          <h4>Real EDA Toolchain</h4>
+          <p>Verilator C++ testbenches and Yosys synthesis. Not a demo — actual gate-level netlists and reports.</p>
+        </div>
+      </div>
+      <div class="feature-item reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div>
+          <h4>Autonomous Recovery</h4>
+          <p>Agents diagnose tool failures, patch RTL, and re-run. Engineering judgment built into the loop.</p>
+        </div>
+      </div>
+      <div class="feature-item reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div>
+          <h4>46 Formal Deliverables</h4>
+          <p>Specifications, RTL, netlists, timing reports, and sign-off documents. Every artifact archived.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-  <!-- TOP NAVIGATION -->
-  <nav>
-    <a href="index.html" class="brand-link" title="Silica Home">
-      <span class="brand-mark">
-        <svg viewBox="0 0 32 32" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="26" height="26" rx="7" stroke="rgba(108,140,255,0.7)"/>
-          <path d="M10 11.5 H21 V16 H11 V20.5 H22.5" stroke="#6C8CFF" stroke-width="2.6"/>
+<!-- ============ WORKFLOW ============ -->
+<section id="workflow" class="section section-light">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">01 / Workflow</div>
+      <h2 class="h2">The Design Journey</h2>
+      <p class="body-lg">Ten disciplined stages from architecture to tapeout. Each stage's output is verified before the next begins.</p>
+    </div>
+    <div class="stages">
+      <div class="stage-row reveal"><div class="stage-num">01</div><div><span class="stage-tag">Frontend</span><h3>Specification</h3></div><p>Architecture, performance targets, power budget, and die-area envelope. The contract every downstream stage is measured against.</p></div>
+      <div class="stage-row reveal"><div class="stage-num">02</div><div><span class="stage-tag">Frontend</span><h3>RTL Design</h3></div><p>Behavioral description in hardware-description language — registers, datapaths, and finite state machines captured as synthesizable logic.</p></div>
+      <div class="stage-row reveal"><div class="stage-num">03</div><div><span class="stage-tag">Frontend</span><h3>Functional Verification</h3></div><p>Verilator C++ testbenches, assertions, and coverage closure prove the RTL does what the specification requires.</p></div>
+      <div class="stage-row reveal"><div class="stage-num">04</div><div><span class="stage-tag">Frontend</span><h3>Logic Synthesis</h3></div><p>Yosys logic synthesis mapping RTL to standard cells. Gates sized for timing, area, and cell count.</p></div>
+      <div class="stage-row reveal"><div class="stage-num">05</div><div><span class="stage-tag">Backend</span><h3>Floorplanning</h3></div><p>Macro blocks, I/O rings, and power domains arranged on the die. The skeleton on which every later stage is built.</p></div>
+      <div class="stage-row reveal"><div class="stage-num">06</div><div><span class="stage-tag">Backend</span><h3>Placement &amp; Routing</h3></div><p>Standard cells positioned legal-row by legal-row, then interconnected across stacked metal layers without design-rule violation.</p></div>
+      <div class="stage-row reveal"><div class="stage-num">07</div><div><span class="stage-tag">Signoff</span><h3>Timing Analysis</h3></div><p>Static timing closure across all process, voltage, and temperature corners. Setup and hold margins verified before signoff.</p></div>
+      <div class="stage-row reveal"><div class="stage-num">08</div><div><span class="stage-tag">Signoff</span><h3>Physical Verification</h3></div><p>Design-rule check (DRC), layout-versus-schematic (LVS), and antenna checks confirm the geometry is manufacturable.</p></div>
+      <div class="stage-row reveal"><div class="stage-num">09</div><div><span class="stage-tag">Signoff</span><h3>Tapeout Preparation</h3></div><p>Final GDSII/OASIS database, signoff reports, and fabrication handoff package assembled for foundry manufacture.</p></div>
+      <div class="stage-row reveal"><div class="stage-num">10</div><div><span class="stage-tag">Fabrication</span><h3>Silicon</h3></div><p>The database goes to the foundry. Lithography, deposition, and etch turn drawn polygons into working transistors.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SHOWCASE: RTL + VERIFICATION ============ -->
+<section id="engineering" class="section section-white">
+  <div class="container">
+    <div class="showcase-grid">
+      <div class="showcase-text reveal">
+        <div class="eyebrow">02 / Frontend Flow</div>
+        <h2 class="h2">From English to gates, verified.</h2>
+        <p class="body-lg">Silica transforms a natural-language specification into synthesizable SystemVerilog, then proves it with Verilator C++ simulation before a single gate is placed.</p>
+        <ul class="showcase-list">
+          <li>
+            <div class="ic"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+            <div>
+              <h4>Specification documents</h4>
+              <p>Ten formal deliverables: microarchitecture, interfaces, PPA targets, CSR map, verification plan, and SDC constraints.</p>
+            </div>
+          </li>
+          <li>
+            <div class="ic"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+            <div>
+              <h4>Verilator-clean RTL</h4>
+              <p>Synthesizable SystemVerilog linted and compiled to a cycle-accurate C++ simulation model.</p>
+            </div>
+          </li>
+          <li>
+            <div class="ic"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+            <div>
+              <h4>Functional verification closure</h4>
+              <p>Directed and constrained-random stimulus with assertion checking. Every artifact verified before synthesis.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="showcase-visual reveal">
+        <div class="visual-panel">
+          <div class="term">
+            <div class="term-bar">
+              <span class="dots"><i></i><i></i><i></i></span>
+              <span>verilator · core.v</span>
+            </div>
+            <div class="term-body">
+<span class="cmd">% verilator --lint-only -Wall core.v</span>
+<span class="out">
+%Warning-UNUSED: core.v:42: Signal is not used: 'status_reg[7:5]'
+%Warning-UNOPT: core.v:88: Expression has 24-bit width but result uses 8 bits.
+</span>
+<span class="warn">→ Agent detected 2 linter warnings</span>
+<span class="warn">→ Applying automated RTL patch…</span>
+<span class="out">
+% verilator --lint-only -Wall core.v
+</span>
+<span class="cmd">✓ Lint clean — 0 warnings, 0 errors</span>
+<span class="out">
+% verilator -cc core.v --exe tb_core.cpp
+% make -C obj_dir -f Vcore.mk
+% ./obj_dir/Vcore
+</span>
+<span class="cmd">SIM_DONE · errors=0 · cycles=1024</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DIE ANATOMY ============ -->
+<section id="anatomy" class="section section-light">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">03 / Die Anatomy</div>
+      <h2 class="h2">What's on the die.</h2>
+      <p class="body-lg">Every region of the chip has a defined purpose. Silica's synthesis output maps cleanly onto the physical implementation that follows.</p>
+    </div>
+    <div class="die-grid">
+      <div class="reveal">
+        <svg class="die-svg" viewBox="0 0 400 400" id="dieSvg">
+          <rect x="10" y="10" width="380" height="380" fill="none" stroke="var(--line-strong)" stroke-width="1" rx="4"/>
+          <!-- I/O ring -->
+          <rect class="region" data-part="io" x="10" y="10" width="380" height="36" rx="2"/>
+          <rect class="region" data-part="io" x="10" y="354" width="380" height="36" rx="2"/>
+          <rect class="region" data-part="io" x="10" y="46" width="36" height="308" rx="2"/>
+          <rect class="region" data-part="io" x="354" y="46" width="36" height="308" rx="2"/>
+          <!-- Power grid stripe -->
+          <rect class="region" data-part="power" x="46" y="46" width="308" height="12" rx="1"/>
+          <rect class="region" data-part="power" x="46" y="342" width="308" height="12" rx="1"/>
+          <!-- Standard cell core -->
+          <rect class="region active" data-part="cells" x="46" y="58" width="196" height="284" rx="2"/>
+          <!-- SRAM macros -->
+          <rect class="region" data-part="sram" x="242" y="58" width="112" height="84" rx="2"/>
+          <rect class="region" data-part="sram" x="242" y="152" width="112" height="84" rx="2"/>
+          <!-- PLL / analog -->
+          <rect class="region" data-part="pll" x="242" y="246" width="112" height="96" rx="2"/>
+          <!-- labels -->
+          <text x="62" y="32">I/O RING</text>
+          <text x="62" y="200" style="fill:var(--ink-primary)">STANDARD-CELL CORE</text>
+          <text x="256" y="106">SRAM MACRO</text>
+          <text x="256" y="300">PLL · ANALOG</text>
+          <text x="62" y="56" style="fill:var(--accent)">POWER GRID</text>
         </svg>
-      </span>
-      <span>
-        <span class="brand-name">SILICA</span>
-        <div class="brand-sub">AUTONOMOUS CHIP ENGINEERING</div>
-      </span>
-    </a>
-    <ul>
-      <li><a href="#workflow">WORKFLOW</a></li>
-      <li><a href="#anatomy">ANATOMY</a></li>
-      <li><a href="#config">CONFIGURATION</a></li>
-      <li><a href="#analysis">ANALYSIS</a></li>
-      <li><a href="#tapeout">TAPEOUT</a></li>
-      <li><a href="login.html" class="nav-auth-link">SIGN IN</a></li>
-      <li><a href="login.html?mode=signup" class="nav-auth-link signup-pill">SIGN UP</a></li>
-      <li><a href="app.html" class="workspace-link">WORKSPACE →</a></li>
-    </ul>
-  </nav>
-
-  <!-- HERO SECTION -->
-  <section id="hero">
-    <div class="wrap">
-      <div class="hero-grid">
-        <div>
-          <div class="hero-kicker reveal">
-            <span class="bar"></span>
-            <span class="mono">A SEMICONDUCTOR DESIGN ENVIRONMENT</span>
-          </div>
-          <h1 class="hero-title reveal">
-            <span class="line">Silicon</span>
-            <span class="line"><span class="accent-blue">Crafted</span></span>
-            <span class="line">with</span>
-            <span class="line">Precision.</span>
-          </h1>
-
-          <div class="hero-actions reveal">
-            <a href="app.html" class="btn-primary">
-              LAUNCH WORKSPACE
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-            <a href="login.html?mode=signup" class="btn-secondary" style="border-color:var(--blue);color:var(--blue-bright);">CREATE ACCOUNT (SIGN UP)</a>
-            <a href="login.html" class="btn-secondary">SIGN IN</a>
-            <a href="chat.html" class="btn-secondary">AI ASSISTANT</a>
-          </div>
-        </div>
-
-        <div class="chip-stage reveal">
-          <div class="chip" id="chip3d">
-            <div class="layer l1"></div>
-            <div class="layer l2"></div>
-            <div class="layer l3"></div>
-            <div class="layer l4"></div>
-            <div class="layer l5"></div>
-            <div class="core"></div>
-          </div>
-          <div class="chip-label a">M5 — TOP METAL</div>
-          <div class="chip-label b">SUBSTRATE · BULK SI</div>
+      </div>
+      <div class="anat-info reveal">
+        <div class="t" id="anatT">Standard Cells &amp; Logic Gates</div>
+        <div class="d" id="anatD">The bulk of the die is filled with rows of standard cells — NAND, NOR, flip-flops, and multiplexers drawn from the foundry library, placed in legal rows and interconnected by routed metal.</div>
+        <div class="spec" id="anatS">Density · 82% utilization · 7-track height</div>
+        <div class="anat-parts" id="anatBtns">
+          <button data-part="cells" class="active">Standard Cells</button>
+          <button data-part="sram">SRAM Macros</button>
+          <button data-part="power">Power Grid</button>
+          <button data-part="pll">PLL / Analog</button>
+          <button data-part="io">I/O Structures</button>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <hr class="rule">
-
-  <!-- WORKFLOW -->
-  <section id="workflow">
-    <div class="wrap">
-      <div class="sec-head reveal">
-        <h2>The Design <em>Journey</em></h2>
-        <span class="idx">01 / WORKFLOW</span>
+<!-- ============ SHOWCASE: SYNTHESIS ============ -->
+<section class="section section-white">
+  <div class="container">
+    <div class="showcase-grid reverse">
+      <div class="showcase-text reveal">
+        <div class="eyebrow">04 / Logic Synthesis</div>
+        <h2 class="h2">RTL becomes gates.</h2>
+        <p class="body-lg">Yosys technology-maps the verified RTL onto a standard-cell library. The result is a gate-level netlist with real timing, area, and power numbers.</p>
+        <ul class="showcase-list">
+          <li>
+            <div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+            <div>
+              <h4>Gate-level netlist</h4>
+              <p>Structural Verilog composed entirely of standard-cell instances. Ready for physical design handoff.</p>
+            </div>
+          </li>
+          <li>
+            <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg></div>
+            <div>
+              <h4>Timing &amp; area reports</h4>
+              <p>Setup slack, gate equivalents, and core cell area. Every number produced by the synthesis toolchain.</p>
+            </div>
+          </li>
+          <li>
+            <div class="ic"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+            <div>
+              <h4>Design-rule clean</h4>
+              <p>Unmapped logic, constraint violations, and synthesis warnings all diagnosed and resolved by specialist agents.</p>
+            </div>
+          </li>
+        </ul>
       </div>
-      <div class="stage reveal"><div class="num">01</div><div><span class="tag">Frontend</span><h3>Specification</h3></div><p>Architecture, performance targets, power budget, and die-area envelope defined. The contract every downstream stage is measured against.</p></div>
-      <div class="stage reveal"><div class="num">02</div><div><span class="tag">Frontend</span><h3>RTL Design</h3></div><p>Behavioral description in hardware-description language — registers, datapaths, and finite state machines captured as synthesizable logic.</p></div>
-      <div class="stage reveal"><div class="num">03</div><div><span class="tag">Frontend</span><h3>Functional Verification</h3></div><p>Verilator C++ testbenches, assertions, and coverage closure prove the RTL does what the specification requires, before a single gate is placed.</p></div>
-      <div class="stage reveal"><div class="num">04</div><div><span class="tag">Frontend</span><h3>Logic Synthesis</h3></div><p>Yosys logic synthesis mapping RTL to standard cell technology library. Gates sized for timing, area, and cell count.</p></div>
-      <div class="stage reveal"><div class="num">05</div><div><span class="tag">Backend</span><h3>Floorplanning</h3></div><p>Macro blocks, I/O rings, and power domains arranged on the die. The skeleton on which every later stage is built.</p></div>
-      <div class="stage reveal"><div class="num">06</div><div><span class="tag">Backend</span><h3>Placement</h3></div><p>Standard cells positioned legal-row by legal-row, optimized for wirelength, timing, and routability across the core area.</p></div>
-      <div class="stage reveal"><div class="num">07</div><div><span class="tag">Backend</span><h3>Routing</h3></div><p>Metal interconnect drawn across stacked layers — signals, clock tree, and power grid connected without design-rule violation.</p></div>
-      <div class="stage reveal"><div class="num">08</div><div><span class="tag">Signoff</span><h3>Timing Analysis</h3></div><p>Static timing closure across all process, voltage, and temperature corners. Setup and hold margins verified before signoff.</p></div>
-      <div class="stage reveal"><div class="num">09</div><div><span class="tag">Signoff</span><h3>Physical Verification</h3></div><p>Design-rule check (DRC), layout-versus-schematic (LVS), and antenna checks confirm the drawn geometry is manufacturable.</p></div>
-      <div class="stage reveal"><div class="num">10</div><div><span class="tag">Signoff</span><h3>Tapeout Preparation</h3></div><p>Final GDSII/OASIS database, signoff reports, and fabrication handoff package assembled for external foundry manufacture.</p></div>
+      <div class="showcase-visual reveal">
+        <div class="visual-panel">
+          <div class="term">
+            <div class="term-bar">
+              <span class="dots"><i></i><i></i><i></i></span>
+              <span>yosys · synthesis</span>
+            </div>
+            <div class="term-body">
+<span class="cmd">% yosys -s synth.ys</span>
+<span class="out">
+Synthesizing design 'core' with target library 'gscl45nm'
+</span>
+<span class="acc">
+→ Reading: core.v
+→ High-level synthesis pass
+→ Technology mapping
+→ Timing-driven optimization
+</span>
+<span class="out">
+   Number of cells:       182
+   Number of wires:       214
+   Number of ports:       28
+   Chip area:             327 µm²
+   Longest path delay:    2.48 ns
+</span>
+<span class="cmd">✓ Synthesis complete — EXIT 0</span>
+<span class="out">
+   Output: gate_level_netlist.v
+   Output: timing_report.rpt
+   Output: area_report.rpt
+</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <hr class="rule">
+<!-- ============ TECHNOLOGIES ============ -->
+<section id="technologies" class="section section-light">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">05 / Technologies</div>
+      <h2 class="h2">Process configurations.</h2>
+      <p class="body-lg">Silica adapts its optimization strategy to the target node. The flow is technology-agnostic — results scale with the foundry PDK.</p>
+    </div>
+    <div class="cfg-table reveal">
+      <div class="cfg-head"><div>No.</div><div>Process Node</div><div>Vdd / Track</div><div>Target Application</div></div>
+      <div class="cfg-row"><div class="n">01.</div><div class="name">TSMC 7nm FinFET<small>High-performance compute</small></div><div class="val">0.75V · 9.5T</div><div class="val">CPU · GPU · AI Accelerators</div></div>
+      <div class="cfg-row"><div class="n">02.</div><div class="name">TSMC 16nm FinFET<small>Performance / cost balance</small></div><div class="val">0.80V · 7.5T</div><div class="val">Networking · Edge SoC</div></div>
+      <div class="cfg-row"><div class="n">03.</div><div class="name">28nm HKMG<small>Mature high-volume production</small></div><div class="val">0.90V · 6T</div><div class="val">IoT · Automotive Sensors</div></div>
+      <div class="cfg-row"><div class="n">04.</div><div class="name">TSMC 5nm EUV<small>Ultra-dense compute clusters</small></div><div class="val">0.70V · 6T</div><div class="val">Datacenter · Mobile Flagship</div></div>
+      <div class="cfg-row"><div class="n">05.</div><div class="name">Intel 18A RibbonFET<small>Gate-All-Around &amp; PowerVia</small></div><div class="val">0.65V · GAA</div><div class="val">Next-Gen Semiconductor</div></div>
+    </div>
+  </div>
+</section>
 
-  <!-- ANATOMY -->
-  <section id="anatomy">
-    <div class="wrap">
-      <div class="sec-head reveal">
-        <h2>Die <em>Anatomy</em></h2>
-        <span class="idx">02 / ANATOMY</span>
-      </div>
-      <div class="anat-grid">
-        <div class="reveal">
-          <svg class="die-svg" viewBox="0 0 400 400" id="dieSvg">
-            <rect x="10" y="10" width="380" height="380" fill="none" stroke="var(--line-strong)" stroke-width="1"/>
-            <!-- I/O ring -->
-            <rect class="region" data-part="io" x="10" y="10" width="380" height="40"/>
-            <rect class="region" data-part="io" x="10" y="350" width="380" height="40"/>
-            <rect class="region" data-part="io" x="10" y="50" width="40" height="300"/>
-            <rect class="region" data-part="io" x="350" y="50" width="40" height="300"/>
-            <!-- Power grid stripe -->
-            <rect class="region" data-part="power" x="50" y="50" width="300" height="14"/>
-            <rect class="region" data-part="power" x="50" y="336" width="300" height="14"/>
-            <!-- Standard cell core -->
-            <rect class="region active" data-part="cells" x="50" y="64" width="190" height="272"/>
-            <!-- SRAM macros -->
-            <rect class="region" data-part="sram" x="240" y="64" width="110" height="80"/>
-            <rect class="region" data-part="sram" x="240" y="154" width="110" height="80"/>
-            <!-- PLL / analog -->
-            <rect class="region" data-part="pll" x="240" y="244" width="110" height="92"/>
-            <!-- labels -->
-            <text x="70" y="34">I/O RING</text>
-            <text x="70" y="130" style="fill:var(--ink)">STANDARD-CELL CORE</text>
-            <text x="252" y="108">SRAM MACRO</text>
-            <text x="252" y="296">PLL · ANALOG</text>
-            <text x="70" y="60" style="fill:var(--blue)">POWER GRID</text>
+<!-- ============ CTA ============ -->
+<section class="section section-white">
+  <div class="container">
+    <div class="cta-band reveal">
+      <div class="eyebrow" style="justify-content:center">Ready to engineer</div>
+      <h2 class="h2">Start your first chip design.</h2>
+      <p class="body-lg">Describe what you want to build. Silica handles the rest — specification through verified gate-level netlist.</p>
+      <div class="hero-actions">
+        <a href="app.html" class="btn btn-primary">
+          Launch Workspace
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-        </div>
-        <div class="anat-info reveal">
-          <div class="t" id="anatT">Standard Cells &amp; Logic Gates</div>
-          <div class="d" id="anatD">The bulk of the die is filled with rows of standard cells — NAND, NOR, flip-flops, and multiplexers drawn from the foundry library, placed in legal rows and interconnected by routed metal.</div>
-          <div class="spec" id="anatS">Density · 82% utilization · 7-track height</div>
-          <div class="anat-parts" id="anatBtns">
-            <button data-part="cells" class="active">Standard Cells</button>
-            <button data-part="sram">SRAM Macros</button>
-            <button data-part="power">Power Grid</button>
-            <button data-part="pll">PLL / Analog</button>
-            <button data-part="io">I/O Structures</button>
-          </div>
-        </div>
+        </a>
+        <a href="login.html?mode=signup" class="btn btn-secondary">Create Account</a>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <hr class="rule">
-
-  <!-- CONFIGURATION -->
-  <section id="config">
-    <div class="wrap">
-      <div class="sec-head reveal">
-        <h2>Process <em>Configurations</em></h2>
-        <span class="idx">03 / CONFIGURATION</span>
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">
+          <svg viewBox="0 0 32 32" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="26" height="26" rx="6"/>
+            <path d="M10 11.5 H21 V16 H11 V20.5 H22.5" stroke-width="2.4"/>
+          </svg>
+          SILICA
+        </div>
+        <div class="foot-tag">Silicon Crafted · Autonomous Semiconductor Engineering Platform from Specification to Silicon.</div>
       </div>
-      <div class="cfg-head reveal"><div class="h1">No.</div><div class="h2">Process Node</div><div class="h3">Vdd / Gate</div><div class="h4">Target Application</div></div>
-      <div class="cfg-row reveal" data-node="7nm"><div class="n">01.</div><div class="name">TSMC 7nm FinFET<small>High-performance compute</small></div><div class="val">0.75V · 9.5T</div><div class="val">CPU · GPU · AI Accelerators</div></div>
-      <div class="cfg-row reveal" data-node="16nm"><div class="n">02.</div><div class="name">TSMC 16nm FinFET<small>Performance / cost balance</small></div><div class="val">0.80V · 7.5T</div><div class="val">Networking · Edge SoC</div></div>
-      <div class="cfg-row reveal" data-node="28nm"><div class="n">03.</div><div class="name">28nm HKMG<small>Mature high-volume production</small></div><div class="val">0.90V · 6T</div><div class="val">IoT · Automotive Sensors</div></div>
-      <div class="cfg-row reveal" data-node="5nm"><div class="n">04.</div><div class="name">TSMC 5nm EUV<small>Ultra-dense compute clusters</small></div><div class="val">0.70V · 6T</div><div class="val">Datacenter · Mobile Flagship</div></div>
-      <div class="cfg-row reveal" data-node="18A"><div class="n">05.</div><div class="name">Intel 18A RibbonFET<small>Gate-All-Around &amp; PowerVia</small></div><div class="val">0.65V · GAA</div><div class="val">Next-Gen Semiconductor</div></div>
-    </div>
-  </section>
-
-  <hr class="rule">
-
-  <!-- FOOTER -->
-  <footer>
-    <div class="wrap">
-      <div class="foot-grid">
-        <div>
-          <div class="brand">SILICA</div>
-          <div class="tag">Silicon Crafted · Autonomous Semiconductor Engineering Platform from Specification to Silicon.</div>
-        </div>
-        <div>
-          <h4>Platform</h4>
-          <ul>
-            <li><a href="#workflow">Workflow</a></li>
-            <li><a href="#anatomy">Die Anatomy</a></li>
-            <li><a href="#config">Technologies</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>Studio</h4>
-          <ul>
-            <li><a href="app.html">EDA Workspace</a></li>
-            <li><a href="chat.html">AI Assistant</a></li>
-            <li><a href="login.html">Sign In</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>Reference</h4>
-          <ul>
-            <li><a href="https://huggingface.co/SILICAM" target="_blank">HF Adapters</a></li>
-            <li><a href="https://entire.io/gh/SuhasHanamannavar/silica/trails/1" target="_blank">Entire Trail</a></li>
-            <li><a href="https://app.neatlogs.com" target="_blank">Neatlogs Tracing</a></li>
-          </ul>
-        </div>
+      <div>
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="#workflow">Workflow</a></li>
+          <li><a href="#anatomy">Die Anatomy</a></li>
+          <li><a href="#technologies">Technologies</a></li>
+        </ul>
       </div>
-      <div class="foot-bottom">
-        <span>© 2026 SILICA · Autonomous Semiconductor Engineering</span>
-        <span>Verified with Verilator &amp; Yosys on AWS Cloud</span>
-        <span>v2.4.1 · Build Stable</span>
+      <div>
+        <h4>Studio</h4>
+        <ul>
+          <li><a href="app.html">EDA Workspace</a></li>
+          <li><a href="chat.html">AI Assistant</a></li>
+          <li><a href="login.html">Sign In</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Engineering</h4>
+        <ul>
+          <li><a href="#">Verified with Verilator</a></li>
+          <li><a href="#">Synthesized with Yosys</a></li>
+          <li><a href="#">Open toolchain</a></li>
+        </ul>
       </div>
     </div>
-  </footer>
+    <div class="foot-bottom">
+      <span>© 2026 SILICA · Autonomous Semiconductor Engineering</span>
+      <span>v2.4.1 · Build Stable</span>
+    </div>
+  </div>
+</footer>
 
-  <script>
-  (function(){
-    // ---- Telemetry timer ----
-    var t0 = Date.now(), timerEl = document.getElementById('timer'), fpsEl = document.getElementById('fps'), resEl = document.getElementById('res');
-    setInterval(function(){
-      var s = Math.floor((Date.now()-t0)/1000) + 1027; // realistic elapsed
-      var h = String(Math.floor(s/3600)).padStart(2,'0'), m = String(Math.floor((s%3600)/60)).padStart(2,'0'), ss = String(s%60).padStart(2,'0');
-      if (timerEl) timerEl.textContent = h+':'+m+':'+ss;
-    }, 1000);
+<script>
+(function(){
+  // ---- Nav scroll effect ----
+  var nav = document.getElementById('mainnav');
+  window.addEventListener('scroll', function() {
+    if (window.scrollY > 20) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
+  }, { passive: true });
 
-    // FPS jitter between 60 and 62
-    setInterval(function(){ if (fpsEl) fpsEl.textContent = (60 + Math.floor(Math.random()*3)) + 'FPS'; }, 1600);
-
-    // Resolution readout
-    function updateRes() { if (resEl) resEl.textContent = window.innerWidth + 'X' + window.innerHeight; }
-    updateRes();
-    window.addEventListener('resize', updateRes);
-
-    // ---- Scroll progress & 3D chip rotation ----
-    var pct = document.getElementById('pct'), chip = document.getElementById('chip3d');
-    window.addEventListener('scroll', function(){
-      var h = document.documentElement;
-      var sc = h.scrollTop / (h.scrollHeight - h.clientHeight || 1);
-      if (pct) pct.textContent = Math.round(sc * 100) + '%';
-      if (chip) {
-        var ry = -32 + sc * 45;
-        var rx = 58 - sc * 15;
-        chip.style.transform = 'rotateX(' + rx + 'deg) rotateZ(' + ry + 'deg)';
-      }
-    }, {passive:true});
-
-    // ---- Reveal on scroll ----
-    var io = new IntersectionObserver(function(entries){
-      entries.forEach(function(en){
-        if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
-      });
-    }, {threshold: 0.1});
-    document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
-
-    // ---- Anatomy interactivity ----
-    var ANAT = {
-      cells: {t:'Standard Cells & Logic Gates', d:'The bulk of the die is filled with rows of standard cells — NAND, NOR, flip-flops, and multiplexers drawn from the foundry library, placed in legal rows and interconnected by routed metal.', s:'Density · 82% utilization · 7-track height'},
-      sram:  {t:'SRAM Compiler Macros', d:'Dense memory arrays generated by the foundry SRAM compiler, tiled across the upper-right quadrant. Each macro is a hardened block with its own power domain and sense amplifiers.', s:'6 macros · 512KB total · dual-port'},
-      power: {t:'Power Distribution Grid', d:'Horizontal and vertical metal straps forming a grid across the core, delivering Vdd and Vss to every standard cell. IR-drop and electromigration verified at signoff.', s:'M9/M10 straps · 1.2µm pitch · IR-drop < 2%'},
-      pll:   {t:'PLL & Analog Blocks', d:'Phase-locked loop, clock generators, and mixed-signal circuits placed in their own guarded region, isolated from switching noise of the digital core.', s:'1 PLL · 2 DLL · guard-ring isolated'},
-      io:    {t:'I/O Ring & Pad Structures', d:'Perimeter ring of input/output cells — drivers, ESD protection, and bond pads — interfacing the core to the package and the board beyond.', s:'128 pads · 1.8V/3.3V · ESD 2kV HBM'}
-    };
-    var anatT = document.getElementById('anatT'), anatD = document.getElementById('anatD'), anatS = document.getElementById('anatS');
-    function setPart(p){
-      var d = ANAT[p]; if(!d) return;
-      if (anatT) anatT.style.opacity = 0;
-      if (anatD) anatD.style.opacity = 0;
-      setTimeout(function(){
-        if (anatT) { anatT.textContent = d.t; anatT.style.opacity = 1; }
-        if (anatD) { anatD.textContent = d.d; anatD.style.opacity = 1; }
-        if (anatS) anatS.textContent = d.s;
-      }, 180);
-      document.querySelectorAll('.die-svg .region').forEach(function(r){ r.classList.toggle('active', r.getAttribute('data-part')===p); });
-      document.querySelectorAll('#anatBtns button').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-part')===p); });
-    }
-    document.querySelectorAll('.die-svg .region').forEach(function(r){
-      r.addEventListener('mouseenter', function(){ setPart(r.getAttribute('data-part')); });
+  // ---- Reveal on scroll ----
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(en) {
+      if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
     });
-    document.querySelectorAll('#anatBtns button').forEach(function(b){
-      b.addEventListener('click', function(){ setPart(b.getAttribute('data-part')); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
+
+  // ---- Anatomy interactivity ----
+  var ANAT = {
+    cells: { t: 'Standard Cells & Logic Gates', d: 'The bulk of the die is filled with rows of standard cells — NAND, NOR, flip-flops, and multiplexers drawn from the foundry library, placed in legal rows and interconnected by routed metal.', s: 'Density · 82% utilization · 7-track height' },
+    sram:  { t: 'SRAM Compiler Macros', d: 'Dense memory arrays generated by the foundry SRAM compiler, tiled across the upper-right quadrant. Each macro is a hardened block with its own power domain and sense amplifiers.', s: '6 macros · 512KB total · dual-port' },
+    power: { t: 'Power Distribution Grid', d: 'Horizontal and vertical metal straps forming a grid across the core, delivering Vdd and Vss to every standard cell. IR-drop and electromigration verified at signoff.', s: 'M9/M10 straps · 1.2µm pitch · IR-drop < 2%' },
+    pll:   { t: 'PLL & Analog Blocks', d: 'Phase-locked loop, clock generators, and mixed-signal circuits placed in their own guarded region, isolated from switching noise of the digital core.', s: '1 PLL · 2 DLL · guard-ring isolated' },
+    io:    { t: 'I/O Ring & Pad Structures', d: 'Perimeter ring of input/output cells — drivers, ESD protection, and bond pads — interfacing the core to the package and the board beyond.', s: '128 pads · 1.8V/3.3V · ESD 2kV HBM' }
+  };
+  var anatT = document.getElementById('anatT'), anatD = document.getElementById('anatD'), anatS = document.getElementById('anatS');
+  function setPart(p) {
+    var d = ANAT[p]; if (!d) return;
+    if (anatT) { anatT.style.opacity = 0; }
+    if (anatD) { anatD.style.opacity = 0; }
+    setTimeout(function() {
+      if (anatT) { anatT.textContent = d.t; anatT.style.opacity = 1; }
+      if (anatD) { anatD.textContent = d.d; anatD.style.opacity = 1; }
+      if (anatS) { anatS.textContent = d.s; }
+    }, 150);
+    document.querySelectorAll('.die-svg .region').forEach(function(r) {
+      r.classList.toggle('active', r.dataset.part === p);
     });
-  })();
-  </script>
+    document.querySelectorAll('#anatBtns button').forEach(function(b) {
+      b.classList.toggle('active', b.dataset.part === p);
+    });
+  }
+  document.querySelectorAll('.die-svg .region').forEach(function(r) {
+    r.addEventListener('click', function() { setPart(r.dataset.part); });
+  });
+  document.querySelectorAll('#anatBtns button').forEach(function(b) {
+    b.addEventListener('click', function() { setPart(b.dataset.part); });
+  });
+})();
+</script>
 </body>
 </html>
