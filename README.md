@@ -6,7 +6,7 @@
 
 [![Live Demo](https://img.shields.io/badge/Live-Silica%20on%20Vercel-000000?style=for-the-badge&logo=vercel)](https://silica-kappa.vercel.app)
 [![EDA Workspace](https://img.shields.io/badge/Workspace-Live%20EDA%20Studio-2563eb?style=for-the-badge)](https://silica-kappa.vercel.app/app.html)
-[![GitHub Repo](https://img.shields.io/badge/Source-GitHub%20Repository-181717?style=for-the-badge&logo=github)](https://github.com/Trivikram-01/silica)
+[![GitHub Repo](https://img.shields.io/badge/Source-GitHub%20Repository-181717?style=for-the-badge&logo=github)](https://github.com/SuhasHanamannavar/silica)
 [![Entire Checkpoints](https://img.shields.io/badge/Entire%20Checkpoints-ACTIVE%20%E2%9C%85-10b981?style=for-the-badge)](https://entire.io)
 [![AWS EC2 Backend](https://img.shields.io/badge/AWS%20EC2%20Backend-13.203.204.240%20%E2%9C%85-FF9900?style=for-the-badge&logo=amazon-aws)](http://13.203.204.240/api/health)
 [![Verilator](https://img.shields.io/badge/Verilator-4.038%20%E2%9C%85-4338ca?style=for-the-badge)](http://13.203.204.240/api/health)
@@ -50,7 +50,7 @@
 | **AI Chat (Roadmap)** | [silica-kappa.vercel.app/chat](https://silica-kappa.vercel.app/chat) | Conversational architecture assistant (in staging with foundry PDK alignment) |
 | **Backend Health Endpoint** | [http://13.203.204.240/api/health](http://13.203.204.240/api/health) | Live JSON proving active Verilator, Yosys, and g++ binaries |
 | **Agent Pipeline Endpoint** | [http://13.203.204.240/api/agents/health](http://13.203.204.240/api/agents/health) | Live 8-specialist agent registry, model serving adapter, and toolchain readiness |
-| **GitHub Repository** | [github.com/Trivikram-01/silica](https://github.com/Trivikram-01/silica) | Complete open-source codebase, Docker configurations, and benchmarks |
+| **GitHub Repository** | [github.com/SuhasHanamannavar/silica](https://github.com/SuhasHanamannavar/silica) | Complete open-source codebase, Docker configurations, and benchmarks |
 | **Entire Platform** | [entire.io](https://entire.io) | Agent tracking, checkpoint provenance, and code-graph intelligence |
 
 ---
@@ -235,7 +235,7 @@ sudo apt install -y verilator yosys build-essential python3 python3-pip
 
 ### 2. Clone & Run Backend Orchestrator
 ```bash
-git clone https://github.com/Trivikram-01/silica.git
+git clone https://github.com/SuhasHanamannavar/silica.git
 cd silica
 
 # Launch local server (serves frontend & API on port 3000)
@@ -265,4 +265,4 @@ To maintain strict engineering integrity:
 
 ## License
 
-MIT © [Trivikram Kalagi](https://github.com/Trivikram-01) & Contributors
+MIT © [Trivikram Kalagi](https://github.com/SuhasHanamannavar/silica) & Contributors
