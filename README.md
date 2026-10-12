@@ -32,6 +32,14 @@
 
 ---
 
+## Platform Preview
+
+<p align="center">
+  <img src="assets/silica_platform_preview.png" alt="Silica Autonomous Semiconductor Engineering Platform" width="100%" />
+</p>
+
+---
+
 ## Live Demo & Resources
 
 | Surface | Link / URL | Description |
@@ -196,8 +204,12 @@ Measured on AWS EC2 (`13.203.204.240`, Ubuntu 22.04 LTS, AMD64):
 
 Silica uses **Entire (entire.io)** to enforce strict engineering provenance across all autonomous coding sessions:
 
-1. **Session Checkpoints**:
-   Each agent synthesis and code change is captured under persistent git checkpoint refs (`entire/*`), ensuring every generated line traces to an identifiable agent prompt and commit.
+<p align="center">
+  <img src="assets/entire_dashboard_preview.png" alt="Entire.io Checkpoints & Attribution Dashboard" width="100%" />
+</p>
+
+1. **Session Checkpoints & Agent Attribution**:
+   Each agent synthesis and code change is captured under persistent git checkpoint refs (`entire/*`), ensuring every generated line traces to an identifiable agent prompt and commit. The Entire dashboard captures full attribution metrics across autonomous agents (`Antigravity 14`) and manual engineer commits (`Manual 71`).
 2. **Deterministic Code Graph**:
    Configured in [`.entire/graph-agent.md`](.entire/graph-agent.md), Entire's code graph indexes functions, classes, and call hierarchies across the repo, enabling sub-turn symbol resolution (`entire graph search --profile full`) without hallucinating file locations.
 3. **Verify Locally**:
