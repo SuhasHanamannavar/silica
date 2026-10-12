@@ -8,7 +8,7 @@
 [![Demo Video](https://img.shields.io/badge/YouTube-Demo%20Video-FF0000?style=for-the-badge&logo=youtube)](https://youtu.be/tJKK-oV1QmE)
 [![EDA Workspace](https://img.shields.io/badge/Workspace-Live%20EDA%20Studio-2563eb?style=for-the-badge)](https://silica-kappa.vercel.app/app.html)
 [![GitHub Repo](https://img.shields.io/badge/Source-GitHub%20Repository-181717?style=for-the-badge&logo=github)](https://github.com/SuhasHanamannavar/silica)
-[![Hugging Face](https://img.shields.io/badge/Hugging%20Face-LoRA%20Adapters-FFD21E?style=for-the-badge&logo=huggingface)](https://huggingface.co/SuhasHanamannavar/silica-rtl-lora-v1)
+[![Hugging Face](https://img.shields.io/badge/Hugging%20Face-LoRA%20Adapters-FFD21E?style=for-the-badge&logo=huggingface)](https://huggingface.co/SILICAM/silica-rtl-lora-v1)
 [![neatlogs Tracing](https://img.shields.io/badge/neatlogs-ACTIVE%20%E2%9C%85-8b5cf6?style=for-the-badge)](https://neatlogs.com)
 [![Entire Checkpoints](https://img.shields.io/badge/Entire%20Checkpoints-ACTIVE%20%E2%9C%85-10b981?style=for-the-badge)](https://entire.io)
 [![cfo.ai Financial Plan](https://img.shields.io/badge/cfo.ai-VERIFIED%20%E2%9C%85-059669?style=for-the-badge)](CFO_BUSINESS_PLAN.md)
@@ -22,7 +22,7 @@
 
 | Stack Component | Requirement Status | Implementation Detail |
 |---|---|---|
-| **Hugging Face Model Hub** | **MET ✅** | Foundation base **Qwen2.5-Coder-7B-Instruct** with custom LoRA adapter **[silica-rtl-lora-v1](https://huggingface.co/SuhasHanamannavar/silica-rtl-lora-v1)** via HF Serving adapter (`silica_agents/hf_serving.py`). |
+| **Hugging Face Model Hub** | **MET ✅** | Foundation base **Qwen2.5-Coder-7B-Instruct** with custom LoRA adapter **[silica-rtl-lora-v1](https://huggingface.co/SILICAM/silica-rtl-lora-v1)** via HF Serving adapter (`silica_agents/hf_serving.py`). |
 | **neatlogs** | **MET ✅** | Real-time multi-agent distributed trace instrumentation (`neatlogs.trace`), latency tracking, and span flushing in `silica_agents/orchestrator.py`. |
 | **Entire (entire.io)** | **MET ✅** | Full agent session provenance, git checkpoint tracking (`entire status`), and deterministic code-graph navigation (`.entire/graph-agent.md`). |
 | **cfo.ai** | **MET ✅** | Production SaaS unit economics model, 3-year financial forecast, and COGS optimization (`CFO_BUSINESS_PLAN.md`) yielding **88.2% gross margins**. |
@@ -55,7 +55,7 @@
 | **Live EDA Workspace** | [silica-kappa.vercel.app/app.html](https://silica-kappa.vercel.app/app.html) | Multi-stage design studio, RTL code viewer, real-time logs & artifact downloads |
 | **Authentication Portal** | [silica-kappa.vercel.app/login](https://silica-kappa.vercel.app/login) | AWS DynamoDB backed engineer sign-in and token authentication |
 | **AI Chat (Roadmap)** | [silica-kappa.vercel.app/chat](https://silica-kappa.vercel.app/chat) | Conversational architecture assistant (in staging with foundry PDK alignment) |
-| **Hugging Face Model Hub** | [huggingface.co/SuhasHanamannavar/silica-rtl-lora-v1](https://huggingface.co/SuhasHanamannavar/silica-rtl-lora-v1) | Fine-tuned Qwen2.5-Coder LoRA adapter for Verilog RTL synthesis |
+| **Hugging Face Model Hub** | [huggingface.co/SILICAM/silica-rtl-lora-v1](https://huggingface.co/SILICAM/silica-rtl-lora-v1) | Fine-tuned Qwen2.5-Coder LoRA adapter for Verilog RTL synthesis |
 | **Base Foundation Model** | [huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct) | Base code-intelligence foundation model |
 | **Backend Health Endpoint** | [http://13.203.204.240/api/health](http://13.203.204.240/api/health) | Live JSON proving active Verilator, Yosys, and g++ binaries |
 | **Agent Pipeline Endpoint** | [http://13.203.204.240/api/agents/health](http://13.203.204.240/api/agents/health) | Live 8-specialist agent registry, model serving adapter, and toolchain readiness |
@@ -242,7 +242,7 @@ The hackathon submission explicitly requires deep integration and verification a
 
 ### 4. Hugging Face (Foundation Models & LoRA Fine-Tuning)
 * **Architecture:** Hybrid model-serving adapter architecture (`silica_agents/hf_serving.py`) connecting base reasoning models with hardware-specific low-rank adaptation (LoRA) adapters.
-* **Implementation:** Built upon **[Qwen/Qwen2.5-Coder-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct)** with specialized fine-tuning recipes in `training/train_colab.py` and `training/train_adapters.ipynb`. Model adapter weights published to Hugging Face Model Hub at **[SuhasHanamannavar/silica-rtl-lora-v1](https://huggingface.co/SuhasHanamannavar/silica-rtl-lora-v1)**.
+* **Implementation:** Built upon **[Qwen/Qwen2.5-Coder-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct)** with specialized fine-tuning recipes in `training/train_colab.py` and `training/train_adapters.ipynb`. Model adapter weights published to Hugging Face Model Hub at **[SILICAM/silica-rtl-lora-v1](https://huggingface.co/SILICAM/silica-rtl-lora-v1)**.
 * **Runtime:** Queries the Hugging Face Inference API / dedicated endpoints with configurable latency backoff (`max_retries=3`), temperature (0.2), and strict output JSON validation.
 * **Reasoning:** Generic LLMs often produce unsynthesizable constructs (e.g. non-blocking delays `#5`, multi-driven nets, or improper reset polarity). Fine-tuning on curated Verilog corpus aligns generation with synthesizable synchronous RTL standards.
 * **Result:** Direct access to hosted domain weights on Hugging Face Model Hub, plug-and-play inference configuration via `HFServingAdapter`, and automated fallback to deterministic parametric EDA generators when offline.

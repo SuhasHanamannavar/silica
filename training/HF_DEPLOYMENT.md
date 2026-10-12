@@ -36,8 +36,8 @@ tags: [semiconductor, rtl, verilog, eda, silica]
 ## Deployment steps (on a GPU host or with trained adapter)
 1. Run `python3 training/train_lora.py ...` on a CUDA host; adapter saved to `models/`.
 2. `huggingface-cli login` (token with `write` scope).
-3. `huggingface-cli upload SuhasHanamannavar/silica-rtl-lora-v1 models/silica-rtl-lora-v1 . --include="*.safetensors,*.json,*.md,tokenizer*"`.
-4. Verify endpoint: `python3 -c "from silica_agents.hf_serving import HFServingAdapter; h=HFServingAdapter(model='SuhasHanamannavar/silica-rtl-lora-v1'); print(h.complete('...','generate a counter',64))"`.
+3. `huggingface-cli upload SILICAM/silica-rtl-lora-v1 models/silica-rtl-lora-v1 . --include="*.safetensors,*.json,*.md,tokenizer*"`.
+4. Verify endpoint: `python3 -c "from silica_agents.hf_serving import HFServingAdapter; h=HFServingAdapter(model='SILICAM/silica-rtl-lora-v1'); print(h.complete('...','generate a counter',64))"`.
 5. Run `python3 eval/benchmark.py` with `SILICA_LLM_MODEL` set to the new revision; compare to baseline.
 6. Promote only if ≥2 metrics improve ≥5% with no regression >3%.
 7. Pin revision in `SILICA_LLM_MODEL` (include `@<commit-sha>` for immutability).
