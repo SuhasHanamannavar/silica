@@ -5,6 +5,7 @@
 > Silica is a production-grade autonomous semiconductor engineering platform that automates digital IC design from natural-language specification to verified synthesizable RTL and gate-level netlists. Powered by an 8-specialist multi-agent pipeline and backed by real, open-source EDA binaries (**Verilator v4.038**, **Yosys v0.9**, and **g++ 11.4**) running on cloud infrastructure, Silica produces cycle-accurate simulations, logic area metrics, and autonomous syntax/semantic failure recovery. Every run and agent change is cryptographically tracked using **Entire (entire.io)** checkpoints and deterministic code-graph intelligence.
 
 [![Live Demo](https://img.shields.io/badge/Live-Silica%20on%20Vercel-000000?style=for-the-badge&logo=vercel)](https://silica-kappa.vercel.app)
+[![Demo Video](https://img.shields.io/badge/YouTube-Demo%20Video-FF0000?style=for-the-badge&logo=youtube)](https://youtu.be/tJKK-oV1QmE)
 [![EDA Workspace](https://img.shields.io/badge/Workspace-Live%20EDA%20Studio-2563eb?style=for-the-badge)](https://silica-kappa.vercel.app/app.html)
 [![GitHub Repo](https://img.shields.io/badge/Source-GitHub%20Repository-181717?style=for-the-badge&logo=github)](https://github.com/SuhasHanamannavar/silica)
 [![neatlogs Tracing](https://img.shields.io/badge/neatlogs-ACTIVE%20%E2%9C%85-8b5cf6?style=for-the-badge)](https://neatlogs.com)
@@ -48,6 +49,7 @@
 | Surface | Link / URL | Description |
 |---|---|---|
 | **Live Web Portal** | [silica-kappa.vercel.app](https://silica-kappa.vercel.app) | Enterprise landing page with interactive chip die anatomy & workflow walkthrough |
+| **Official Demo Video** | [youtu.be/tJKK-oV1QmE](https://youtu.be/tJKK-oV1QmE) | 3-minute video walkthrough covering neatlogs, Entire, cfo.ai & EDA workspace |
 | **Live EDA Workspace** | [silica-kappa.vercel.app/app.html](https://silica-kappa.vercel.app/app.html) | Multi-stage design studio, RTL code viewer, real-time logs & artifact downloads |
 | **Authentication Portal** | [silica-kappa.vercel.app/login](https://silica-kappa.vercel.app/login) | AWS DynamoDB backed engineer sign-in and token authentication |
 | **AI Chat (Roadmap)** | [silica-kappa.vercel.app/chat](https://silica-kappa.vercel.app/chat) | Conversational architecture assistant (in staging with foundry PDK alignment) |
