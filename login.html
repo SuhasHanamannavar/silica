@@ -1,43 +1,442 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Silica — Sign in</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#0d0c0a;color:#e6e1d6;font-family:'Instrument Sans',system-ui,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
-.card{background:#161411;border:1px solid #2a2722;border-radius:12px;padding:40px;width:380px}
-h1{font-size:22px;margin-bottom:6px;letter-spacing:.5px}
-.sub{color:#8a857a;font-size:13px;margin-bottom:28px}
-label{display:block;font-size:12px;color:#8a857a;margin:14px 0 6px}
-input{width:100%;padding:11px 12px;background:#0d0c0a;border:1px solid #2a2722;border-radius:6px;color:#e6e1d6;font-size:14px}
-input:focus{outline:none;border-color:#e07a3a}
-button{width:100%;margin-top:24px;padding:12px;background:#e07a3a;color:#0d0c0a;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer}
-button:hover{background:#ea8a4a}
-.err{color:#c46a5e;font-size:13px;margin-top:14px;display:none}
-.badge{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;background:#1c3a2a;color:#8fae6e;margin-bottom:16px}
-</style></head><body>
-<div class="card">
-  <span class="badge">LIVE EDA BACKEND</span>
-  <h1>Sign in to Silica</h1>
-  <p class="sub">AI Semiconductor Engineering Workspace</p>
-  <label>Email</label><input id="email" type="email" placeholder="you@company.com" value="webofjee@gmail.com">
-  <label>Password</label><input id="password" type="password" placeholder="••••••••">
-  <button id="btn">Sign in</button>
-  <div class="err" id="err">Invalid credentials. Try again.</div>
-</div>
-<script>
-document.getElementById('btn').onclick = async () => {
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  const r = await fetch('/api/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password})});
-  if (r.ok) { const d = await r.json(); localStorage.setItem('silica_token', d.token); localStorage.setItem('silica_email', d.email); location.href = '/app'; return; }
-  // Fallback: client-side validation (until backend rebuild picks up /api/login)
-  if (email === 'webofjee@gmail.com' && password === 'Suhas@2007') {
-    localStorage.setItem('silica_token', 'client-auth-' + Date.now());
-    localStorage.setItem('silica_email', email);
-    location.href = '/app';
-  } else {
-    document.getElementById('err').style.display = 'block';
-  }
-};
-document.getElementById('password').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('btn').click(); });
-</script></body></html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SILICA — Access & Account Portal</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-black: #000000;
+      --bg-surface: #0A0A0A;
+      --bg-card: #111111;
+      --bg-input: #0A0A0A;
+      --ink-white: #FFFFFF;
+      --ink-primary: #F5F5F5;
+      --ink-secondary: #999999;
+      --ink-muted: #666666;
+      --line: rgba(255, 255, 255, 0.08);
+      --line-strong: rgba(255, 255, 255, 0.14);
+      --accent: #94A3B8;
+      --accent-hover: #A8B5C9;
+      --accent-soft: rgba(148, 163, 184, 0.12);
+      --accent-dim: rgba(148, 163, 184, 0.5);
+      --success: #4ADE80;
+      --fail: #F87171;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-pill: 999px;
+      --ease: cubic-bezier(.2, .7, .2, 1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg-black);
+      color: var(--ink-primary);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      overflow-x: hidden;
+      position: relative;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 0%, rgba(212, 160, 58, 0.06) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .back-nav {
+      position: fixed;
+      top: 28px;
+      left: 36px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-secondary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 10;
+      transition: color 0.2s;
+    }
+    .back-nav:hover { color: var(--accent); }
+
+    .auth-card {
+      position: relative;
+      z-index: 5;
+      width: 100%;
+      max-width: 440px;
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 40px 36px;
+      overflow: hidden;
+    }
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
+    }
+
+    .auth-header { text-align: center; margin-bottom: 32px; }
+    .logo-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      margin-bottom: 16px;
+      color: var(--accent);
+    }
+    .auth-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--ink-white);
+      letter-spacing: -0.02em;
+    }
+    .auth-subtitle {
+      color: var(--ink-secondary);
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 28px;
+    }
+    .tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 10px 0;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-secondary);
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .tab-btn:hover { color: var(--ink-white); }
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-secondary);
+      margin-bottom: 8px;
+    }
+    .form-input {
+      width: 100%;
+      background: #0A0A0A !important;
+      background-color: #0A0A0A !important;
+      border: 1px solid var(--line-strong);
+      color: #FFFFFF !important;
+      font-family: var(--sans);
+      font-size: 14px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-input:focus {
+      background: #0A0A0A !important;
+      background-color: #0A0A0A !important;
+      color: #FFFFFF !important;
+      border-color: var(--accent-dim);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+    .form-input::placeholder { color: var(--ink-faint); }
+
+    /* Prevent browser autofill from turning inputs light blue or white */
+    .form-input:-webkit-autofill,
+    .form-input:-webkit-autofill:hover,
+    .form-input:-webkit-autofill:focus,
+    .form-input:-webkit-autofill:active,
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px #0A0A0A inset !important;
+      box-shadow: 0 0 0 1000px #0A0A0A inset !important;
+      -webkit-text-fill-color: #FFFFFF !important;
+      caret-color: #FFFFFF !important;
+      color: #FFFFFF !important;
+      border-color: var(--line-strong) !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--ink-secondary);
+      margin-bottom: 24px;
+    }
+    .form-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .form-checkbox input { accent-color: var(--accent); }
+    .form-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .form-link:hover { text-decoration: underline; }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--ink-white);
+      color: #000;
+      border: 1px solid var(--ink-white);
+      padding: 13px;
+      border-radius: var(--radius-pill);
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.25s var(--ease);
+      letter-spacing: 0.01em;
+    }
+    .btn-submit:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #000;
+    }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .auth-alert {
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      margin-bottom: 18px;
+      display: none;
+      line-height: 1.5;
+    }
+    .auth-alert.error {
+      background: var(--fail-soft);
+      border: 1px solid rgba(248, 113, 113, 0.25);
+      color: var(--fail);
+    }
+    .auth-alert.success {
+      background: var(--success-soft);
+      border: 1px solid rgba(74, 222, 128, 0.25);
+      color: var(--success);
+    }
+
+    @media (max-width: 640px) {
+      .back-nav { display: none; }
+      .auth-card { padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-nav">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Back to Silica
+  </a>
+
+  <div class="auth-card">
+    <div class="auth-header">
+      <div style="display:flex;justify-content:center;margin-bottom:18px">
+        <img src="assets/silica_teddy_logo.png" alt="Silica" style="height:48px;width:auto;object-fit:contain;display:block">
+      </div>
+      <h1 class="auth-title" id="card-title">Sign In</h1>
+      <p class="auth-subtitle" id="card-subtitle">Access your autonomous EDA engineering session</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="tab-btn active" id="tab-login" onclick="setMode('login')">Sign In</button>
+      <button class="tab-btn" id="tab-signup" onclick="setMode('signup')">Create Account</button>
+    </div>
+
+    <div id="alert-box" class="auth-alert"></div>
+
+    <form id="form-login" onsubmit="return handleLogin(event)">
+      <div class="form-group">
+        <label class="form-label" for="login-email">Engineer Email</label>
+        <input type="email" id="login-email" class="form-input" placeholder="engineer@company.com" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="login-password">Password</label>
+        <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+      <div class="form-options">
+        <label class="form-checkbox">
+          <input type="checkbox" id="remember" checked>
+          Keep session active
+        </label>
+      </div>
+      <button type="submit" class="btn-submit" id="btn-login-submit">Sign In →</button>
+    </form>
+
+    <form id="form-signup" style="display:none;" onsubmit="return handleSignup(event)">
+      <div class="form-group">
+        <label class="form-label" for="signup-name">Full Name</label>
+        <input type="text" id="signup-name" class="form-input" placeholder="Lead Architect" required autocomplete="name">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="signup-email">Work Email</label>
+        <input type="email" id="signup-email" class="form-input" placeholder="engineer@foundry.com" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="signup-password">Password</label>
+        <input type="password" id="signup-password" class="form-input" placeholder="•••••••• (min 4 characters)" minlength="4" required autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="signup-company">Organization / Foundry (Optional)</label>
+        <input type="text" id="signup-company" class="form-input" placeholder="VLSI Systems / TSMC / Intel">
+      </div>
+      <button type="submit" class="btn-submit" id="btn-signup-submit">Create Account →</button>
+    </form>
+  </div>
+
+  <script>
+    function setMode(mode) {
+      const tabLogin = document.getElementById('tab-login');
+      const tabSignup = document.getElementById('tab-signup');
+      const formLogin = document.getElementById('form-login');
+      const formSignup = document.getElementById('form-signup');
+      const cardTitle = document.getElementById('card-title');
+      const cardSubtitle = document.getElementById('card-subtitle');
+      const alertBox = document.getElementById('alert-box');
+      alertBox.style.display = 'none';
+      if (mode === 'signup') {
+        tabLogin.classList.remove('active');
+        tabSignup.classList.add('active');
+        formLogin.style.display = 'none';
+        formSignup.style.display = 'block';
+        cardTitle.textContent = 'Create Account';
+        cardSubtitle.textContent = 'Register an engineer profile';
+      } else {
+        tabSignup.classList.remove('active');
+        tabLogin.classList.add('active');
+        formSignup.style.display = 'none';
+        formLogin.style.display = 'block';
+        cardTitle.textContent = 'Sign In';
+        cardSubtitle.textContent = 'Access your autonomous EDA engineering session';
+      }
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'signup') {
+      setMode('signup');
+    }
+
+    function showAlert(msg, isError) {
+      const box = document.getElementById('alert-box');
+      box.textContent = msg;
+      box.className = 'auth-alert ' + (isError ? 'error' : 'success');
+      box.style.display = 'block';
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const btn = document.getElementById('btn-login-submit');
+      btn.textContent = 'Authenticating…';
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (res.ok && data.token) {
+          localStorage.setItem('silica_token', data.token);
+          localStorage.setItem('silica_user', data.email || email);
+          localStorage.setItem('silica_name', data.name || 'Engineer');
+          btn.textContent = 'Redirecting to workspace…';
+          window.location.href = 'app.html';
+        } else {
+          showAlert(data.error || 'Invalid email or password.', true);
+        }
+      } catch (err) {
+        showAlert('Network or API error: ' + err.message, true);
+      } finally {
+        btn.textContent = 'Sign In →';
+        btn.disabled = false;
+      }
+    }
+
+    async function handleSignup(e) {
+      e.preventDefault();
+      const name = document.getElementById('signup-name').value.trim();
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value;
+      const company = document.getElementById('signup-company').value.trim();
+      const btn = document.getElementById('btn-signup-submit');
+      btn.textContent = 'Creating account…';
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, company })
+        });
+        const data = await res.json();
+        if (res.ok && data.token) {
+          localStorage.setItem('silica_token', data.token);
+          localStorage.setItem('silica_user', email);
+          localStorage.setItem('silica_name', name);
+          btn.textContent = 'Launching workspace…';
+          window.location.href = 'app.html';
+        } else {
+          showAlert(data.error || 'Failed to create account.', true);
+        }
+      } catch (err) {
+        showAlert('Registration error: ' + err.message, true);
+      } finally {
+        btn.textContent = 'Create Account →';
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

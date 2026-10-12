@@ -8,18 +8,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="app.css?v=2.1">
 </head>
 <body>
 <div class="app">
   <!-- ============ Sidebar ============ -->
   <aside class="sidebar">
-    <a class="brand" href="index.html" title="Silica home">
-      <span class="mark"><svg viewBox="0 0 32 32" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="26" height="26" rx="7"/><path d="M10 11.5 H21 V16 H11 V20.5 H22.5" stroke-width="2.6"/></svg></span>
-      <span>
-        <span class="name">SILICA</span>
-        <div class="sub">Autonomous Chip Engineering</div>
-      </span>
+    <a class="brand" href="index.html" title="Silica home" style="display:flex;align-items:center;padding:10px 12px">
+      <img src="assets/silica_teddy_logo.png" alt="Silica" style="height:34px;width:auto;object-fit:contain;display:block">
     </a>
     <nav class="nav" id="nav">
       <div class="group-label">Work</div>
@@ -38,8 +34,8 @@
       </button>
       <a class="nav-item" href="chat.html" style="text-decoration:none">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-        Live AI Chat
-        <span class="count" id="nav-backend">—</span>
+        AI Chat
+        <span class="count" style="background:rgba(251,191,36,0.12);color:#FBBF24;border:1px solid rgba(251,191,36,0.25);font-size:9px;font-weight:600;padding:2px 6px;border-radius:4px">SOON</span>
       </a>
       <div class="group-label">History</div>
       <button class="nav-item" data-view="history">
@@ -58,16 +54,33 @@
       </button>
     </nav>
     <div class="side-foot">
-      <div class="proto-badge"><span class="dot"></span>Connecting to backend…</div>
-      <div class="user">
-        <div class="avatar">S</div>
+      <div class="user" id="app-user-box" title="Click to Sign Out / Switch Account" style="cursor:pointer">
+        <div class="avatar" id="app-avatar">A</div>
         <div>
-          <div class="u-name">Suhas Hanamannavar</div>
-          <div class="u-mail">webofjee@gmail.com</div>
+          <div class="u-name" id="app-uname">Engineer</div>
+          <div class="u-mail" id="app-umail">engineer@company.com</div>
         </div>
       </div>
     </div>
   </aside>
+  <script>
+    (function(){
+      try {
+        var email = localStorage.getItem('silica_user');
+        var name = localStorage.getItem('silica_name');
+        if(email){
+          var dn = name || email.split('@')[0];
+          var av = dn.trim().charAt(0).toUpperCase() || 'E';
+          var uN = document.getElementById('app-uname');
+          var uM = document.getElementById('app-umail');
+          var aV = document.getElementById('app-avatar');
+          if(uN) uN.textContent = dn;
+          if(uM) uM.textContent = email;
+          if(aV) aV.textContent = av;
+        }
+      }catch(e){}
+    })();
+  </script>
 
   <!-- ============ Main ============ -->
   <div class="main">
@@ -84,6 +97,6 @@
 <div class="toast" id="toast"><div class="t-t" id="toast-t">Notice</div><div id="toast-b"></div></div>
 
 <script src="data/transcript.js"></script>
-<script src="app.js"></script>
+<script src="app.js?v=2.2"></script>
 </body>
 </html>

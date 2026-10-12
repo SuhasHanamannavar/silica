@@ -1,87 +1,504 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Silica — AI Engineering Chat</title>
-<style>
-  :root{--bg:#0A0B0E;--surface:#13161C;--ink:#EDEFF4;--dim:#8E94A3;--line:rgba(237,239,244,.1);--accent:#6C8CFF;--ok:#7FB98B;--fail:#C96B5E;--warn:#C9A45E;}
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--ink);font-family:'Instrument Sans',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
-  header{padding:18px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
-  header .logo{font-weight:700;letter-spacing:.14em;font-size:15px}
-  header .badge{margin-left:auto;font-size:11px;padding:4px 10px;border:1px solid var(--line);border-radius:20px;color:var(--dim)}
-  #chat{flex:1;overflow-y:auto;padding:24px;max-width:860px;width:100%;margin:0 auto}
-  .msg{margin-bottom:18px;padding:14px 16px;border-radius:10px;max-width:92%;line-height:1.6;font-size:14px;white-space:pre-wrap;word-break:break-word}
-  .user{background:var(--accent);color:#fff;margin-left:auto}
-  .assistant{background:var(--surface);border:1px solid var(--line)}
-  .stage{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;color:var(--dim)}
-  .stage .dot{width:8px;height:8px;border-radius:50%;background:var(--dim)}
-  .stage.passed .dot{background:var(--ok)}.stage.failed .dot{background:var(--fail)}.stage.running .dot{background:var(--warn);animation:pulse 1s infinite}
-  @keyframes pulse{50%{opacity:.3}}
-  pre{background:#0E1014;border:1px solid var(--line);border-radius:8px;padding:12px;overflow-x:auto;font-size:12px;margin-top:8px;color:var(--ink)}
-  .composer{border-top:1px solid var(--line);padding:16px 24px;max-width:860px;width:100%;margin:0 auto;display:flex;gap:10px}
-  textarea{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:8px;color:var(--ink);padding:12px;font-size:14px;resize:none;min-height:56px;font-family:inherit}
-  button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:0 20px;font-weight:600;cursor:pointer;font-size:14px}
-  button:disabled{opacity:.5;cursor:not-allowed}
-  .meta{font-size:11px;color:var(--dim);margin-top:6px}
-  a{color:var(--accent)}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SILICA — AI Engineering Chat</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-black: #000000;
+      --bg-surface: #0A0A0A;
+      --bg-card: #111111;
+      --bg-input: #0A0A0A;
+      --bg-hover: rgba(255, 255, 255, 0.03);
+      --ink-white: #FFFFFF;
+      --ink-primary: #F5F5F5;
+      --ink-secondary: #999999;
+      --ink-muted: #666666;
+      --line: rgba(255, 255, 255, 0.08);
+      --line-strong: rgba(255, 255, 255, 0.14);
+      --accent: #94A3B8;
+      --accent-hover: #A8B5C9;
+      --accent-soft: rgba(148, 163, 184, 0.12);
+      --accent-dim: rgba(148, 163, 184, 0.5);
+      --success: #4ADE80;
+      --warn: #FBBF24;
+      --warn-soft: rgba(251, 191, 36, 0.12);
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-pill: 999px;
+      --ease: cubic-bezier(.2, .7, .2, 1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg-black);
+      color: var(--ink-primary);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ---------- Topbar ---------- */
+    .topbar {
+      flex: none;
+      height: 60px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      gap: 18px;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(12px);
+      position: relative;
+      z-index: 5;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--ink-white);
+    }
+    .brand .sub {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-left: 10px;
+      padding-left: 10px;
+      border-left: 1px solid var(--line);
+    }
+    .topbar .spacer { flex: 1; }
+    .topbar .session-soon {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--warn);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--warn-soft);
+      border: 1px solid rgba(251, 191, 36, 0.25);
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+    }
+    .topbar .session-soon .d {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--warn);
+      animation: blink 1.8s steps(2) infinite;
+    }
+    @keyframes blink { 50% { opacity: 0.25; } }
+
+    .topbar .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-white);
+      text-decoration: none;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-pill);
+      transition: all 0.2s;
+    }
+    .topbar .btn-back:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* ---------- Chat container ---------- */
+    .chat-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      position: relative;
+      z-index: 1;
+    }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 40px 20px 24px;
+    }
+    .chat-inner {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    /* Coming Soon Hero Card */
+    .cs-card {
+      background: rgba(17, 17, 17, 0.85);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-lg);
+      padding: 40px 36px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.7);
+    }
+    .cs-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.6), transparent);
+    }
+    .cs-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--warn);
+      background: var(--warn-soft);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      padding: 5px 14px;
+      border-radius: var(--radius-pill);
+      margin-bottom: 20px;
+    }
+    .cs-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--warn);
+      animation: blink 1.8s steps(2) infinite;
+    }
+    .cs-title {
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--ink-white);
+      letter-spacing: -0.02em;
+      margin-bottom: 14px;
+    }
+    .cs-desc {
+      font-size: 14.5px;
+      color: var(--ink-secondary);
+      line-height: 1.7;
+      max-width: 580px;
+      margin: 0 auto 28px;
+    }
+
+    .cs-workspace-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 18px 22px;
+      text-align: left;
+      margin: 0 auto 28px;
+      max-width: 620px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .cs-workspace-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.06);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink-white);
+      flex: none;
+    }
+    .cs-workspace-text {
+      flex: 1;
+      font-size: 13px;
+      color: var(--ink-secondary);
+      line-height: 1.5;
+    }
+    .cs-workspace-text strong {
+      display: block;
+      color: var(--ink-white);
+      font-size: 14px;
+      margin-bottom: 3px;
+    }
+
+    .cs-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .cs-btn-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--ink-white);
+      color: #000;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 12px 26px;
+      border-radius: var(--radius-pill);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .cs-btn-cta:hover {
+      background: #E5E5E5;
+      transform: translateY(-1px);
+    }
+    .cs-btn-back {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--ink-secondary);
+      font-family: var(--sans);
+      font-size: 13px;
+      padding: 12px 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-pill);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .cs-btn-back:hover {
+      color: var(--ink-white);
+      border-color: var(--line-strong);
+    }
+
+    /* Roadmap preview */
+    .roadmap-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-top: 36px;
+      text-align: left;
+    }
+    .rm-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+    }
+    .rm-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .rm-desc {
+      font-size: 12px;
+      color: var(--ink-muted);
+      line-height: 1.5;
+    }
+
+    /* ---------- Composer ---------- */
+    .composer {
+      flex: none;
+      padding: 16px 20px 24px;
+      border-top: 1px solid var(--line);
+      background: rgba(10, 10, 10, 0.7);
+      backdrop-filter: blur(8px);
+      position: relative;
+      z-index: 2;
+    }
+    .composer-inner {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+    .composer-box {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-lg);
+      padding: 10px 10px 10px 18px;
+      opacity: 0.8;
+    }
+    .composer textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: var(--sans);
+      font-size: 13.5px;
+      color: var(--ink-secondary);
+      line-height: 1.6;
+      padding: 6px 0;
+      cursor: not-allowed;
+    }
+    .composer textarea::placeholder { color: var(--ink-muted); }
+    .btn-send {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--ink-muted);
+      border: none;
+      cursor: not-allowed;
+      display: flex; align-items: center; justify-content: center;
+      flex: none;
+    }
+    .btn-send svg { width: 16px; height: 16px; }
+
+    .composer-hint {
+      margin-top: 10px;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+    .composer-hint a {
+      color: var(--ink-primary);
+      text-decoration: underline;
+    }
+
+    /* ---------- Scrollbar ---------- */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 5px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.22);
+      background-clip: padding-box;
+      border: 2px solid transparent;
+    }
+  </style>
 </head>
 <body>
-<header><div class="logo">SILICA</div><div>AI Semiconductor Engineering</div><div class="badge" id="badge">connecting…</div></header>
-<div id="chat"></div>
-<div class="composer">
-  <textarea id="prompt" placeholder="Describe the chip you want to build, e.g. 'Design a 4-bit up-counter with clock enable and overflow flag.'"></textarea>
-  <button id="send">Run</button>
-</div>
-<script>
+  <div class="topbar">
+    <a href="index.html" class="brand" style="display:flex;align-items:center;text-decoration:none">
+      <img src="assets/silica_teddy_logo.png" alt="Silica" style="height:32px;width:auto;object-fit:contain;display:block">
+      <span class="sub" style="margin-left:10px">AI Engineering Chat</span>
+    </a>
+    <div class="spacer"></div>
+    <div class="session-soon">
+      <span class="d"></span>
+      Coming Soon
+    </div>
+    <a href="app.html" class="btn-back">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path d="M8 2L3 6L8 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Workspace
+    </a>
+  </div>
 
-// ---- Auth: attach token to every fetch, redirect to /login on 401 ----
-(function(){
-  const _of = window.fetch.bind(window);
-  window.fetch = function(url, opts){
-    opts = opts || {}; opts.headers = opts.headers || {};
-    const t = localStorage.getItem('silica_token');
-    if(t) opts.headers['Authorization'] = 'Bearer ' + t;
-    return _of(url, opts).then(function(r){
-      if(r.status === 401){ location.href = '/login'; }
-      return r;
-    });
-  };
-  // Gate: if no token, bounce to login (only on app pages, not login itself)
-  if(!localStorage.getItem('silica_token') && !location.pathname.startsWith('/login')){
-    location.href = '/login';
-  }
-})();
+  <div class="chat-wrap">
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-inner">
 
+        <div class="cs-card">
+          <div class="cs-badge"><span class="dot"></span> Feature In Staging</div>
+          <h1 class="cs-title">Autonomous AI Chatbot Coming Soon</h1>
+          <p class="cs-desc">
+            The free-form conversational reasoning copilot is currently undergoing model fine-tuning and semiconductor PDK alignment. To guarantee authentic engineering feedback without ungrounded mock responses, free-form chat will go live in an upcoming release.
+          </p>
 
-const $=s=>document.querySelector(s);
-fetch('/api/health').then(r=>r.json()).then(d=>{$('#badge').textContent=d.tools_available?'LIVE EDA BACKEND':'frontend-only';$('#badge').style.color=d.tools_available?'var(--ok)':'var(--warn)';}).catch(()=>{$('#badge').textContent='backend offline';$('#badge').style.color='var(--fail)';});
-function addMsg(role,html){const d=document.createElement('div');d.className='msg '+role;d.innerHTML=html;$('#chat').appendChild(d);$('#chat').scrollTop=1e9;return d;}
-$('#send').onclick=async()=>{
-  const p=$('#prompt').value.trim();if(!p)return;
-  $('#send').disabled=true;
-  addMsg('user',p);
-  const status=addMsg('assistant','<div class="stage running"><span class="dot"></span>dispatching to orchestrator…</div>');
-  try{
-    const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})});
-    const j=await r.json();
-    if(j.error){status.innerHTML='<span style="color:var(--fail)">Error: '+j.error+'</span>';$('#send').disabled=false;return;}
-    const cid=j.chat_id;let last='';
-    const iv=setInterval(async()=>{
-      const s=await fetch('/api/chat/'+cid).then(x=>x.json());
-      const html=(s.stages||[]).map(st=>'<div class="stage '+st.status+'"><span class="dot"></span>'+st.name+(st.actions?' — '+st.actions.join('; '):'')+'</div>').join('');
-      const summary='<div class="meta">model: '+(s.model||'—')+' · source: '+(s.source||'—')+(s.blocker?' · <span style="color:var(--fail)">blocker: '+s.blocker+'</span>':'')+'</div>';
-      if(html!==last){status.innerHTML=html+summary;last=html;$('#chat').scrollTop=1e9;}
-      if(s.status!=='running'){
-        clearInterval(iv);$('#send').disabled=false;
-        if(s.report){addMsg('assistant','<b>Engineering report</b>\nDisposition: '+s.report.disposition+'\nMissing signoff checks: '+s.report.missing_signoff_checks.join(', ')+'\nArtifacts: '+(s.artifacts||[]).join(', '));}
-      }
-    },1500);
-  }catch(e){status.innerHTML='<span style="color:var(--fail)">Request failed: '+e+' — is server.py running locally?</span>';$('#send').disabled=false;}
-};
-$('#prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('#send').click();}});
-</script>
+          <div class="cs-workspace-box">
+            <div class="cs-workspace-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+            </div>
+            <div class="cs-workspace-text">
+              <strong>The Silica EDA Workspace is Live</strong>
+              Synthesize chips, view architecture specifications, inspect generated Verilog RTL, verify with Verilator, and review Yosys synthesis reports.
+            </div>
+          </div>
+
+          <div class="cs-actions">
+            <a href="app.html" class="cs-btn-cta">
+              <span>Launch Active Workspace</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+            <a href="index.html" class="cs-btn-back">Return to Home</a>
+          </div>
+
+          <div class="roadmap-grid">
+            <div class="rm-item">
+              <div class="rm-header">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                Conversational Architecture
+              </div>
+              <div class="rm-desc">Free-form microarchitecture tradeoffs, bus protocol selection, and pipeline design assistance.</div>
+            </div>
+            <div class="rm-item">
+              <div class="rm-header">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                Interactive Verification Debug
+              </div>
+              <div class="rm-desc">Autonomous diagnosis of Verilator simulation trace failures and assertion violations.</div>
+            </div>
+            <div class="rm-item">
+              <div class="rm-header">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                PDK & Signoff Advisor
+              </div>
+              <div class="rm-desc">Timing closure insights, PVT corner signoff guidance, and technology library mapping.</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="composer">
+      <div class="composer-inner">
+        <div class="composer-box">
+          <textarea id="chat-input" rows="1" placeholder="AI Chatbot is Coming Soon — click 'Launch Active Workspace' above to synthesize chips" disabled></textarea>
+          <button class="btn-send" id="btn-send" title="Coming Soon" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+        <div class="composer-hint">
+          Chat copilot is in staging · Run full chip synthesis now in the <a href="app.html">Active Workspace</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

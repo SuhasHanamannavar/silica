@@ -19,22 +19,69 @@ from urllib.parse import urlparse, unquote
 # ---------------------------------------------------------------------------
 import hashlib, secrets as _secrets
 AUTH_ENABLED = os.environ.get("SILICA_REQUIRE_AUTH", "") == "1"
-AUTH_USERS = {"webofjee@gmail.com": "Suhas@2007"}  # seeded admin user
+AUTH_USERS = {"webofjee@gmail.com": "Suhas@2007"}  # fallback local user
 AUTH_TOKENS = {}  # token -> email
+
+try:
+    import boto3
+    _boto_session = boto3.Session(
+        region_name=os.environ.get("AWS_REGION", "ap-south-1")
+    )
+    _dynamodb = _boto_session.resource("dynamodb")
+    _users_table = _dynamodb.Table("silica-users")
+    HAVE_DYNAMODB = True
+except Exception as _e:
+    HAVE_DYNAMODB = False
+    _users_table = None
+
 def _auth_check(path, headers):
     if not AUTH_ENABLED: return True, None
-    if path in ("/api/health", "/api/login", "/api/agents/health"): return True, None
+    if path in ("/api/health", "/api/login", "/api/signup", "/api/agents/health"): return True, None
     h = headers.get("Authorization", "")
     if h.startswith("Bearer "):
         tok = h[7:]
         if tok in AUTH_TOKENS: return True, AUTH_TOKENS[tok]
     return False, None
+
 def _auth_login(email, password):
+    if HAVE_DYNAMODB and _users_table:
+        try:
+            res = _users_table.get_item(Key={"email": email})
+            item = res.get("Item")
+            if item and item.get("password") == password:
+                tok = _secrets.token_hex(24)
+                AUTH_TOKENS[tok] = email
+                return tok, item.get("name", email.split("@")[0])
+        except Exception:
+            pass
     if AUTH_USERS.get(email) == password:
         tok = _secrets.token_hex(24)
         AUTH_TOKENS[tok] = email
-        return tok
-    return None
+        return tok, "Suhas Hanamannavar"
+    return None, None
+
+def _auth_signup(name, email, password, company=""):
+    if not email or not password or len(password) < 4:
+        return None, "Invalid email or password (min 4 characters)"
+    if HAVE_DYNAMODB and _users_table:
+        try:
+            existing = _users_table.get_item(Key={"email": email}).get("Item")
+            if existing:
+                return None, "An account with this email already exists"
+            _users_table.put_item(Item={
+                "email": email,
+                "password": password,
+                "name": name or email.split("@")[0],
+                "company": company or "Independent",
+                "role": "engineer",
+                "created_at": int(time.time())
+            })
+        except Exception as e:
+            return None, f"Database error: {e}"
+    AUTH_USERS[email] = password
+    tok = _secrets.token_hex(24)
+    AUTH_TOKENS[tok] = email
+    return tok, None
 
 
 
@@ -146,8 +193,10 @@ def list_projects():
     for pid in sorted(os.listdir(DATA)) if os.path.isdir(DATA) else []:
         meta = jread(os.path.join(DATA, pid, "project.json"), {})
         runs = jread(os.path.join(DATA, pid, "runs.json"), [])
+        last_run = runs[-1] if runs else {}
         out.append({"id": pid, **meta, "runs": len(runs),
-                    "last_status": runs[-1]["status"] if runs else "none"})
+                    "last_status": last_run.get("status", "none"),
+                    "last_run_id": last_run.get("id", None)})
     return out
 
 def create_project(name, spec, rtl=None):
@@ -340,37 +389,40 @@ except Exception as _e:
     HAS_AGENTS = False
     _AGENT_IMPORT_ERR = str(_e)
 
-def execute_agent_run(pid, rtl_override=None, max_recovery=2):
+def execute_agent_run(pid, rtl_override=None, max_recovery=2, rid=None):
     """Run the multi-agent pipeline and persist a frontend-compatible run.json."""
     pdir = os.path.join(DATA, pid)
     meta = jread(os.path.join(pdir, "project.json"), {})
     orch = Orchestrator(DATA, max_recovery=max_recovery)
-    run_state = orch.run_pipeline(pid, meta.get("spec", ""), rtl_override=rtl_override)
+    run_state = orch.run_pipeline(pid, meta.get("spec", ""), rtl_override=rtl_override, run_id=rid)
     rd = run_state.to_dict()
     # map orchestrator shape -> legacy frontend shape (stages as list)
     stages = []
     for aid, st in rd.get("stages", {}).items():
         stages.append({"name": aid, "status": st.get("status", "pending"),
                        "exit_code": 0 if st.get("status") == "passed" else 1,
-                       "duration_s": (st.get("finished_at") or 0) - (st.get("started_at") or 0)})
+                       "duration_s": round((st.get("finished_at") or 0) - (st.get("started_at") or 0), 2)})
+    rdir = os.path.join(pdir, "runs", rd["id"])
+    artifacts_dir = os.path.join(rdir, "artifacts")
+    all_artifacts = sorted(os.listdir(artifacts_dir)) if os.path.isdir(artifacts_dir) else rd.get("artifacts", [])
     legacy = {
         "id": rd["id"], "project": pid, "status": rd["status"],
         "stages": stages,
         "recovery": {"attempts": rd.get("recovery_attempts", 0),
                      "actions": [e.get("actions", "") for e in rd.get("events", []) if e.get("kind") == "recovery_attempt"]},
-        "artifacts": rd.get("artifacts", []),
+        "artifacts": all_artifacts,
         "tools": dict(TOOLS),
         "agent_pipeline": True,
         "events": rd.get("events", [])[-50:],
     }
     # overwrite run.json with frontend-compatible view
-    rdir = os.path.join(pdir, "runs", rd["id"])
     jwrite(os.path.join(rdir, "run.json"), legacy)
     runs = jread(os.path.join(pdir, "runs.json"), [])
     runs = [r for r in runs if r.get("id") != rd["id"]] + [
         {"id": rd["id"], "status": rd["status"], "started": rd.get("started_at"),
          "stages": [s["name"]+":"+s["status"] for s in stages],
-         "recovered": rd.get("recovery_attempts", 0) > 0, "agent_pipeline": True}]
+         "recovered": rd.get("recovery_attempts", 0) > 0, "agent_pipeline": True,
+         "artifacts_count": len(all_artifacts)}]
     jwrite(os.path.join(pdir, "runs.json"), runs)
     return legacy
 
@@ -468,7 +520,25 @@ class Handler(BaseHTTPRequestHandler):
         body = self.rfile.read(length) if length else b"{}"
         try: payload = json.loads(body or b"{}")
         except Exception: payload = {}
-        if p == "/api/chat":
+        if p == "/api/login":
+            email = payload.get("email", "")
+            pwd = payload.get("password", "")
+            tok, name = _auth_login(email, pwd)
+            if tok:
+                return self._send(200, {"ok": True, "token": tok, "email": email, "name": name})
+            else:
+                return self._send(401, {"ok": False, "error": "Invalid email or password"})
+        elif p == "/api/signup":
+            name = payload.get("name", "")
+            email = payload.get("email", "")
+            pwd = payload.get("password", "")
+            company = payload.get("company", "")
+            tok, err = _auth_signup(name, email, pwd, company)
+            if tok:
+                return self._send(200, {"ok": True, "token": tok, "email": email, "name": name or email.split("@")[0], "message": "Account created in AWS DynamoDB successfully!"})
+            else:
+                return self._send(400, {"ok": False, "error": err or "Failed to register account"})
+        elif p == "/api/chat":
             return self._handle_chat(payload)
         elif p.startswith("/api/chat/"):
             cid = p.split("/")[-1]
@@ -491,11 +561,17 @@ class Handler(BaseHTTPRequestHandler):
             pdir = os.path.join(DATA, pid)
             if not os.path.isdir(pdir): self._send(404, {"error": "project not found"}); return
             rtl = payload.get("rtl")
+            new_prompt = payload.get("prompt") or payload.get("spec")
+            if new_prompt:
+                meta = jread(os.path.join(pdir, "project.json"), {})
+                meta["spec"] = new_prompt
+                jwrite(os.path.join(pdir, "project.json"), meta)
             use_broken = payload.get("demo_broken", False)
             if use_broken: rtl = BROKEN_RTL
+            rid = uuid.uuid4().hex[:8]
             _run_fn = execute_agent_run if HAS_AGENTS else execute_run
-            threading.Thread(target=_run_fn, args=(pid, rtl), daemon=True).start()
-            self._send(200, {"status": "started", "project": pid, "agent_pipeline": HAS_AGENTS})
+            threading.Thread(target=_run_fn, args=(pid, rtl), kwargs={"rid": rid} if HAS_AGENTS else {}, daemon=True).start()
+            self._send(200, {"status": "started", "project": pid, "run_id": rid, "agent_pipeline": HAS_AGENTS})
         else:
             self._send(404, {"error": "unknown endpoint"})
 
