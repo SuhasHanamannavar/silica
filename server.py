@@ -18,6 +18,17 @@ from urllib.parse import urlparse, unquote
 # USERS dict + in-memory tokens with AWS DynamoDB (table silica-users).
 # ---------------------------------------------------------------------------
 import hashlib, secrets as _secrets
+try:
+    import neatlogs
+    _NEATLOGS_KEY = os.environ.get("NEATLOGS_API_KEY", "bNve9E7JINfT773IqZAFaVm3yGXAZ0m4")
+    if _NEATLOGS_KEY:
+        neatlogs.init(api_key=_NEATLOGS_KEY)
+        HAVE_NEATLOGS = True
+    else:
+        HAVE_NEATLOGS = False
+except Exception:
+    HAVE_NEATLOGS = False
+
 AUTH_ENABLED = os.environ.get("SILICA_REQUIRE_AUTH", "") == "1"
 AUTH_USERS = {"webofjee@gmail.com": "Suhas@2007"}  # fallback local user
 AUTH_TOKENS = {}  # token -> email
@@ -254,7 +265,11 @@ def diagnose_and_fix(rtl_text, error_log):
 def run_stage(name, cmd, cwd, timeout=120):
     t0 = time.time()
     try:
-        p = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout)
+        if HAVE_NEATLOGS:
+            with neatlogs.trace(f"silica_stage_{name}"):
+                p = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout)
+        else:
+            p = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout)
         dur = round(time.time()-t0, 2)
         log = (p.stdout or "") + (p.stderr or "")
         return {"name": name, "cmd": " ".join(cmd), "exit_code": p.returncode,
