@@ -1,7 +1,5 @@
 # Silica — Autonomous Semiconductor Engineering Platform
 
-....
-
 
 **"From natural-language specification to verified gate-level netlists with zero mocked data."** — _Silica (Silicon · Architecture · Provenance)_
 
