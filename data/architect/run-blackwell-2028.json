@@ -1,0 +1,1888 @@
+{
+  "inputs": {
+    "product_brief": "Flagship dual-die AI training and inference GPU for 2026-2028 frontier clusters, optimized for trillion-parameter LLMs, dense mixture-of-experts, and agentic reasoning loops.",
+    "target_market": "Datacenter & Hyperscale Cloud Infrastructure",
+    "key_workloads": [
+      "LLM training",
+      "LLM autoregressive decode",
+      "LLM prefill",
+      "diffusion",
+      "hpc"
+    ],
+    "power_budget_w": 1000.0,
+    "process_node": "TSMC 3nm (N3P)",
+    "competitors": [
+      "NVIDIA Blackwell B200",
+      "AMD Instinct MI300X",
+      "Google TPU v5p"
+    ]
+  },
+  "stages": {
+    "market_analysis": {
+      "market_opportunity": {
+        "market_size_estimate_usd_billion": 145.0,
+        "cagr_percent": 28.5,
+        "key_customer_segments": [
+          "Tier-1 Hyperscalers (AWS, Azure, GCP, Meta)",
+          "Frontier AI Foundation Model Labs (OpenAI, Anthropic, xAI)",
+          "Sovereign Cloud & National Supercomputing Centers",
+          "Enterprise AI Cloud Providers (CoreWeave, Lambda Labs)"
+        ],
+        "primary_purchase_drivers": [
+          "Raw token generation throughput per megawatt (Tokens/sec/Watt)",
+          "Lowest total cost of ownership (TCO) per trillion parameter training run",
+          "Memory capacity and bandwidth to serve 70B-400B models without tensor parallelism fragmentation",
+          "Seamless software stack and CUDA compatibility"
+        ],
+        "timeline_for_volume_deployment": "Q2 2026 Volume Production Ramp"
+      },
+      "customer_requirements": {
+        "performance_targets": {
+          "fp8_tflops_peak": 3600,
+          "nvfp4_tflops_peak": 7200,
+          "memory_bandwidth_tbs": 8.0,
+          "tokens_per_sec_70b_decode": 125
+        },
+        "power_constraints": {
+          "chip_tdp_w": 1000,
+          "rack_power_limit_kw": 120.0,
+          "cooling_spec": "Liquid-to-liquid CDUs compatible with standard datacenter manifold"
+        },
+        "software_compatibility": "Drop-in PyTorch 2.x, Triton, and vLLM acceleration with zero source code refactoring",
+        "scaling_requirements": "Ultra-fast scale-up to 576 GPUs via NVLink domain; scale-out to 64,000 nodes via 800G RoCEv2/InfiniBand",
+        "reliability_expectations": "99.995% cluster availability; MTBF > 1,000,000 hours per socket"
+      },
+      "competitive_landscape": [
+        {
+          "competitor": "NVIDIA Blackwell B200",
+          "strengths": [
+            "Massive software monopoly (CUDA)",
+            "Established NVLink switch ecosystem"
+          ],
+          "weaknesses": [
+            "Extremely high premium pricing ($35k-$40k)",
+            "Severe supply allocation constraints"
+          ],
+          "performance_comparison": "Parity in compute and bandwidth; 15% better power efficiency",
+          "power_efficiency": "3.6 TFLOPS/Watt (FP8)",
+          "price_positioning": "Silica offers 35% lower cost per unit with equivalent performance"
+        },
+        {
+          "competitor": "AMD Instinct MI300X / MI350",
+          "strengths": [
+            "Large 192GB memory capacity",
+            "Competitive open-source ROCm effort"
+          ],
+          "weaknesses": [
+            "Inferior interconnect bandwidth (896 GB/s vs 1.8 TB/s)",
+            "Software ecosystem fragmentation"
+          ],
+          "performance_comparison": "Silica achieves 2.2x higher bidirectional scale-up bandwidth and native NVFP4 support",
+          "power_efficiency": "3.1 TFLOPS/Watt (FP8)",
+          "price_positioning": "Silica competes directly on software usability and higher network density"
+        }
+      ],
+      "strategic_recommendations": {
+        "product_positioning": "Flagship Datacenter AI Accelerator optimized for multi-trillion parameter model training and interactive agentic LLM decode",
+        "top_3_differentiators": [
+          "Dual-die 1,180 mm\u00b2 compute engine with industry-leading 192 MB compressed on-chip L2 cache",
+          "Microscaled NVFP4 execution units cutting autoregressive memory bottleneck by 50%",
+          "Direct CUDA PTX binary compatibility layer ensuring instant Day-1 deployment"
+        ],
+        "must_have_features": [
+          "Minimum 8 TB/s HBM3e bandwidth",
+          "NVLink 5.0 compatible 1.8 TB/s scale-up interface",
+          "Direct Liquid Cooling support"
+        ],
+        "timeline_recommendations": "Engineering samples Q3 2025; Tape-out Q4 2025; Volume shipments Q2 2026"
+      }
+    },
+    "functional_spec": {
+      "compute_architecture": {
+        "precision_formats": [
+          {
+            "format": "FP64",
+            "peak_tflops": 90.0,
+            "enabled": true
+          },
+          {
+            "format": "FP32",
+            "peak_tflops": 180.0,
+            "enabled": true
+          },
+          {
+            "format": "TF32",
+            "peak_tflops": 900.0,
+            "enabled": true
+          },
+          {
+            "format": "FP16",
+            "peak_tflops": 1800.0,
+            "enabled": true
+          },
+          {
+            "format": "BF16",
+            "peak_tflops": 1800.0,
+            "enabled": true
+          },
+          {
+            "format": "FP8",
+            "peak_tflops": 3600.0,
+            "enabled": true
+          },
+          {
+            "format": "NVFP4",
+            "peak_tflops": 7200.0,
+            "enabled": true
+          },
+          {
+            "format": "INT8",
+            "peak_tops": 3600.0,
+            "enabled": true
+          },
+          {
+            "format": "INT4",
+            "peak_tops": 7200.0,
+            "enabled": true
+          }
+        ],
+        "tensor_core_design": {
+          "generation": "5th-gen Tensor Core with NVFP4 Microscaling",
+          "mma_shapes_supported": [
+            "M=16,N=16,K=16",
+            "M=64,N=64,K=32",
+            "M=256,N=128,K=64"
+          ],
+          "sparsity_support": true,
+          "notes": "2:4 structured sparsity gives 2x compute throughput boost on dense matrix operands"
+        },
+        "sm_architecture": {
+          "total_sm_count": 144,
+          "cuda_cores_per_sm": 128,
+          "tensor_cores_per_sm": 4,
+          "warp_schedulers_per_sm": 4,
+          "register_file_per_sm_kb": 256,
+          "l1_shared_memory_per_sm_kb": 256,
+          "l1_shared_configurable": true,
+          "base_clock_mhz": 1800,
+          "boost_clock_mhz": 2250
+        },
+        "instruction_set": {
+          "cuda_compatibility": "SM_100",
+          "new_instructions": [
+            "MMA.SP.NVFP4: Micro-scaled 4-bit tensor matrix multiply-accumulate",
+            "ASYNC.COPY.TMA2: 2nd-gen Tensor Memory Accelerator with multicast reduction",
+            "WARP.GROUP.BARRIER: Sub-millicycle collective sync across warp groups",
+            "KV.CACHE.COMPRESS: Hardware accelerated 2:1 sparse KV-cache indexing"
+          ],
+          "backwards_compatible_to": "SM_80"
+        }
+      },
+      "memory_hierarchy": {
+        "hbm_subsystem": {
+          "hbm_generation": "HBM3e",
+          "total_capacity_gb": 192,
+          "total_bandwidth_tbs": 8.0,
+          "stack_count": 8,
+          "bus_width_bits": 8192,
+          "data_rate_gbps_per_pin": 7.8125,
+          "ecc_support": "SEC-DED with Double-Chipkill"
+        },
+        "l2_cache": {
+          "total_size_mb": 192,
+          "organization": "Distributed crossbar-interleaved",
+          "banks": 96,
+          "compression_supported": true,
+          "compression_ratio_max": 2.2
+        },
+        "l1_cache": {
+          "per_sm_size_kb": 256,
+          "configurable": true,
+          "shared_memory_max_kb": 228
+        },
+        "register_file": {
+          "per_sm_kb": 256,
+          "total_gpu_kb": 36864
+        }
+      },
+      "interconnect": {
+        "nvlink": {
+          "generation": "5.0",
+          "lane_count": 18,
+          "data_rate_gbps_per_lane": 100,
+          "bidirectional_bandwidth_tbs": 1.8,
+          "latency_ns": 45,
+          "max_gpus_per_node": 8,
+          "switch_supported": true
+        },
+        "pcie": {
+          "generation": "6.0",
+          "lane_count": "x16",
+          "bidirectional_bandwidth_gbs": 128.0,
+          "cxl_supported": true,
+          "cxl_version": "3.1",
+          "sriov_supported": true,
+          "max_virtual_functions": 32
+        },
+        "noc_architecture": {
+          "topology": "Distributed 2D-Mesh with virtual channels",
+          "bisection_bandwidth_tbs": 24.0,
+          "notes": "Low-diameter mesh interconnect directly linking SM GPCs and distributed L2 banks"
+        }
+      },
+      "virtualization_ras": {
+        "mig": {
+          "supported": true,
+          "max_instances": 8,
+          "instance_types": [
+            "1g.24gb",
+            "2g.48gb",
+            "4g.96gb",
+            "8g.192gb"
+          ]
+        },
+        "ecc": {
+          "hbm": "Double-chipkill + command/address parity",
+          "l2_cache": "SEC-DED Inline ECC with background scrubbing",
+          "l1_cache": "Parity / SEC-DED",
+          "register_file": "SEC-DED protected registers"
+        },
+        "ras_features": [
+          "Dynamic lane failover on NVLink 5.0",
+          "Autonomous thermal throttling with millisecond DVFS response",
+          "On-the-fly row/column repair and DRAM page retirement",
+          "Error containment and fault isolation across MIG partitions"
+        ],
+        "fit_rate_target": 850
+      },
+      "software": {
+        "cuda_compatibility": "Full CUDA 12.x / 13.x native",
+        "library_support": [
+          "cuBLAS",
+          "cuDNN",
+          "TensorRT-LLM",
+          "NCCL",
+          "cuFFT",
+          "CUTLASS"
+        ],
+        "framework_support": [
+          "PyTorch 2.x",
+          "JAX",
+          "DeepSpeed",
+          "Megatron-LM",
+          "vLLM"
+        ],
+        "backwards_compatibility": "Full binary and PTX backwards compatibility to Hopper and Ampere",
+        "new_apis_required": [
+          "cudaLaunchKernelEx with FP4 tensor scaling factors",
+          "ncclAllReduceNVLinkDirect with in-switch reduction primitives"
+        ]
+      },
+      "design_assumptions": [
+        "Manufactured on TSMC 3nm (N3P) with high-density SRAM cell libraries",
+        "Dual-die CoWoS-L packaging with 10 TB/s high-density Die-to-Die PHY interface",
+        "8-stack HBM3e subsystem with thermal cold plate liquid cooling rated for 1000W TDP",
+        "Host CPU connected via PCIe Gen6 x16 with CXL 3.1 Type 3 memory pooling"
+      ],
+      "_validation": {
+        "has_required_fields": true,
+        "numeric_consistency": true,
+        "physical_feasibility": true,
+        "no_inf_values": true,
+        "no_negative_values": true,
+        "overall": true
+      },
+      "_multipass_audit": [
+        {
+          "pass": 1,
+          "action": "initial_generation",
+          "result_summary": "keys: ['compute_architecture', 'memory_hierarchy', 'interconnect', 'virtualization_ras', 'software']"
+        },
+        {
+          "pass": 2,
+          "action": "critique",
+          "findings": 3
+        },
+        {
+          "pass": 2,
+          "action": "revision_applied",
+          "issues_fixed": 3
+        },
+        {
+          "pass": 3,
+          "action": "critique",
+          "findings": 3
+        },
+        {
+          "pass": 3,
+          "action": "revision_applied",
+          "issues_fixed": 3
+        },
+        {
+          "pass": "final",
+          "action": "validation",
+          "result": {
+            "has_required_fields": true,
+            "numeric_consistency": true,
+            "physical_feasibility": true,
+            "no_inf_values": true,
+            "no_negative_values": true,
+            "overall": true
+          }
+        }
+      ]
+    },
+    "non_functional_spec": {
+      "performance_constraints": {
+        "clock_frequencies": {
+          "base_clock_mhz": 1800,
+          "boost_clock_mhz": 2250,
+          "memory_clock_mhz": 3906,
+          "nvlink_clock_mhz": 1562,
+          "pcie_clock_mhz": 500
+        },
+        "latency_targets": {
+          "hbm_read_latency_ns": 78,
+          "l2_hit_latency_ns": 18,
+          "l1_hit_latency_ns": 4,
+          "nvlink_latency_ns": 45,
+          "pcie_latency_ns": 110,
+          "warp_scheduling_latency_cycles": 1
+        },
+        "throughput_targets": {
+          "llm_training_tokens_per_sec": 4850,
+          "llm_inference_tokens_per_sec": 19200,
+          "llm_prefill_ms": 14.5,
+          "llm_decode_ms_per_token": 1.2
+        }
+      },
+      "power_budget": {
+        "total_tdp_watts": 1000.0,
+        "allocation": {
+          "compute_sm_array": {
+            "percent": 45.0,
+            "watts": 450.0
+          },
+          "memory_phy_controller": {
+            "percent": 22.0,
+            "watts": 220.0
+          },
+          "l2_cache": {
+            "percent": 12.0,
+            "watts": 120.0
+          },
+          "noc_interconnect": {
+            "percent": 10.0,
+            "watts": 100.0
+          },
+          "nvlink_pcie_phys": {
+            "percent": 8.0,
+            "watts": 80.0
+          },
+          "clock_power_mgmt": {
+            "percent": 3.0,
+            "watts": 30.0
+          }
+        },
+        "idle_power_watts": 85.0,
+        "power_efficiency_target_tflops_per_watt": 3.6,
+        "dvfs_support": true,
+        "operating_points": [
+          {
+            "voltage_v": 0.75,
+            "clock_mhz": 1600
+          },
+          {
+            "voltage_v": 0.85,
+            "clock_mhz": 2000
+          },
+          {
+            "voltage_v": 0.95,
+            "clock_mhz": 2250
+          }
+        ],
+        "power_gating_supported": true,
+        "clock_gating_coverage_percent": 88
+      },
+      "area_budget": {
+        "total_die_area_mm2": 1180.0,
+        "reticle_limit_check": "EXCEEDS",
+        "chiplet_required": true,
+        "chiplet_count_if_required": 2,
+        "allocation": {
+          "sm_array": {
+            "percent": 40.0,
+            "mm2": 472.0
+          },
+          "l2_cache": {
+            "percent": 20.0,
+            "mm2": 236.0
+          },
+          "memory_controllers_phy": {
+            "percent": 15.0,
+            "mm2": 177.0
+          },
+          "noc": {
+            "percent": 10.0,
+            "mm2": 118.0
+          },
+          "nvlink_pcie": {
+            "percent": 10.0,
+            "mm2": 118.0
+          },
+          "other": {
+            "percent": 5.0,
+            "mm2": 59.0
+          }
+        },
+        "package_type": "CoWoS-L SXM Module",
+        "package_dimensions_mm": "95 x 105",
+        "bump_count": 145000,
+        "bump_pitch_um": 25
+      },
+      "thermal_specification": {
+        "max_junction_temp_c": 105,
+        "operating_temp_range_c": "0 to 85",
+        "thermal_resistance_theta_jc_c_per_w": 0.035,
+        "cooling_solution": "Direct Liquid Cooling (DLC) cold plate with warm water (32C inlet)",
+        "airflow_requirement_cfm": 120,
+        "max_power_density_w_per_mm2": 1.7
+      },
+      "reliability_availability": {
+        "fit_rate_target": 850,
+        "mtbf_hours": 1176000,
+        "service_life_years": 5,
+        "ecc_schemes": {
+          "hbm": "Double-chipkill",
+          "l2": "SEC-DED inline",
+          "l1": "Parity / SEC-DED",
+          "registers": "SEC-DED"
+        },
+        "ras_features": [
+          "error_containment",
+          "fault_isolation",
+          "page_retirement",
+          "dynamic_lane_repair"
+        ]
+      },
+      "cost_targets": {
+        "die_cost_usd": 1850.0,
+        "package_cost_usd": 980.0,
+        "hbm_cost_usd": 3450.0,
+        "total_bom_usd": 6880.0,
+        "nre_mask_cost_usd": 6500000.0,
+        "asp_target_usd": 28000.0,
+        "gross_margin_target_percent": 75.4
+      },
+      "physical_constraints": {
+        "voltage_rails": [
+          {
+            "name": "VDD_CORE",
+            "voltage_v": 0.85,
+            "tolerance_percent": 3,
+            "max_current_a": 950.0
+          },
+          {
+            "name": "VDD_MEM",
+            "voltage_v": 1.1,
+            "tolerance_percent": 4,
+            "max_current_a": 160.0
+          },
+          {
+            "name": "VDD_IO",
+            "voltage_v": 1.8,
+            "tolerance_percent": 5,
+            "max_current_a": 45.0
+          }
+        ],
+        "power_sequencing_requirements": "VDD_IO first, then VDD_MEM, delay 150us -> VDD_CORE ramp rate < 1mV/us",
+        "emc_requirements": "FCC Class A, CISPR 32, CE Mark",
+        "mechanical_form_factor": "SXM5/SXM6 Mezzanine Form Factor"
+      },
+      "_budget_validation": {
+        "power_percent_sum": 100.0,
+        "area_percent_sum": 100.0,
+        "budgets_consistent": true
+      },
+      "_multipass_audit": [
+        {
+          "pass": 1,
+          "action": "initial_generation",
+          "result_summary": "keys: ['performance_constraints', 'power_budget', 'area_budget', 'thermal_specification', 'reliability_availability']"
+        },
+        {
+          "pass": 2,
+          "action": "critique",
+          "findings": 3
+        },
+        {
+          "pass": 2,
+          "action": "revision_applied",
+          "issues_fixed": 3
+        },
+        {
+          "pass": 3,
+          "action": "critique",
+          "findings": 3
+        },
+        {
+          "pass": 3,
+          "action": "revision_applied",
+          "issues_fixed": 3
+        },
+        {
+          "pass": "final",
+          "action": "validation",
+          "result": {
+            "has_required_fields": true,
+            "numeric_consistency": true,
+            "physical_feasibility": true,
+            "no_inf_values": true,
+            "no_negative_values": true,
+            "overall": true
+          }
+        }
+      ],
+      "_validation": {
+        "has_required_fields": true,
+        "numeric_consistency": true,
+        "physical_feasibility": true,
+        "no_inf_values": true,
+        "no_negative_values": true,
+        "overall": true
+      }
+    },
+    "tradeoff_analysis": {
+      "decisions_summary": [
+        {
+          "decision_id": "monolithic_vs_chiplet",
+          "options_analyzed": [
+            {
+              "option_name": "Monolithic single die (820 mm\u00b2)",
+              "scores": {
+                "performance": 9,
+                "power_efficiency": 9,
+                "area_cost": 4,
+                "engineering_complexity": 8,
+                "time_to_market": 7,
+                "programmability": 10,
+                "yield_risk": 3
+              },
+              "quantitative_impact": {
+                "performance_change_percent": 0.0,
+                "power_change_percent": -4.0,
+                "area_change_percent": -15.0,
+                "engineering_months": 18,
+                "yield_estimate_percent": 34.5
+              },
+              "pros": [
+                "Zero die-to-die latency or interconnect overhead",
+                "Simpler clock distribution across single silicon substrate",
+                "Direct unified memory and cache routing"
+              ],
+              "cons": [
+                "Severe defect vulnerability on large die area",
+                "Wafer yield degrades to ~35%, multiplying raw silicon cost",
+                "Limits future scalability beyond reticle limit (858 mm\u00b2)"
+              ]
+            },
+            {
+              "option_name": "Chiplet: 2 dies on CoWoS-L (2x 590 mm\u00b2)",
+              "scores": {
+                "performance": 10,
+                "power_efficiency": 8,
+                "area_cost": 8,
+                "engineering_complexity": 6,
+                "time_to_market": 8,
+                "programmability": 9,
+                "yield_risk": 8
+              },
+              "quantitative_impact": {
+                "performance_change_percent": 52.0,
+                "power_change_percent": 3.5,
+                "area_change_percent": 43.0,
+                "engineering_months": 22,
+                "yield_estimate_percent": 68.0
+              },
+              "pros": [
+                "Allows 1,180 mm\u00b2 total compute silicon, smashing the 858 mm\u00b2 reticle ceiling",
+                "Substantially higher wafer yields (68% vs 34.5%)",
+                "Scales SM count to 144+ with 192 MB L2 cache"
+              ],
+              "cons": [
+                "Requires 10 TB/s CoWoS-L inter-die bridge with ~5-10ns cross-die latency",
+                "Higher packaging cost and CoWoS foundry capacity allocation dependencies"
+              ]
+            }
+          ],
+          "recommendation": "Chiplet: 2 dies on CoWoS-L (2x 590 mm\u00b2)",
+          "rationale": "Breaking past the 858 mm\u00b2 reticle limit is strictly required to achieve competitive compute density against NVIDIA Blackwell. The 68% yield on 590 mm\u00b2 dies cuts silicon scrap cost by over 40%, offsetting the CoWoS packaging premium.",
+          "key_assumptions": [
+            "TSMC CoWoS-L line capacity secured for production volume",
+            "Die-to-Die (D2D) PHY achieves < 0.5 pJ/bit power efficiency"
+          ],
+          "sensitivity_analysis": "If packaging cost increases by > 150% or CoWoS lead times exceed 40 weeks, monolithic single die variant at 780 mm\u00b2 would be activated as a fallback."
+        },
+        {
+          "decision_id": "precision_format_strategy",
+          "options_analyzed": [
+            {
+              "option_name": "FP8 + BF16 Standard Precision",
+              "scores": {
+                "performance": 7,
+                "power_efficiency": 7,
+                "area_cost": 8,
+                "engineering_complexity": 9,
+                "time_to_market": 9,
+                "programmability": 9,
+                "yield_risk": 9
+              },
+              "quantitative_impact": {
+                "performance_change_percent": 0.0,
+                "power_change_percent": 0.0,
+                "area_change_percent": 0.0,
+                "engineering_months": 12,
+                "yield_estimate_percent": 72.0
+              },
+              "pros": [
+                "Proven numerical stability across all transformer workloads",
+                "Zero software friction"
+              ],
+              "cons": [
+                "Cannot match NVIDIA Blackwell B200 4-bit throughput claims"
+              ]
+            },
+            {
+              "option_name": "NVFP4 Microscaling Engine with FP8/BF16/FP16",
+              "scores": {
+                "performance": 10,
+                "power_efficiency": 10,
+                "area_cost": 7,
+                "engineering_complexity": 7,
+                "time_to_market": 8,
+                "programmability": 8,
+                "yield_risk": 8
+              },
+              "quantitative_impact": {
+                "performance_change_percent": 100.0,
+                "power_change_percent": -35.0,
+                "area_change_percent": 6.5,
+                "engineering_months": 15,
+                "yield_estimate_percent": 68.0
+              },
+              "pros": [
+                "Doubles inference token throughput (7,200 TFLOPS theoretical peak)",
+                "Reduces memory footprint and traffic by 2x for KV cache and model weights",
+                "Maintains near-FP16 accuracy using block microscaling vectors"
+              ],
+              "cons": [
+                "Requires compiler and library support in TensorRT and PyTorch"
+              ]
+            }
+          ],
+          "recommendation": "NVFP4 Microscaling Engine with FP8/BF16/FP16",
+          "rationale": "LLM decode is severely memory-bandwidth constrained; 4-bit representation doubles effective bandwidth and doubles compute throughput with only minor silicon area cost.",
+          "key_assumptions": [
+            "Quantization frameworks support microscopic scaling factors without loss of perplexity"
+          ],
+          "sensitivity_analysis": "If frontier model developers reject FP4 inference, the SM dynamically repurposes the dual-issue units for FP8/BF16 at full speed."
+        },
+        {
+          "decision_id": "l2_cache_sizing",
+          "options_analyzed": [
+            {
+              "option_name": "96 MB L2 Cache",
+              "scores": {
+                "performance": 7,
+                "power_efficiency": 7,
+                "area_cost": 9,
+                "engineering_complexity": 9,
+                "time_to_market": 9,
+                "programmability": 8,
+                "yield_risk": 9
+              },
+              "quantitative_impact": {
+                "performance_change_percent": -12.0,
+                "power_change_percent": 5.0,
+                "area_change_percent": -10.0,
+                "engineering_months": 10,
+                "yield_estimate_percent": 75.0
+              },
+              "pros": [
+                "Saves 110 mm\u00b2 die area",
+                "Lowest SRAM defect probability"
+              ],
+              "cons": [
+                "Higher HBM bandwidth traffic during LLM attention and convolution operations"
+              ]
+            },
+            {
+              "option_name": "192 MB Compressed L2 Cache",
+              "scores": {
+                "performance": 10,
+                "power_efficiency": 9,
+                "area_cost": 7,
+                "engineering_complexity": 7,
+                "time_to_market": 8,
+                "programmability": 9,
+                "yield_risk": 7
+              },
+              "quantitative_impact": {
+                "performance_change_percent": 18.0,
+                "power_change_percent": -14.0,
+                "area_change_percent": 10.0,
+                "engineering_months": 14,
+                "yield_estimate_percent": 68.0
+              },
+              "pros": [
+                "Captures entire KV-cache resident working sets for 32k context batches",
+                "Provides up to 50x compression for activation tensors",
+                "Dramatically cuts HBM energy consumption (SRAM access is 10x more energy efficient than HBM)"
+              ],
+              "cons": [
+                "Requires 20% of die silicon budget; requires ECC scrubbing"
+              ]
+            }
+          ],
+          "recommendation": "192 MB Compressed L2 Cache",
+          "rationale": "Large L2 cache acts as an effective bandwidth multiplier, buffering low arithmetic intensity decode workloads directly on-chip.",
+          "key_assumptions": [
+            "SRAM bitcell density on chosen process node achieves >= 0.28 Mbit/mm\u00b2"
+          ],
+          "sensitivity_analysis": "If SRAM scaling saturates, reduce to 144 MB with aggressive 3:1 real-time compressor."
+        },
+        {
+          "decision_id": "hbm_generation_selection",
+          "options_analyzed": [
+            {
+              "option_name": "8-Stack HBM3e (192 GB @ 8 TB/s)",
+              "scores": {
+                "performance": 9,
+                "power_efficiency": 8,
+                "area_cost": 8,
+                "engineering_complexity": 9,
+                "time_to_market": 10,
+                "programmability": 10,
+                "yield_risk": 9
+              },
+              "quantitative_impact": {
+                "performance_change_percent": 0.0,
+                "power_change_percent": 0.0,
+                "area_change_percent": 0.0,
+                "engineering_months": 12,
+                "yield_estimate_percent": 82.0
+              },
+              "pros": [
+                "Mature mass production status",
+                "Established multi-vendor sourcing (SK Hynix, Micron, Samsung)"
+              ],
+              "cons": [
+                "Reached pin rate limit at ~9.6 Gbps"
+              ]
+            },
+            {
+              "option_name": "4-Stack HBM4 (144 GB @ 8 TB/s)",
+              "scores": {
+                "performance": 9,
+                "power_efficiency": 10,
+                "area_cost": 6,
+                "engineering_complexity": 5,
+                "time_to_market": 6,
+                "programmability": 10,
+                "yield_risk": 5
+              },
+              "quantitative_impact": {
+                "performance_change_percent": 5.0,
+                "power_change_percent": -22.0,
+                "area_change_percent": -12.0,
+                "engineering_months": 20,
+                "yield_estimate_percent": 60.0
+              },
+              "pros": [
+                "2048-bit bus width allows halving stack count",
+                "Lower PHY power"
+              ],
+              "cons": [
+                "Schedule slip risk for early 2026 tapeout; novel logic base die manufacturing"
+              ]
+            }
+          ],
+          "recommendation": "8-Stack HBM3e (192 GB @ 8 TB/s)",
+          "rationale": "Guarantees production launch readiness without gating on first-generation HBM4 packaging yields, while still achieving full 8 TB/s bandwidth parity with NVIDIA B200.",
+          "key_assumptions": [
+            "HBM3e supply contract secured at <= $18/GB"
+          ],
+          "sensitivity_analysis": "Adopt HBM4 for mid-generation architectural refresh."
+        },
+        {
+          "decision_id": "sm_count_vs_clock_frequency",
+          "options_analyzed": [
+            {
+              "option_name": "Fewer SMs (108) at ultra-high clock (2.7 GHz)",
+              "scores": {
+                "performance": 7,
+                "power_efficiency": 5,
+                "area_cost": 8,
+                "engineering_complexity": 6,
+                "time_to_market": 7,
+                "programmability": 9,
+                "yield_risk": 6
+              },
+              "quantitative_impact": {
+                "performance_change_percent": -8.0,
+                "power_change_percent": 24.0,
+                "area_change_percent": -14.0,
+                "engineering_months": 16,
+                "yield_estimate_percent": 62.0
+              },
+              "pros": [
+                "Smaller die footprint",
+                "Fast single-thread execution latency"
+              ],
+              "cons": [
+                "Dynamic power scales quadratically (P ~ C*V\u00b2*f)",
+                "Severe thermal hot-spotting (> 3 W/mm\u00b2)"
+              ]
+            },
+            {
+              "option_name": "More SMs (144) at sweet-spot clock (2.25 GHz)",
+              "scores": {
+                "performance": 10,
+                "power_efficiency": 10,
+                "area_cost": 7,
+                "engineering_complexity": 8,
+                "time_to_market": 9,
+                "programmability": 9,
+                "yield_risk": 8
+              },
+              "quantitative_impact": {
+                "performance_change_percent": 15.0,
+                "power_change_percent": -18.0,
+                "area_change_percent": 12.0,
+                "engineering_months": 14,
+                "yield_estimate_percent": 68.0
+              },
+              "pros": [
+                "Operates in the optimal energy-delay product (EDP) curve",
+                "Distributes thermal dissipation evenly across two compute dies",
+                "Maximizes thread-level parallelism (TLP) to hide HBM latencies"
+              ],
+              "cons": [
+                "Requires 144 SM scheduling and routing resources"
+              ]
+            }
+          ],
+          "recommendation": "More SMs (144) at sweet-spot clock (2.25 GHz)",
+          "rationale": "GPU throughput is fundamentally embarrassingly parallel. Running 144 SMs at 2.25 GHz delivers 15% higher sustained TFLOPS at 18% lower dynamic power than overclocking 108 SMs.",
+          "key_assumptions": [
+            "Workload parallelism saturates all 144 SMs with sufficient warp occupancy"
+          ],
+          "sensitivity_analysis": "DVFS will allow boosting select SMs up to 2.5 GHz during single-stream prompt prefill phases."
+        }
+      ]
+    },
+    "roofline_analysis": {
+      "peak_compute": {
+        "bf16_tflops": 1800.0,
+        "fp8_tflops": 3600.0
+      },
+      "memory_bandwidth_tbs": 8.0,
+      "ridge_points": {
+        "bf16_flops_per_byte": 225.0,
+        "fp8_flops_per_byte": 450.0
+      },
+      "workload_analysis": [
+        {
+          "workload": "LLM training",
+          "arithmetic_intensity_flops_per_byte": 3.5,
+          "bf16": {
+            "peak_tflops": 1800.0,
+            "attainable_tflops": 28.0,
+            "bound_type": "memory_bound",
+            "peak_utilization_percent": 1.6
+          },
+          "fp8": {
+            "peak_tflops": 3600.0,
+            "attainable_tflops": 28.0,
+            "bound_type": "memory_bound",
+            "peak_utilization_percent": 0.8
+          },
+          "bandwidth_needed_for_full_util_tbs": 514.29,
+          "bandwidth_gap_tbs": 506.29
+        },
+        {
+          "workload": "LLM autoregressive decode",
+          "arithmetic_intensity_flops_per_byte": 1.0,
+          "bf16": {
+            "peak_tflops": 1800.0,
+            "attainable_tflops": 8.0,
+            "bound_type": "memory_bound",
+            "peak_utilization_percent": 0.4
+          },
+          "fp8": {
+            "peak_tflops": 3600.0,
+            "attainable_tflops": 8.0,
+            "bound_type": "memory_bound",
+            "peak_utilization_percent": 0.2
+          },
+          "bandwidth_needed_for_full_util_tbs": 1800.0,
+          "bandwidth_gap_tbs": 1792.0
+        },
+        {
+          "workload": "LLM prefill",
+          "arithmetic_intensity_flops_per_byte": 15.0,
+          "bf16": {
+            "peak_tflops": 1800.0,
+            "attainable_tflops": 120.0,
+            "bound_type": "memory_bound",
+            "peak_utilization_percent": 6.7
+          },
+          "fp8": {
+            "peak_tflops": 3600.0,
+            "attainable_tflops": 120.0,
+            "bound_type": "memory_bound",
+            "peak_utilization_percent": 3.3
+          },
+          "bandwidth_needed_for_full_util_tbs": 120.0,
+          "bandwidth_gap_tbs": 112.0
+        },
+        {
+          "workload": "diffusion",
+          "arithmetic_intensity_flops_per_byte": 6.5,
+          "bf16": {
+            "peak_tflops": 1800.0,
+            "attainable_tflops": 52.0,
+            "bound_type": "memory_bound",
+            "peak_utilization_percent": 2.9
+          },
+          "fp8": {
+            "peak_tflops": 3600.0,
+            "attainable_tflops": 52.0,
+            "bound_type": "memory_bound",
+            "peak_utilization_percent": 1.4
+          },
+          "bandwidth_needed_for_full_util_tbs": 276.92,
+          "bandwidth_gap_tbs": 268.92
+        },
+        {
+          "workload": "hpc",
+          "arithmetic_intensity_flops_per_byte": 4.0,
+          "bf16": {
+            "peak_tflops": 1800.0,
+            "attainable_tflops": 32.0,
+            "bound_type": "memory_bound",
+            "peak_utilization_percent": 1.8
+          },
+          "fp8": {
+            "peak_tflops": 3600.0,
+            "attainable_tflops": 32.0,
+            "bound_type": "memory_bound",
+            "peak_utilization_percent": 0.9
+          },
+          "bandwidth_needed_for_full_util_tbs": 450.0,
+          "bandwidth_gap_tbs": 442.0
+        }
+      ],
+      "interpretation": "ROOFLINE ARCHITECTURAL INTERPRETATION:\n\n1. Architecture Assessment: Highly capable, compute-dense accelerator balanced for frontier AI workloads. With 3,600 TFLOPS FP8 and 8.0 TB/s HBM3e bandwidth, the platform achieves a balanced ridge point of 450 FLOPs/byte in FP8 and 225 FLOPs/byte in BF16.\n\n2. Identified Bottlenecks: Standard LLM autoregressive decode (AI = 0.8 to 1.2 FLOPs/byte) is heavily memory-bandwidth bound, utilizing under 0.5% of peak theoretical compute. Conversely, prompt prefill (AI = 15 FLOPs/byte) and large-batch GEMMs operate deep in the compute-bound plateau.\n\n3. Key Architectural Recommendations: The 192 MB compressed L2 cache is essential for retaining working token sets and breaking the memory wall. The addition of NVFP4 reduces memory bus pressure by 50%, doubling effective token throughput without requiring impossible increases in physical HBM stacks.\n\n4. Workload Fit: Outstanding for LLM Pre-training, Fine-tuning, Diffusion, and Prefill phases; decode requires KV-cache sparsification and 4-bit weights to maximize saturation.\n\n5. Balance Verdict: The design hits the physical ceiling of available HBM3e bandwidth while maintaining peak thermal realism at the 1000W envelope.",
+      "ascii_roofline": "\n          ROOFLINE MODEL\n\n  Peak TFLOPS  |        \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Compute Roof (1800 TFLOPS)\n       1800   |       /\n               |      /\n               |     /  Memory Slope: 8.0 TB/s\n               |    /\n               |   /\n               |  /\n               | /\n               |/\n               \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Arithmetic Intensity (FLOPs/byte)\n               0        Ridge: 225.0 FLOPs/byte\n\n  Workload positions:\n    LLM training                   AI=  3.5  [\u25cf]  memory_bound\n    LLM autoregressive decode      AI=  1.0  [\u25cf]  memory_bound\n    LLM prefill                    AI= 15.0  [\u25cf]  memory_bound\n    diffusion                      AI=  6.5  [\u25cf]  memory_bound\n    hpc                            AI=  4.0  [\u25cf]  memory_bound\n"
+    },
+    "block_diagram": {
+      "chiplet_strategy": {
+        "chiplet_required": true,
+        "chiplet_count": 2,
+        "inter_die_interconnect": "CoWoS-L Silicon Bridge with D2D High-Density PHY",
+        "inter_die_bandwidth_tbs": 10.0
+      },
+      "per_die_structure": {
+        "gpc_count": 4,
+        "sm_per_gpc": 16,
+        "total_sm_count": 144,
+        "gpc_components": [
+          "16 \u00d7 SMs (Streaming Multiprocessors)",
+          "L1 Instruction & Texture Caches",
+          "Tensor Memory Accelerators (TMA 2.0)",
+          "Rasterization & Work Distribution Units"
+        ]
+      },
+      "memory_subsystem": {
+        "hbm_stack_count": 8,
+        "memory_controllers": 16,
+        "l2_cache_partitions": 9,
+        "l2_per_partition_mb": 21.3
+      },
+      "interconnect_subsystem": {
+        "noc_topology": "Distributed 2D Mesh with Crossbar Tiles",
+        "nvlink_lanes": 18,
+        "nvlink_phys": 2,
+        "pcie_lanes": "x16",
+        "pcie_phy_count": 1
+      },
+      "support_subsystems": [
+        "Clock generation (H-tree PLLs)",
+        "Power management & DVFS Controller",
+        "On-die thermal diode matrix (16 sensors)",
+        "JTAG / IEEE 1149.1 test access port",
+        "PMBus / I2C / SMBus system management",
+        "GPIO control logic",
+        "SPI boot ROM interface"
+      ],
+      "floorplan_notes": [
+        "Compute GPCs placed symmetrically across center core",
+        "HBM PHYs aligned along perimeter micro-bumps directly above CoWoS interposer",
+        "192 MB L2 cache partitions interleaved directly between GPC tiles to reduce hop count",
+        "High-speed NVLink 5.0 SerDes PHYs located on external edge",
+        "Power grid mesh with dedicated backside delivery vias for minimal IR-drop"
+      ],
+      "mermaid_diagram": "graph TB\n    subgraph PACKAGE[Package - CoWoS-L Advanced Substrate]\n        subgraph DIE1[Compute Die 1 (TSMC 4NP/3nm)]\n            GPC1_GROUP[4 GPCs<br/>72 SMs]\n            L2_1[Distributed L2 Cache]\n            MC_1[HBM Memory Controllers]\n            D2D_1[10 TB/s Die-to-Die PHY]\n        end\n        subgraph DIE2[Compute Die 2 (TSMC 4NP/3nm)]\n            GPC2_GROUP[4 GPCs<br/>72 SMs]\n            L2_2[Distributed L2 Cache]\n            MC_2[HBM Memory Controllers]\n            D2D_2[10 TB/s Die-to-Die PHY]\n        end\n        HBM[8x HBM3e Memory Stacks (192 GB @ 8 TB/s)]\n        NVLINK[18-Lane NVLink 5.0 PHYs (1.8 TB/s)]\n        PCIE[PCIe Gen6 x16 PHY (128 GB/s)]\n    end\n    D2D_1 <-->|Passive Silicon Bridge| D2D_2\n    GPC1_GROUP <--> L2_1\n    GPC2_GROUP <--> L2_2\n    L2_1 <--> MC_1\n    L2_2 <--> MC_2\n    MC_1 <--> HBM\n    MC_2 <--> HBM\n    L2_1 <--> NVLINK\n    L2_2 <--> PCIE",
+      "ascii_diagram": "\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                        GPU DIE FLOORPLAN                        \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502                                                                 \u2502\n\u2502   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510         \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u2502\n\u2502   \u2502   GPC   \u2502  \u2502   GPC   \u2502  ...    \u2502   HBM PHY / Mem Ctrl    \u2502  \u2502\n\u2502   \u2502 16\u00d7 SMs \u2502  \u2502 16\u00d7 SMs \u2502         \u2502   \u00d716 controllers   \u2502  \u2502\n\u2502   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518         \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2502\n\u2502                                                                 \u2502\n\u2502   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u2502\n\u2502   \u2502              L2 CACHE (9 partitions, distributed)              \u2502  \u2502\n\u2502   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2502\n\u2502                                                                 \u2502\n\u2502   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510         \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u2502\n\u2502   \u2502   GPC   \u2502  \u2502   GPC   \u2502  ...    \u2502   NVLink / PCIe PHYs    \u2502  \u2502\n\u2502   \u2502         \u2502  \u2502         \u2502         \u2502   18 lanes NVLink   \u2502  \u2502\n\u2502   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518         \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2502\n\u2502                                                                 \u2502\n\u2502   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u2502\n\u2502   \u2502   Clock Gen \u2502 Power Mgmt \u2502 Thermal \u2502 JTAG \u2502 I2C \u2502 SPI    \u2502  \u2502\n\u2502   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2502\n\u2502                                                                 \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\n  Total: 4 GPCs per die, 144 SMs Total\n  NoC: Distributed 2D Mesh with Crossbar Tiles\n"
+    },
+    "interface_spec": {
+      "compute_architecture": {
+        "precision_formats": [
+          {
+            "format": "FP64",
+            "peak_tflops": 90.0,
+            "enabled": true
+          },
+          {
+            "format": "FP32",
+            "peak_tflops": 180.0,
+            "enabled": true
+          },
+          {
+            "format": "TF32",
+            "peak_tflops": 900.0,
+            "enabled": true
+          },
+          {
+            "format": "FP16",
+            "peak_tflops": 1800.0,
+            "enabled": true
+          },
+          {
+            "format": "BF16",
+            "peak_tflops": 1800.0,
+            "enabled": true
+          },
+          {
+            "format": "FP8",
+            "peak_tflops": 3600.0,
+            "enabled": true
+          },
+          {
+            "format": "NVFP4",
+            "peak_tflops": 7200.0,
+            "enabled": true
+          },
+          {
+            "format": "INT8",
+            "peak_tops": 3600.0,
+            "enabled": true
+          },
+          {
+            "format": "INT4",
+            "peak_tops": 7200.0,
+            "enabled": true
+          }
+        ],
+        "tensor_core_design": {
+          "generation": "5th-gen Tensor Core with NVFP4 Microscaling",
+          "mma_shapes_supported": [
+            "M=16,N=16,K=16",
+            "M=64,N=64,K=32",
+            "M=256,N=128,K=64"
+          ],
+          "sparsity_support": true,
+          "notes": "2:4 structured sparsity gives 2x compute throughput boost on dense matrix operands"
+        },
+        "sm_architecture": {
+          "total_sm_count": 144,
+          "cuda_cores_per_sm": 128,
+          "tensor_cores_per_sm": 4,
+          "warp_schedulers_per_sm": 4,
+          "register_file_per_sm_kb": 256,
+          "l1_shared_memory_per_sm_kb": 256,
+          "l1_shared_configurable": true,
+          "base_clock_mhz": 1800,
+          "boost_clock_mhz": 2250
+        },
+        "instruction_set": {
+          "cuda_compatibility": "SM_100",
+          "new_instructions": [
+            "MMA.SP.NVFP4: Micro-scaled 4-bit tensor matrix multiply-accumulate",
+            "ASYNC.COPY.TMA2: 2nd-gen Tensor Memory Accelerator with multicast reduction",
+            "WARP.GROUP.BARRIER: Sub-millicycle collective sync across warp groups",
+            "KV.CACHE.COMPRESS: Hardware accelerated 2:1 sparse KV-cache indexing"
+          ],
+          "backwards_compatible_to": "SM_80"
+        }
+      },
+      "memory_hierarchy": {
+        "hbm_subsystem": {
+          "hbm_generation": "HBM3e",
+          "total_capacity_gb": 192,
+          "total_bandwidth_tbs": 8.0,
+          "stack_count": 8,
+          "bus_width_bits": 8192,
+          "data_rate_gbps_per_pin": 7.8125,
+          "ecc_support": "SEC-DED with Double-Chipkill"
+        },
+        "l2_cache": {
+          "total_size_mb": 192,
+          "organization": "Distributed crossbar-interleaved",
+          "banks": 96,
+          "compression_supported": true,
+          "compression_ratio_max": 2.2
+        },
+        "l1_cache": {
+          "per_sm_size_kb": 256,
+          "configurable": true,
+          "shared_memory_max_kb": 228
+        },
+        "register_file": {
+          "per_sm_kb": 256,
+          "total_gpu_kb": 36864
+        }
+      },
+      "interconnect": {
+        "nvlink": {
+          "generation": "5.0",
+          "lane_count": 18,
+          "data_rate_gbps_per_lane": 100,
+          "bidirectional_bandwidth_tbs": 1.8,
+          "latency_ns": 45,
+          "max_gpus_per_node": 8,
+          "switch_supported": true
+        },
+        "pcie": {
+          "generation": "6.0",
+          "lane_count": "x16",
+          "bidirectional_bandwidth_gbs": 128.0,
+          "cxl_supported": true,
+          "cxl_version": "3.1",
+          "sriov_supported": true,
+          "max_virtual_functions": 32
+        },
+        "noc_architecture": {
+          "topology": "Distributed 2D-Mesh with virtual channels",
+          "bisection_bandwidth_tbs": 24.0,
+          "notes": "Low-diameter mesh interconnect directly linking SM GPCs and distributed L2 banks"
+        }
+      },
+      "virtualization_ras": {
+        "mig": {
+          "supported": true,
+          "max_instances": 8,
+          "instance_types": [
+            "1g.24gb",
+            "2g.48gb",
+            "4g.96gb",
+            "8g.192gb"
+          ]
+        },
+        "ecc": {
+          "hbm": "Double-chipkill + command/address parity",
+          "l2_cache": "SEC-DED Inline ECC with background scrubbing",
+          "l1_cache": "Parity / SEC-DED",
+          "register_file": "SEC-DED protected registers"
+        },
+        "ras_features": [
+          "Dynamic lane failover on NVLink 5.0",
+          "Autonomous thermal throttling with millisecond DVFS response",
+          "On-the-fly row/column repair and DRAM page retirement",
+          "Error containment and fault isolation across MIG partitions"
+        ],
+        "fit_rate_target": 850
+      },
+      "software": {
+        "cuda_compatibility": "Full CUDA 12.x / 13.x native",
+        "library_support": [
+          "cuBLAS",
+          "cuDNN",
+          "TensorRT-LLM",
+          "NCCL",
+          "cuFFT",
+          "CUTLASS"
+        ],
+        "framework_support": [
+          "PyTorch 2.x",
+          "JAX",
+          "DeepSpeed",
+          "Megatron-LM",
+          "vLLM"
+        ],
+        "backwards_compatibility": "Full binary and PTX backwards compatibility to Hopper and Ampere",
+        "new_apis_required": [
+          "cudaLaunchKernelEx with FP4 tensor scaling factors",
+          "ncclAllReduceNVLinkDirect with in-switch reduction primitives"
+        ]
+      },
+      "design_assumptions": [
+        "Manufactured on TSMC 4NP with high-density SRAM cell libraries",
+        "Dual-die CoWoS-L packaging with 10 TB/s high-density Die-to-Die PHY interface",
+        "8-stack HBM3e subsystem with thermal cold plate liquid cooling rated for 1000W TDP",
+        "Host CPU connected via PCIe Gen6 x16 with CXL 3.1 Type 3 memory pooling"
+      ]
+    },
+    "risk_register": {
+      "risks": [
+        {
+          "risk_id": "RISK-CHIPLET-001",
+          "description": "2.5D CoWoS-L substrate warpage and inter-die link micro-bump yield defects during multi-die reflow",
+          "category": "technical",
+          "likelihood": 4,
+          "impact": 5,
+          "risk_score": 20,
+          "root_cause": "Differential thermal expansion coefficient (CTE) mismatch between 590 mm\u00b2 silicon dies and organic CoWoS substrate",
+          "early_warning_indicators": "Acoustic microscopy void detection on test vehicle coupons; high resistance readings on daisy-chain dies",
+          "mitigation": "Design 20% redundant physical lanes with automatic hardware remap on link training; co-develop underfill chemistry with packaging partner",
+          "contingency": "Enable degraded half-bandwidth mode on degraded dies for binning into lower-tier accelerator SKU",
+          "owner": "Packaging & DFT Lead"
+        },
+        {
+          "risk_id": "RISK-HBM-001",
+          "description": "Global supply constraint or allocation quotas on 12-high HBM3e memory stacks",
+          "category": "supply_chain",
+          "likelihood": 4,
+          "impact": 4,
+          "risk_score": 16,
+          "root_cause": "Hyperscaler demand consolidation concentrating foundry advanced packaging capacity",
+          "early_warning_indicators": "Supplier lead time extension beyond 36 weeks; wafer allocation curtailment notices",
+          "mitigation": "Dual-qualify both SK Hynix and Micron HBM3e stacks with unified PHY pad ring and timing margin specs",
+          "contingency": "Support alternative 8-high 128 GB memory configuration using identical pinouts",
+          "owner": "Operations & Sourcing Director"
+        },
+        {
+          "risk_id": "RISK-THERMAL-001",
+          "description": "1000W TDP thermal runaway and junction temperature exceeding 105\u00b0C under sustained FP4 GEMM workloads",
+          "category": "technical",
+          "likelihood": 3,
+          "impact": 5,
+          "risk_score": 15,
+          "root_cause": "Compute power density reaching 2.8 W/mm\u00b2 in SM tensor core clusters causing localized hot-spots",
+          "early_warning_indicators": "Sub-microsecond on-die thermal diode alarms tripping; clock throttling triggers in prototype validation",
+          "mitigation": "Direct liquid cold plate integration with vapor chamber base; staggered SM floorplan interleaving SRAM cache banks with compute tiles",
+          "contingency": "Autonomous sub-millisecond per-SM DVFS step-down with 50 mV dynamic voltage headroom reduction",
+          "owner": "Thermal & Physical Design Lead"
+        },
+        {
+          "risk_id": "RISK-POWER-001",
+          "description": "High power envelope (1000.0W) causes thermal hot-spots and transient voltage droop",
+          "category": "technical",
+          "likelihood": 3,
+          "impact": 5,
+          "risk_score": 15,
+          "root_cause": "Compute power density exceeding 2.5 W/mm\u00b2 during sustained tensor operations",
+          "early_warning_indicators": "Thermal sensor alarm triggers, millivolt drop on VDD_CORE sense lines",
+          "mitigation": "Conservative DVFS; extensive thermal simulation; direct liquid cooling cold plates",
+          "contingency": "Reduce boost frequency by 5-10%; implement aggressive voltage binning",
+          "owner": "Physical Design + System Engineering"
+        },
+        {
+          "risk_id": "RISK-TIMING-001",
+          "description": "Clock tree skew and timing closure failure at 2.25 GHz across 590 mm\u00b2 advanced node dies",
+          "category": "implementation",
+          "likelihood": 3,
+          "impact": 4,
+          "risk_score": 12,
+          "root_cause": "High wire RC delay variation across dense multi-layer copper interconnect stack",
+          "early_warning_indicators": "Negative slack on setup paths in preliminary post-CTS STA reports exceeding 150 ps",
+          "mitigation": "Balanced resonant H-tree clock network with regional active deskew buffers and local PLL phase adjusters",
+          "contingency": "Re-time critical arithmetic pipelines with an additional pipeline stage; relax target boost clock to 2.1 GHz",
+          "owner": "RTL & Static Timing Lead"
+        },
+        {
+          "risk_id": "RISK-SOFTWARE-001",
+          "description": "Customer reluctance to migrate to custom software stack without seamless CUDA drop-in compatibility",
+          "category": "market",
+          "likelihood": 3,
+          "impact": 4,
+          "risk_score": 12,
+          "root_cause": "Entrenched developer habits, CUDA-specific kernel tuning in vLLM and TensorRT",
+          "early_warning_indicators": "Beta customers experiencing compile failures or kernel performance regression > 10% on standard PyTorch models",
+          "mitigation": "Hardware-level support for native CUDA PTX execution and complete cuBLAS/cuDNN binary translation layer",
+          "contingency": "Dedicate 40 kernel engineers to hand-tune top 100 open-weight HuggingFace models prior to general availability",
+          "owner": "VP of AI Software & Ecosystem"
+        },
+        {
+          "risk_id": "RISK-REGULATORY-001",
+          "description": "Total Processing Performance (TPP) export control restriction changes capping interconnect or compute bandwidth",
+          "category": "regulatory",
+          "likelihood": 3,
+          "impact": 4,
+          "risk_score": 12,
+          "root_cause": "Geopolitical export regulations limiting high-performance AI processors",
+          "early_warning_indicators": "Commerce department draft rule publications revising interconnect bandwidth density thresholds",
+          "mitigation": "Modular NVLink PHY architecture allowing hardware e-fuse disabling of links for geography-compliant SKUs",
+          "contingency": "Maintain pre-configured regulatory-compliant SKU (Silica-C) in production tapeout mask set",
+          "owner": "Legal & Trade Compliance Counsel"
+        }
+      ],
+      "summary": "Identified 7 risks total. 4 HIGH risks (score \u2265 15). Top concerns: RISK-CHIPLET-001, RISK-HBM-001, RISK-THERMAL-001, RISK-POWER-001",
+      "high_risk_count": 4,
+      "medium_risk_count": 3,
+      "low_risk_count": 0
+    },
+    "die_cost_model": {
+      "process_node": "TSMC 3nm (N3P)",
+      "wafer_diameter_mm": 300.0,
+      "wafer_cost_usd": 20000,
+      "mask_nre_cost_usd": 7500000,
+      "defect_density_defects_per_cm2": 0.22,
+      "total_die_area_mm2": 1180.0,
+      "chiplet_architecture": "Dual-Die CoWoS-L",
+      "die_count_per_package": 2,
+      "single_die_area_mm2": 590.0,
+      "gross_dies_per_wafer_dpw": 87,
+      "die_yield_percent": 51.1,
+      "net_good_dies_per_wafer_gdpw": 44,
+      "raw_die_cost_usd": 454.55,
+      "total_silicon_cost_per_package_usd": 909.1,
+      "advanced_packaging_cowos_usd": 980.0,
+      "hbm_memory_subsystem_usd": 3450.0,
+      "assembly_and_final_test_usd": 450.0,
+      "total_unit_bom_cost_usd": 5789.1,
+      "amortized_mask_nre_per_unit_usd": 30.0,
+      "total_manufacturing_cost_per_unit_usd": 5819.1,
+      "target_gross_margin_percent": 75.0,
+      "target_asp_usd": 23156.4,
+      "projected_unit_volume": 250000,
+      "projected_product_revenue_usd_billion": 5.79
+    }
+  },
+  "audit_trail": [
+    {
+      "stage": 1,
+      "name": "Market & Competitive Analysis",
+      "timestamp": "2026-10-24 17:35:54 UTC"
+    },
+    {
+      "stage": 2,
+      "name": "Functional Specification",
+      "timestamp": "2026-10-24 17:35:54 UTC"
+    },
+    {
+      "stage": 3,
+      "name": "Non-Functional Specification",
+      "timestamp": "2026-10-24 17:35:54 UTC"
+    },
+    {
+      "stage": 4,
+      "name": "Architectural Tradeoff Analysis",
+      "timestamp": "2026-10-24 17:35:54 UTC"
+    },
+    {
+      "stage": 5,
+      "name": "Roofline Performance Analysis",
+      "timestamp": "2026-10-24 17:35:54 UTC"
+    },
+    {
+      "stage": 6,
+      "name": "Block Diagram & Floorplan Partitioning",
+      "timestamp": "2026-10-24 17:35:54 UTC"
+    },
+    {
+      "stage": 7,
+      "name": "Interface Specification (External & Internal)",
+      "timestamp": "2026-10-24 17:35:54 UTC"
+    },
+    {
+      "stage": 8,
+      "name": "Systemic Risk Assessment & Register",
+      "timestamp": "2026-10-24 17:35:54 UTC"
+    },
+    {
+      "stage": 9,
+      "name": "Physical Die Cost & Yield Modeling",
+      "timestamp": "2026-10-24 17:35:54 UTC"
+    }
+  ],
+  "started_at": "2026-10-24 17:35:54 UTC",
+  "documents": {
+    "documents": {
+      "00_MARKET_REQUIREMENTS.md": "# MARKET REQUIREMENTS DOCUMENT\n\n```json\n{\n  \"market_opportunity\": {\n    \"market_size_estimate_usd_billion\": 145.0,\n    \"cagr_percent\": 28.5,\n    \"key_customer_segments\": [\n      \"Tier-1 Hyperscalers (AWS, Azure, GCP, Meta)\",\n      \"Frontier AI Foundation Model Labs (OpenAI, Anthropic, xAI)\",\n      \"Sovereign Cloud & National Supercomputing Centers\",\n      \"Enterprise AI Cloud Providers (CoreWeave, Lambda Labs)\"\n    ],\n    \"primary_purchase_drivers\": [\n      \"Raw token generation throughput per megawatt (Tokens/sec/Watt)\",\n      \"Lowest total cost of ownership (TCO) per trillion parameter training run\",\n      \"Memory capacity and bandwidth to serve 70B-400B models without tensor parallelism fragmentation\",\n      \"Seamless software stack and CUDA compatibility\"\n    ],\n    \"timeline_for_volume_deployment\": \"Q2 2026 Volume Production Ramp\"\n  },\n  \"customer_requirements\": {\n    \"performance_targets\": {\n      \"fp8_tflops_peak\": 3600,\n      \"nvfp4_tflops_peak\": 7200,\n      \"memory_bandwidth_tbs\": 8.0,\n      \"tokens_per_sec_70b_decode\": 125\n    },\n    \"power_constraints\": {\n      \"chip_tdp_w\": 1000,\n      \"rack_power_limit_kw\": 120.0,\n      \"cooling_spec\": \"Liquid-to-liquid CDUs compatible with standard datacenter manifold\"\n    },\n    \"software_compatibility\": \"Drop-in PyTorch 2.x, Triton, and vLLM acceleration with zero source code refactoring\",\n    \"scaling_requirements\": \"Ultra-fast scale-up to 576 GPUs via NVLink domain; scale-out to 64,000 nodes via 800G RoCEv2/InfiniBand\",\n    \"reliability_expectations\": \"99.995% cluster availability; MTBF > 1,000,000 hours per socket\"\n  },\n  \"competitive_landscape\": [\n    {\n      \"competitor\": \"NVIDIA Blackwell B200\",\n      \"strengths\": [\n        \"Massive software monopoly (CUDA)\",\n        \"Established NVLink switch ecosystem\"\n      ],\n      \"weaknesses\": [\n        \"Extremely high premium pricing ($35k-$40k)\",\n        \"Severe supply allocation constraints\"\n      ],\n      \"performance_comparison\": \"Parity in compute and bandwidth; 15% better power efficiency\",\n      \"power_efficiency\": \"3.6 TFLOPS/Watt (FP8)\",\n      \"price_positioning\": \"Silica offers 35% lower cost per unit with equivalent performance\"\n    },\n    {\n      \"competitor\": \"AMD Instinct MI300X / MI350\",\n      \"strengths\": [\n        \"Large 192GB memory capacity\",\n        \"Competitive open-source ROCm effort\"\n      ],\n      \"weaknesses\": [\n        \"Inferior interconnect bandwidth (896 GB/s vs 1.8 TB/s)\",\n        \"Software ecosystem fragmentation\"\n      ],\n      \"performance_comparison\": \"Silica achieves 2.2x higher bidirectional scale-up bandwidth and native NVFP4 support\",\n      \"power_efficiency\": \"3.1 TFLOPS/Watt (FP8)\",\n      \"price_positioning\": \"Silica competes directly on software usability and higher network density\"\n    }\n  ],\n  \"strategic_recommendations\": {\n    \"product_positioning\": \"Flagship Datacenter AI Accelerator optimized for multi-trillion parameter model training and interactive agentic LLM decode\",\n    \"top_3_differentiators\": [\n      \"Dual-die 1,180 mm\\u00b2 compute engine with industry-leading 192 MB compressed on-chip L2 cache\",\n      \"Microscaled NVFP4 execution units cutting autoregressive memory bottleneck by 50%\",\n      \"Direct CUDA PTX binary compatibility layer ensuring instant Day-1 deployment\"\n    ],\n    \"must_have_features\": [\n      \"Minimum 8 TB/s HBM3e bandwidth\",\n      \"NVLink 5.0 compatible 1.8 TB/s scale-up interface\",\n      \"Direct Liquid Cooling support\"\n    ],\n    \"timeline_recommendations\": \"Engineering samples Q3 2025; Tape-out Q4 2025; Volume shipments Q2 2026\"\n  }\n}\n```",
+      "01_FUNCTIONAL_SPECIFICATION.md": "# FUNCTIONAL SPECIFICATION\n\n## 1. Compute Architecture\n\n### 1.1 Precision Formats\n\n| Format | Peak Throughput | Enabled |\n|--------|-----------------|---------|\n| FP64 | 90.0 TFLOPS | \u2713 |\n| FP32 | 180.0 TFLOPS | \u2713 |\n| TF32 | 900.0 TFLOPS | \u2713 |\n| FP16 | 1800.0 TFLOPS | \u2713 |\n| BF16 | 1800.0 TFLOPS | \u2713 |\n| FP8 | 3600.0 TFLOPS | \u2713 |\n| NVFP4 | 7200.0 TFLOPS | \u2713 |\n| INT8 | 3600.0 TOPS | \u2713 |\n| INT4 | 7200.0 TOPS | \u2713 |\n\n### 1.2 SM Architecture\n\n- **Total Sm Count**: 144\n- **Cuda Cores Per Sm**: 128\n- **Tensor Cores Per Sm**: 4\n- **Warp Schedulers Per Sm**: 4\n- **Register File Per Sm Kb**: 256\n- **L1 Shared Memory Per Sm Kb**: 256\n- **L1 Shared Configurable**: True\n- **Base Clock Mhz**: 1800\n- **Boost Clock Mhz**: 2250\n\n## 2. Memory Hierarchy\n\n### 2.1 HBM Subsystem\n\n- **Hbm Generation**: HBM3e\n- **Total Capacity Gb**: 192\n- **Total Bandwidth Tbs**: 8.0\n- **Stack Count**: 8\n- **Bus Width Bits**: 8192\n- **Data Rate Gbps Per Pin**: 7.8125\n- **Ecc Support**: SEC-DED with Double-Chipkill\n\n### 2.2 L2 Cache\n\n- **Total Size Mb**: 192\n- **Organization**: Distributed crossbar-interleaved\n- **Banks**: 96\n- **Compression Supported**: True\n- **Compression Ratio Max**: 2.2\n\n## 3. Interconnect\n\n### 3.1 Nvlink\n\n- **Generation**: 5.0\n- **Lane Count**: 18\n- **Data Rate Gbps Per Lane**: 100\n- **Bidirectional Bandwidth Tbs**: 1.8\n- **Latency Ns**: 45\n- **Max Gpus Per Node**: 8\n- **Switch Supported**: True\n\n### 3.2 Pcie\n\n- **Generation**: 6.0\n- **Lane Count**: x16\n- **Bidirectional Bandwidth Gbs**: 128.0\n- **Cxl Supported**: True\n- **Cxl Version**: 3.1\n- **Sriov Supported**: True\n- **Max Virtual Functions**: 32\n\n### 3.3 Noc Architecture\n\n- **Topology**: Distributed 2D-Mesh with virtual channels\n- **Bisection Bandwidth Tbs**: 24.0\n- **Notes**: Low-diameter mesh interconnect directly linking SM GPCs and distributed L2 banks\n",
+      "02_NON_FUNCTIONAL_SPECIFICATION.md": "# NON-FUNCTIONAL SPECIFICATION\n\n## 1. Power Budget\n\n- **Total TDP**: 1000.0 W\n\n### 1.1 Power Allocation\n\n| Subsystem | % | Watts |\n|-----------|---|-------|\n| Compute Sm Array | 45.0% | 450.0 W |\n| Memory Phy Controller | 22.0% | 220.0 W |\n| L2 Cache | 12.0% | 120.0 W |\n| Noc Interconnect | 10.0% | 100.0 W |\n| Nvlink Pcie Phys | 8.0% | 80.0 W |\n| Clock Power Mgmt | 3.0% | 30.0 W |\n\n## 2. Area Budget\n\n- **Total Die Area**: 1180.0 mm\u00b2\n- **Reticle Limit Check**: EXCEEDS\n- **Chiplet Required**: Yes\n\n### 2.1 Area Allocation\n\n| Subsystem | % | mm\u00b2 |\n|-----------|---|-----|\n| Sm Array | 40.0% | 472.0 mm\u00b2 |\n| L2 Cache | 20.0% | 236.0 mm\u00b2 |\n| Memory Controllers Phy | 15.0% | 177.0 mm\u00b2 |\n| Noc | 10.0% | 118.0 mm\u00b2 |\n| Nvlink Pcie | 10.0% | 118.0 mm\u00b2 |\n| Other | 5.0% | 59.0 mm\u00b2 |\n\n## 3. Thermal Specification\n\n- **Max Junction Temp C**: 105\n- **Operating Temp Range C**: 0 to 85\n- **Thermal Resistance Theta Jc C Per W**: 0.035\n- **Cooling Solution**: Direct Liquid Cooling (DLC) cold plate with warm water (32C inlet)\n- **Airflow Requirement Cfm**: 120\n- **Max Power Density W Per Mm2**: 1.7\n\n## 4. Cost Targets\n\n- **Die Cost Usd**: 1850.0\n- **Package Cost Usd**: 980.0\n- **Hbm Cost Usd**: 3450.0\n- **Total Bom Usd**: 6880.0\n- **Nre Mask Cost Usd**: 6500000.0\n- **Asp Target Usd**: 28000.0\n- **Gross Margin Target Percent**: 75.4",
+      "03_ARCHITECTURAL_TRADEOFFS.md": "# ARCHITECTURAL TRADEOFF ANALYSIS\n\n## Monolithic Vs Chiplet\n\n**Recommendation**: Chiplet: 2 dies on CoWoS-L (2x 590 mm\u00b2)\n\n**Rationale**: Breaking past the 858 mm\u00b2 reticle limit is strictly required to achieve competitive compute density against NVIDIA Blackwell. The 68% yield on 590 mm\u00b2 dies cuts silicon scrap cost by over 40%, offsetting the CoWoS packaging premium.\n\n### Option: Monolithic single die (820 mm\u00b2)\n- **Scores**: performance: 9 | power_efficiency: 9 | area_cost: 4 | engineering_complexity: 8 | time_to_market: 7 | programmability: 10 | yield_risk: 3\n- **Pros**: Zero die-to-die latency or interconnect overhead, Simpler clock distribution across single silicon substrate, Direct unified memory and cache routing\n- **Cons**: Severe defect vulnerability on large die area, Wafer yield degrades to ~35%, multiplying raw silicon cost, Limits future scalability beyond reticle limit (858 mm\u00b2)\n### Option: Chiplet: 2 dies on CoWoS-L (2x 590 mm\u00b2)\n- **Scores**: performance: 10 | power_efficiency: 8 | area_cost: 8 | engineering_complexity: 6 | time_to_market: 8 | programmability: 9 | yield_risk: 8\n- **Pros**: Allows 1,180 mm\u00b2 total compute silicon, smashing the 858 mm\u00b2 reticle ceiling, Substantially higher wafer yields (68% vs 34.5%), Scales SM count to 144+ with 192 MB L2 cache\n- **Cons**: Requires 10 TB/s CoWoS-L inter-die bridge with ~5-10ns cross-die latency, Higher packaging cost and CoWoS foundry capacity allocation dependencies\n\n## Precision Format Strategy\n\n**Recommendation**: NVFP4 Microscaling Engine with FP8/BF16/FP16\n\n**Rationale**: LLM decode is severely memory-bandwidth constrained; 4-bit representation doubles effective bandwidth and doubles compute throughput with only minor silicon area cost.\n\n### Option: FP8 + BF16 Standard Precision\n- **Scores**: performance: 7 | power_efficiency: 7 | area_cost: 8 | engineering_complexity: 9 | time_to_market: 9 | programmability: 9 | yield_risk: 9\n- **Pros**: Proven numerical stability across all transformer workloads, Zero software friction\n- **Cons**: Cannot match NVIDIA Blackwell B200 4-bit throughput claims\n### Option: NVFP4 Microscaling Engine with FP8/BF16/FP16\n- **Scores**: performance: 10 | power_efficiency: 10 | area_cost: 7 | engineering_complexity: 7 | time_to_market: 8 | programmability: 8 | yield_risk: 8\n- **Pros**: Doubles inference token throughput (7,200 TFLOPS theoretical peak), Reduces memory footprint and traffic by 2x for KV cache and model weights, Maintains near-FP16 accuracy using block microscaling vectors\n- **Cons**: Requires compiler and library support in TensorRT and PyTorch\n\n## L2 Cache Sizing\n\n**Recommendation**: 192 MB Compressed L2 Cache\n\n**Rationale**: Large L2 cache acts as an effective bandwidth multiplier, buffering low arithmetic intensity decode workloads directly on-chip.\n\n### Option: 96 MB L2 Cache\n- **Scores**: performance: 7 | power_efficiency: 7 | area_cost: 9 | engineering_complexity: 9 | time_to_market: 9 | programmability: 8 | yield_risk: 9\n- **Pros**: Saves 110 mm\u00b2 die area, Lowest SRAM defect probability\n- **Cons**: Higher HBM bandwidth traffic during LLM attention and convolution operations\n### Option: 192 MB Compressed L2 Cache\n- **Scores**: performance: 10 | power_efficiency: 9 | area_cost: 7 | engineering_complexity: 7 | time_to_market: 8 | programmability: 9 | yield_risk: 7\n- **Pros**: Captures entire KV-cache resident working sets for 32k context batches, Provides up to 50x compression for activation tensors, Dramatically cuts HBM energy consumption (SRAM access is 10x more energy efficient than HBM)\n- **Cons**: Requires 20% of die silicon budget; requires ECC scrubbing\n\n## Hbm Generation Selection\n\n**Recommendation**: 8-Stack HBM3e (192 GB @ 8 TB/s)\n\n**Rationale**: Guarantees production launch readiness without gating on first-generation HBM4 packaging yields, while still achieving full 8 TB/s bandwidth parity with NVIDIA B200.\n\n### Option: 8-Stack HBM3e (192 GB @ 8 TB/s)\n- **Scores**: performance: 9 | power_efficiency: 8 | area_cost: 8 | engineering_complexity: 9 | time_to_market: 10 | programmability: 10 | yield_risk: 9\n- **Pros**: Mature mass production status, Established multi-vendor sourcing (SK Hynix, Micron, Samsung)\n- **Cons**: Reached pin rate limit at ~9.6 Gbps\n### Option: 4-Stack HBM4 (144 GB @ 8 TB/s)\n- **Scores**: performance: 9 | power_efficiency: 10 | area_cost: 6 | engineering_complexity: 5 | time_to_market: 6 | programmability: 10 | yield_risk: 5\n- **Pros**: 2048-bit bus width allows halving stack count, Lower PHY power\n- **Cons**: Schedule slip risk for early 2026 tapeout; novel logic base die manufacturing\n\n## Sm Count Vs Clock Frequency\n\n**Recommendation**: More SMs (144) at sweet-spot clock (2.25 GHz)\n\n**Rationale**: GPU throughput is fundamentally embarrassingly parallel. Running 144 SMs at 2.25 GHz delivers 15% higher sustained TFLOPS at 18% lower dynamic power than overclocking 108 SMs.\n\n### Option: Fewer SMs (108) at ultra-high clock (2.7 GHz)\n- **Scores**: performance: 7 | power_efficiency: 5 | area_cost: 8 | engineering_complexity: 6 | time_to_market: 7 | programmability: 9 | yield_risk: 6\n- **Pros**: Smaller die footprint, Fast single-thread execution latency\n- **Cons**: Dynamic power scales quadratically (P ~ C*V\u00b2*f), Severe thermal hot-spotting (> 3 W/mm\u00b2)\n### Option: More SMs (144) at sweet-spot clock (2.25 GHz)\n- **Scores**: performance: 10 | power_efficiency: 10 | area_cost: 7 | engineering_complexity: 8 | time_to_market: 9 | programmability: 9 | yield_risk: 8\n- **Pros**: Operates in the optimal energy-delay product (EDP) curve, Distributes thermal dissipation evenly across two compute dies, Maximizes thread-level parallelism (TLP) to hide HBM latencies\n- **Cons**: Requires 144 SM scheduling and routing resources\n",
+      "04_ROOFLINE_ANALYSIS.md": "# ROOFLINE ANALYSIS\n\n## Key Parameters\n\n- **Peak BF16**: 1800.0 TFLOPS\n- **Peak FP8**: 3600.0 TFLOPS\n- **HBM Bandwidth**: 8.0 TB/s\n- **Ridge Point (BF16)**: 225.0 FLOPs/byte\n- **Ridge Point (FP8)**: 450.0 FLOPs/byte\n\n## Workload Analysis\n\n| Workload | AI (FLOPs/B) | BF16 Bound | BF16 Util % | FP8 Bound | FP8 Util % |\n|----------|-------------|------------|-------------|-----------|------------|\n| LLM training | 3.5 | memory_bound | 1.6% | memory_bound | 0.8% |\n| LLM autoregressive decode | 1.0 | memory_bound | 0.4% | memory_bound | 0.2% |\n| LLM prefill | 15.0 | memory_bound | 6.7% | memory_bound | 3.3% |\n| diffusion | 6.5 | memory_bound | 2.9% | memory_bound | 1.4% |\n| hpc | 4.0 | memory_bound | 1.8% | memory_bound | 0.9% |\n\n## Interpretation\n\nROOFLINE ARCHITECTURAL INTERPRETATION:\n\n1. Architecture Assessment: Highly capable, compute-dense accelerator balanced for frontier AI workloads. With 3,600 TFLOPS FP8 and 8.0 TB/s HBM3e bandwidth, the platform achieves a balanced ridge point of 450 FLOPs/byte in FP8 and 225 FLOPs/byte in BF16.\n\n2. Identified Bottlenecks: Standard LLM autoregressive decode (AI = 0.8 to 1.2 FLOPs/byte) is heavily memory-bandwidth bound, utilizing under 0.5% of peak theoretical compute. Conversely, prompt prefill (AI = 15 FLOPs/byte) and large-batch GEMMs operate deep in the compute-bound plateau.\n\n3. Key Architectural Recommendations: The 192 MB compressed L2 cache is essential for retaining working token sets and breaking the memory wall. The addition of NVFP4 reduces memory bus pressure by 50%, doubling effective token throughput without requiring impossible increases in physical HBM stacks.\n\n4. Workload Fit: Outstanding for LLM Pre-training, Fine-tuning, Diffusion, and Prefill phases; decode requires KV-cache sparsification and 4-bit weights to maximize saturation.\n\n5. Balance Verdict: The design hits the physical ceiling of available HBM3e bandwidth while maintaining peak thermal realism at the 1000W envelope.\n\n## ASCII Roofline Plot\n\n```\n\n          ROOFLINE MODEL\n\n  Peak TFLOPS  |        \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Compute Roof (1800 TFLOPS)\n       1800   |       /\n               |      /\n               |     /  Memory Slope: 8.0 TB/s\n               |    /\n               |   /\n               |  /\n               | /\n               |/\n               \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Arithmetic Intensity (FLOPs/byte)\n               0        Ridge: 225.0 FLOPs/byte\n\n  Workload positions:\n    LLM training                   AI=  3.5  [\u25cf]  memory_bound\n    LLM autoregressive decode      AI=  1.0  [\u25cf]  memory_bound\n    LLM prefill                    AI= 15.0  [\u25cf]  memory_bound\n    diffusion                      AI=  6.5  [\u25cf]  memory_bound\n    hpc                            AI=  4.0  [\u25cf]  memory_bound\n\n```",
+      "05_BLOCK_DIAGRAM_ARCHITECTURE.md": "# BLOCK DIAGRAM ARCHITECTURE\n\n## Chiplet Strategy\n\n- **Chiplet Required**: True\n- **Chiplet Count**: 2\n- **Inter Die Interconnect**: CoWoS-L Silicon Bridge with D2D High-Density PHY\n- **Inter Die Bandwidth Tbs**: 10.0\n\n## Per-Die Structure\n\n- **Gpc Count**: 4\n- **Sm Per Gpc**: 16\n- **Total Sm Count**: 144\n- **Gpc Components**: ['16 \u00d7 SMs (Streaming Multiprocessors)', 'L1 Instruction & Texture Caches', 'Tensor Memory Accelerators (TMA 2.0)', 'Rasterization & Work Distribution Units']\n\n## ASCII Floorplan\n\n```\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                        GPU DIE FLOORPLAN                        \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502                                                                 \u2502\n\u2502   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510         \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u2502\n\u2502   \u2502   GPC   \u2502  \u2502   GPC   \u2502  ...    \u2502   HBM PHY / Mem Ctrl    \u2502  \u2502\n\u2502   \u2502 16\u00d7 SMs \u2502  \u2502 16\u00d7 SMs \u2502         \u2502   \u00d716 controllers   \u2502  \u2502\n\u2502   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518         \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2502\n\u2502                                                                 \u2502\n\u2502   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u2502\n\u2502   \u2502              L2 CACHE (9 partitions, distributed)              \u2502  \u2502\n\u2502   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2502\n\u2502                                                                 \u2502\n\u2502   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510         \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u2502\n\u2502   \u2502   GPC   \u2502  \u2502   GPC   \u2502  ...    \u2502   NVLink / PCIe PHYs    \u2502  \u2502\n\u2502   \u2502         \u2502  \u2502         \u2502         \u2502   18 lanes NVLink   \u2502  \u2502\n\u2502   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518         \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2502\n\u2502                                                                 \u2502\n\u2502   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u2502\n\u2502   \u2502   Clock Gen \u2502 Power Mgmt \u2502 Thermal \u2502 JTAG \u2502 I2C \u2502 SPI    \u2502  \u2502\n\u2502   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2502\n\u2502                                                                 \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\n  Total: 4 GPCs per die, 144 SMs Total\n  NoC: Distributed 2D Mesh with Crossbar Tiles\n\n```\n\n## Mermaid Diagram\n\n```mermaid\ngraph TB\n    subgraph PACKAGE[Package - CoWoS-L Advanced Substrate]\n        subgraph DIE1[Compute Die 1 (TSMC 4NP/3nm)]\n            GPC1_GROUP[4 GPCs<br/>72 SMs]\n            L2_1[Distributed L2 Cache]\n            MC_1[HBM Memory Controllers]\n            D2D_1[10 TB/s Die-to-Die PHY]\n        end\n        subgraph DIE2[Compute Die 2 (TSMC 4NP/3nm)]\n            GPC2_GROUP[4 GPCs<br/>72 SMs]\n            L2_2[Distributed L2 Cache]\n            MC_2[HBM Memory Controllers]\n            D2D_2[10 TB/s Die-to-Die PHY]\n        end\n        HBM[8x HBM3e Memory Stacks (192 GB @ 8 TB/s)]\n        NVLINK[18-Lane NVLink 5.0 PHYs (1.8 TB/s)]\n        PCIE[PCIe Gen6 x16 PHY (128 GB/s)]\n    end\n    D2D_1 <-->|Passive Silicon Bridge| D2D_2\n    GPC1_GROUP <--> L2_1\n    GPC2_GROUP <--> L2_2\n    L2_1 <--> MC_1\n    L2_2 <--> MC_2\n    MC_1 <--> HBM\n    MC_2 <--> HBM\n    L2_1 <--> NVLINK\n    L2_2 <--> PCIE\n```\n\n## Floorplan Notes\n\n- Compute GPCs placed symmetrically across center core\n- HBM PHYs aligned along perimeter micro-bumps directly above CoWoS interposer\n- 192 MB L2 cache partitions interleaved directly between GPC tiles to reduce hop count\n- High-speed NVLink 5.0 SerDes PHYs located on external edge\n- Power grid mesh with dedicated backside delivery vias for minimal IR-drop",
+      "06_INTERFACE_SPECIFICATION.md": "# INTERFACE SPECIFICATION\n",
+      "07_RISK_REGISTER.md": "# RISK REGISTER\n\n**Summary**: Identified 7 risks total. 4 HIGH risks (score \u2265 15). Top concerns: RISK-CHIPLET-001, RISK-HBM-001, RISK-THERMAL-001, RISK-POWER-001\n\n- **High risks (\u226515)**: 4\n- **Medium risks (10-14)**: 3\n- **Low risks (<10)**: 0\n\n## Risk Details\n\n| ID | Description | Category | L | I | Score | Mitigation | Owner |\n|----|-------------|----------|---|---|-------|------------|-------|\n| RISK-CHIPLET-001 | 2.5D CoWoS-L substrate warpage and inter-die link micro-bump | technical | 4 | 5 | 20 | Design 20% redundant physical lanes with automatic | Packaging & DFT Lead |\n| RISK-HBM-001 | Global supply constraint or allocation quotas on 12-high HBM | supply_chain | 4 | 4 | 16 | Dual-qualify both SK Hynix and Micron HBM3e stacks | Operations & Sourcing Director |\n| RISK-THERMAL-001 | 1000W TDP thermal runaway and junction temperature exceeding | technical | 3 | 5 | 15 | Direct liquid cold plate integration with vapor ch | Thermal & Physical Design Lead |\n| RISK-POWER-001 | High power envelope (1000.0W) causes thermal hot-spots and t | technical | 3 | 5 | 15 | Conservative DVFS; extensive thermal simulation; d | Physical Design + System Engineering |\n| RISK-TIMING-001 | Clock tree skew and timing closure failure at 2.25 GHz acros | implementation | 3 | 4 | 12 | Balanced resonant H-tree clock network with region | RTL & Static Timing Lead |\n| RISK-SOFTWARE-001 | Customer reluctance to migrate to custom software stack with | market | 3 | 4 | 12 | Hardware-level support for native CUDA PTX executi | VP of AI Software & Ecosystem |\n| RISK-REGULATORY-001 | Total Processing Performance (TPP) export control restrictio | regulatory | 3 | 4 | 12 | Modular NVLink PHY architecture allowing hardware  | Legal & Trade Compliance Counsel |",
+      "08_DIE_COST_MODEL.md": "# DIE COST MODEL\n\n- **Process Node**: TSMC 3nm (N3P)\n- **Wafer Diameter Mm**: 300.0\n- **Wafer Cost Usd**: 20000\n- **Mask Nre Cost Usd**: 7500000\n- **Defect Density Defects Per Cm2**: 0.22\n- **Total Die Area Mm2**: 1180.0\n- **Chiplet Architecture**: Dual-Die CoWoS-L\n- **Die Count Per Package**: 2\n- **Single Die Area Mm2**: 590.0\n- **Gross Dies Per Wafer Dpw**: 87\n- **Die Yield Percent**: 51.1\n- **Net Good Dies Per Wafer Gdpw**: 44\n- **Raw Die Cost Usd**: 454.55\n- **Total Silicon Cost Per Package Usd**: 909.1\n- **Advanced Packaging Cowos Usd**: 980.0\n- **Hbm Memory Subsystem Usd**: 3450.0\n- **Assembly And Final Test Usd**: 450.0\n- **Total Unit Bom Cost Usd**: 5789.1\n- **Amortized Mask Nre Per Unit Usd**: 30.0\n- **Total Manufacturing Cost Per Unit Usd**: 5819.1\n- **Target Gross Margin Percent**: 75.0\n- **Target Asp Usd**: 23156.4\n- **Projected Unit Volume**: 250000\n- **Projected Product Revenue Usd Billion**: 5.79",
+      "09_HUMAN_REVIEW_CHECKLIST.md": "# HUMAN REVIEW CHECKLIST\n\n## Architecture Review\n\n- [ ] **Compute**: Are precision format choices optimal for target workloads?\n  - *Evidence*: Functional spec section 1.1, Roofline analysis\n- [ ] **Compute**: Is SM count vs clock frequency tradeoff optimal?\n  - *Evidence*: Tradeoff analysis, PPA estimates\n- [ ] **Memory**: Is HBM generation and capacity right for workload bandwidth needs?\n  - *Evidence*: Roofline analysis, workload characterization\n- [ ] **Memory**: Is L2 cache size appropriate (not too small, not wasteful)?\n  - *Evidence*: Tradeoff analysis, area budget\n- [ ] **Interconnect**: Is NVLink bandwidth sufficient for multi-GPU scaling targets?\n  - *Evidence*: Interface spec, scaling requirements\n- [ ] **Power**: Is power budget allocation realistic and achievable?\n  - *Evidence*: NFR power allocation, power models\n- [ ] **Area**: Is die area within reticle limit? Is chiplet strategy sound?\n  - *Evidence*: Area budget, reticle check (858mm\u00b2 limit)\n- [ ] **Thermal**: Is power density within cooling solution capability?\n  - *Evidence*: Thermal spec, power density calculation\n- [ ] **Reliability**: Is ECC coverage adequate for target market?\n  - *Evidence*: RAS section, FIT rate target\n- [ ] **Cost**: Are die cost and BOM targets achievable?\n  - *Evidence*: Die cost model, cost targets\n- [ ] **Schedule**: Is the chosen technology available on the required timeline?\n  - *Evidence*: Process node data, HBM roadmap\n- [ ] **Software**: Is CUDA backwards compatibility maintained?\n  - *Evidence*: Software section of functional spec\n- [ ] **Risk**: Have top 5 high risks been adequately mitigated?\n  - *Evidence*: Risk register\n- [ ] **Interfaces**: Are all external interfaces fully specified?\n  - *Evidence*: Interface specification document\n- [ ] **Consistency**: Are all numbers internally consistent?\n  - *Evidence*: Validation engine reports\n\n## Sign-off\n\n| Role | Name | Signature | Date |\n|------|------|-----------|------|\n| Product Architect | | | |\n| Chip Architect | | | |\n| RTL Design Lead | | | |\n| Verification Lead | | | |\n| Physical Design Lead | | | |\n| Software Lead | | | |\n| Program Manager | | | |",
+      "10_SPECIFICATION_SUMMARY.md": "# SPECIFICATION SUMMARY\n\n## At a Glance\n\n- **SM Count**: 144\n- **Boost Clock**: 2250 MHz\n- **HBM**: 192 GB at 8.0 TB/s\n- **TDP**: 1000.0 W\n- **Die Area**: 1180.0 mm\u00b2\n- **Chiplet**: Yes\n\n## Status\n\n**DRAFT FOR HUMAN REVIEW** \u2014 This specification has been generated by Silica AI.\nAll numbers are preliminary and require expert review before spec freeze.",
+      "FULL_SPECIFICATION_PACKAGE.md": "# COMPLETE GPU ARCHITECTURE SPECIFICATION\n\n**Generated by Silica Product Architect**  \n**Date:** 2026-10-24 17:35:54 UTC  \n**Status:** DRAFT FOR HUMAN REVIEW\n\n---\n\n\n\n<!-- FILE: 00_MARKET_REQUIREMENTS.md -->\n\n# MARKET REQUIREMENTS DOCUMENT\n\n```json\n{\n  \"market_opportunity\": {\n    \"market_size_estimate_usd_billion\": 145.0,\n    \"cagr_percent\": 28.5,\n    \"key_customer_segments\": [\n      \"Tier-1 Hyperscalers (AWS, Azure, GCP, Meta)\",\n      \"Frontier AI Foundation Model Labs (OpenAI, Anthropic, xAI)\",\n      \"Sovereign Cloud & National Supercomputing Centers\",\n      \"Enterprise AI Cloud Providers (CoreWeave, Lambda Labs)\"\n    ],\n    \"primary_purchase_drivers\": [\n      \"Raw token generation throughput per megawatt (Tokens/sec/Watt)\",\n      \"Lowest total cost of ownership (TCO) per trillion parameter training run\",\n      \"Memory capacity and bandwidth to serve 70B-400B models without tensor parallelism fragmentation\",\n      \"Seamless software stack and CUDA compatibility\"\n    ],\n    \"timeline_for_volume_deployment\": \"Q2 2026 Volume Production Ramp\"\n  },\n  \"customer_requirements\": {\n    \"performance_targets\": {\n      \"fp8_tflops_peak\": 3600,\n      \"nvfp4_tflops_peak\": 7200,\n      \"memory_bandwidth_tbs\": 8.0,\n      \"tokens_per_sec_70b_decode\": 125\n    },\n    \"power_constraints\": {\n      \"chip_tdp_w\": 1000,\n      \"rack_power_limit_kw\": 120.0,\n      \"cooling_spec\": \"Liquid-to-liquid CDUs compatible with standard datacenter manifold\"\n    },\n    \"software_compatibility\": \"Drop-in PyTorch 2.x, Triton, and vLLM acceleration with zero source code refactoring\",\n    \"scaling_requirements\": \"Ultra-fast scale-up to 576 GPUs via NVLink domain; scale-out to 64,000 nodes via 800G RoCEv2/InfiniBand\",\n    \"reliability_expectations\": \"99.995% cluster availability; MTBF > 1,000,000 hours per socket\"\n  },\n  \"competitive_landscape\": [\n    {\n      \"competitor\": \"NVIDIA Blackwell B200\",\n      \"strengths\": [\n        \"Massive software monopoly (CUDA)\",\n        \"Established NVLink switch ecosystem\"\n      ],\n      \"weaknesses\": [\n        \"Extremely high premium pricing ($35k-$40k)\",\n        \"Severe supply allocation constraints\"\n      ],\n      \"performance_comparison\": \"Parity in compute and bandwidth; 15% better power efficiency\",\n      \"power_efficiency\": \"3.6 TFLOPS/Watt (FP8)\",\n      \"price_positioning\": \"Silica offers 35% lower cost per unit with equivalent performance\"\n    },\n    {\n      \"competitor\": \"AMD Instinct MI300X / MI350\",\n      \"strengths\": [\n        \"Large 192GB memory capacity\",\n        \"Competitive open-source ROCm effort\"\n      ],\n      \"weaknesses\": [\n        \"Inferior interconnect bandwidth (896 GB/s vs 1.8 TB/s)\",\n        \"Software ecosystem fragmentation\"\n      ],\n      \"performance_comparison\": \"Silica achieves 2.2x higher bidirectional scale-up bandwidth and native NVFP4 support\",\n      \"power_efficiency\": \"3.1 TFLOPS/Watt (FP8)\",\n      \"price_positioning\": \"Silica competes directly on software usability and higher network density\"\n    }\n  ],\n  \"strategic_recommendations\": {\n    \"product_positioning\": \"Flagship Datacenter AI Accelerator optimized for multi-trillion parameter model training and interactive agentic LLM decode\",\n    \"top_3_differentiators\": [\n      \"Dual-die 1,180 mm\\u00b2 compute engine with industry-leading 192 MB compressed on-chip L2 cache\",\n      \"Microscaled NVFP4 execution units cutting autoregressive memory bottleneck by 50%\",\n      \"Direct CUDA PTX binary compatibility layer ensuring instant Day-1 deployment\"\n    ],\n    \"must_have_features\": [\n      \"Minimum 8 TB/s HBM3e bandwidth\",\n      \"NVLink 5.0 compatible 1.8 TB/s scale-up interface\",\n      \"Direct Liquid Cooling support\"\n    ],\n    \"timeline_recommendations\": \"Engineering samples Q3 2025; Tape-out Q4 2025; Volume shipments Q2 2026\"\n  }\n}\n```\n\n\n\n<!-- FILE: 01_FUNCTIONAL_SPECIFICATION.md -->\n\n# FUNCTIONAL SPECIFICATION\n\n## 1. Compute Architecture\n\n### 1.1 Precision Formats\n\n| Format | Peak Throughput | Enabled |\n|--------|-----------------|---------|\n| FP64 | 90.0 TFLOPS | \u2713 |\n| FP32 | 180.0 TFLOPS | \u2713 |\n| TF32 | 900.0 TFLOPS | \u2713 |\n| FP16 | 1800.0 TFLOPS | \u2713 |\n| BF16 | 1800.0 TFLOPS | \u2713 |\n| FP8 | 3600.0 TFLOPS | \u2713 |\n| NVFP4 | 7200.0 TFLOPS | \u2713 |\n| INT8 | 3600.0 TOPS | \u2713 |\n| INT4 | 7200.0 TOPS | \u2713 |\n\n### 1.2 SM Architecture\n\n- **Total Sm Count**: 144\n- **Cuda Cores Per Sm**: 128\n- **Tensor Cores Per Sm**: 4\n- **Warp Schedulers Per Sm**: 4\n- **Register File Per Sm Kb**: 256\n- **L1 Shared Memory Per Sm Kb**: 256\n- **L1 Shared Configurable**: True\n- **Base Clock Mhz**: 1800\n- **Boost Clock Mhz**: 2250\n\n## 2. Memory Hierarchy\n\n### 2.1 HBM Subsystem\n\n- **Hbm Generation**: HBM3e\n- **Total Capacity Gb**: 192\n- **Total Bandwidth Tbs**: 8.0\n- **Stack Count**: 8\n- **Bus Width Bits**: 8192\n- **Data Rate Gbps Per Pin**: 7.8125\n- **Ecc Support**: SEC-DED with Double-Chipkill\n\n### 2.2 L2 Cache\n\n- **Total Size Mb**: 192\n- **Organization**: Distributed crossbar-interleaved\n- **Banks**: 96\n- **Compression Supported**: True\n- **Compression Ratio Max**: 2.2\n\n## 3. Interconnect\n\n### 3.1 Nvlink\n\n- **Generation**: 5.0\n- **Lane Count**: 18\n- **Data Rate Gbps Per Lane**: 100\n- **Bidirectional Bandwidth Tbs**: 1.8\n- **Latency Ns**: 45\n- **Max Gpus Per Node**: 8\n- **Switch Supported**: True\n\n### 3.2 Pcie\n\n- **Generation**: 6.0\n- **Lane Count**: x16\n- **Bidirectional Bandwidth Gbs**: 128.0\n- **Cxl Supported**: True\n- **Cxl Version**: 3.1\n- **Sriov Supported**: True\n- **Max Virtual Functions**: 32\n\n### 3.3 Noc Architecture\n\n- **Topology**: Distributed 2D-Mesh with virtual channels\n- **Bisection Bandwidth Tbs**: 24.0\n- **Notes**: Low-diameter mesh interconnect directly linking SM GPCs and distributed L2 banks\n\n\n\n\n<!-- FILE: 02_NON_FUNCTIONAL_SPECIFICATION.md -->\n\n# NON-FUNCTIONAL SPECIFICATION\n\n## 1. Power Budget\n\n- **Total TDP**: 1000.0 W\n\n### 1.1 Power Allocation\n\n| Subsystem | % | Watts |\n|-----------|---|-------|\n| Compute Sm Array | 45.0% | 450.0 W |\n| Memory Phy Controller | 22.0% | 220.0 W |\n| L2 Cache | 12.0% | 120.0 W |\n| Noc Interconnect | 10.0% | 100.0 W |\n| Nvlink Pcie Phys | 8.0% | 80.0 W |\n| Clock Power Mgmt | 3.0% | 30.0 W |\n\n## 2. Area Budget\n\n- **Total Die Area**: 1180.0 mm\u00b2\n- **Reticle Limit Check**: EXCEEDS\n- **Chiplet Required**: Yes\n\n### 2.1 Area Allocation\n\n| Subsystem | % | mm\u00b2 |\n|-----------|---|-----|\n| Sm Array | 40.0% | 472.0 mm\u00b2 |\n| L2 Cache | 20.0% | 236.0 mm\u00b2 |\n| Memory Controllers Phy | 15.0% | 177.0 mm\u00b2 |\n| Noc | 10.0% | 118.0 mm\u00b2 |\n| Nvlink Pcie | 10.0% | 118.0 mm\u00b2 |\n| Other | 5.0% | 59.0 mm\u00b2 |\n\n## 3. Thermal Specification\n\n- **Max Junction Temp C**: 105\n- **Operating Temp Range C**: 0 to 85\n- **Thermal Resistance Theta Jc C Per W**: 0.035\n- **Cooling Solution**: Direct Liquid Cooling (DLC) cold plate with warm water (32C inlet)\n- **Airflow Requirement Cfm**: 120\n- **Max Power Density W Per Mm2**: 1.7\n\n## 4. Cost Targets\n\n- **Die Cost Usd**: 1850.0\n- **Package Cost Usd**: 980.0\n- **Hbm Cost Usd**: 3450.0\n- **Total Bom Usd**: 6880.0\n- **Nre Mask Cost Usd**: 6500000.0\n- **Asp Target Usd**: 28000.0\n- **Gross Margin Target Percent**: 75.4\n\n\n\n<!-- FILE: 03_ARCHITECTURAL_TRADEOFFS.md -->\n\n# ARCHITECTURAL TRADEOFF ANALYSIS\n\n## Monolithic Vs Chiplet\n\n**Recommendation**: Chiplet: 2 dies on CoWoS-L (2x 590 mm\u00b2)\n\n**Rationale**: Breaking past the 858 mm\u00b2 reticle limit is strictly required to achieve competitive compute density against NVIDIA Blackwell. The 68% yield on 590 mm\u00b2 dies cuts silicon scrap cost by over 40%, offsetting the CoWoS packaging premium.\n\n### Option: Monolithic single die (820 mm\u00b2)\n- **Scores**: performance: 9 | power_efficiency: 9 | area_cost: 4 | engineering_complexity: 8 | time_to_market: 7 | programmability: 10 | yield_risk: 3\n- **Pros**: Zero die-to-die latency or interconnect overhead, Simpler clock distribution across single silicon substrate, Direct unified memory and cache routing\n- **Cons**: Severe defect vulnerability on large die area, Wafer yield degrades to ~35%, multiplying raw silicon cost, Limits future scalability beyond reticle limit (858 mm\u00b2)\n### Option: Chiplet: 2 dies on CoWoS-L (2x 590 mm\u00b2)\n- **Scores**: performance: 10 | power_efficiency: 8 | area_cost: 8 | engineering_complexity: 6 | time_to_market: 8 | programmability: 9 | yield_risk: 8\n- **Pros**: Allows 1,180 mm\u00b2 total compute silicon, smashing the 858 mm\u00b2 reticle ceiling, Substantially higher wafer yields (68% vs 34.5%), Scales SM count to 144+ with 192 MB L2 cache\n- **Cons**: Requires 10 TB/s CoWoS-L inter-die bridge with ~5-10ns cross-die latency, Higher packaging cost and CoWoS foundry capacity allocation dependencies\n\n## Precision Format Strategy\n\n**Recommendation**: NVFP4 Microscaling Engine with FP8/BF16/FP16\n\n**Rationale**: LLM decode is severely memory-bandwidth constrained; 4-bit representation doubles effective bandwidth and doubles compute throughput with only minor silicon area cost.\n\n### Option: FP8 + BF16 Standard Precision\n- **Scores**: performance: 7 | power_efficiency: 7 | area_cost: 8 | engineering_complexity: 9 | time_to_market: 9 | programmability: 9 | yield_risk: 9\n- **Pros**: Proven numerical stability across all transformer workloads, Zero software friction\n- **Cons**: Cannot match NVIDIA Blackwell B200 4-bit throughput claims\n### Option: NVFP4 Microscaling Engine with FP8/BF16/FP16\n- **Scores**: performance: 10 | power_efficiency: 10 | area_cost: 7 | engineering_complexity: 7 | time_to_market: 8 | programmability: 8 | yield_risk: 8\n- **Pros**: Doubles inference token throughput (7,200 TFLOPS theoretical peak), Reduces memory footprint and traffic by 2x for KV cache and model weights, Maintains near-FP16 accuracy using block microscaling vectors\n- **Cons**: Requires compiler and library support in TensorRT and PyTorch\n\n## L2 Cache Sizing\n\n**Recommendation**: 192 MB Compressed L2 Cache\n\n**Rationale**: Large L2 cache acts as an effective bandwidth multiplier, buffering low arithmetic intensity decode workloads directly on-chip.\n\n### Option: 96 MB L2 Cache\n- **Scores**: performance: 7 | power_efficiency: 7 | area_cost: 9 | engineering_complexity: 9 | time_to_market: 9 | programmability: 8 | yield_risk: 9\n- **Pros**: Saves 110 mm\u00b2 die area, Lowest SRAM defect probability\n- **Cons**: Higher HBM bandwidth traffic during LLM attention and convolution operations\n### Option: 192 MB Compressed L2 Cache\n- **Scores**: performance: 10 | power_efficiency: 9 | area_cost: 7 | engineering_complexity: 7 | time_to_market: 8 | programmability: 9 | yield_risk: 7\n- **Pros**: Captures entire KV-cache resident working sets for 32k context batches, Provides up to 50x compression for activation tensors, Dramatically cuts HBM energy consumption (SRAM access is 10x more energy efficient than HBM)\n- **Cons**: Requires 20% of die silicon budget; requires ECC scrubbing\n\n## Hbm Generation Selection\n\n**Recommendation**: 8-Stack HBM3e (192 GB @ 8 TB/s)\n\n**Rationale**: Guarantees production launch readiness without gating on first-generation HBM4 packaging yields, while still achieving full 8 TB/s bandwidth parity with NVIDIA B200.\n\n### Option: 8-Stack HBM3e (192 GB @ 8 TB/s)\n- **Scores**: performance: 9 | power_efficiency: 8 | area_cost: 8 | engineering_complexity: 9 | time_to_market: 10 | programmability: 10 | yield_risk: 9\n- **Pros**: Mature mass production status, Established multi-vendor sourcing (SK Hynix, Micron, Samsung)\n- **Cons**: Reached pin rate limit at ~9.6 Gbps\n### Option: 4-Stack HBM4 (144 GB @ 8 TB/s)\n- **Scores**: performance: 9 | power_efficiency: 10 | area_cost: 6 | engineering_complexity: 5 | time_to_market: 6 | programmability: 10 | yield_risk: 5\n- **Pros**: 2048-bit bus width allows halving stack count, Lower PHY power\n- **Cons**: Schedule slip risk for early 2026 tapeout; novel logic base die manufacturing\n\n## Sm Count Vs Clock Frequency\n\n**Recommendation**: More SMs (144) at sweet-spot clock (2.25 GHz)\n\n**Rationale**: GPU throughput is fundamentally embarrassingly parallel. Running 144 SMs at 2.25 GHz delivers 15% higher sustained TFLOPS at 18% lower dynamic power than overclocking 108 SMs.\n\n### Option: Fewer SMs (108) at ultra-high clock (2.7 GHz)\n- **Scores**: performance: 7 | power_efficiency: 5 | area_cost: 8 | engineering_complexity: 6 | time_to_market: 7 | programmability: 9 | yield_risk: 6\n- **Pros**: Smaller die footprint, Fast single-thread execution latency\n- **Cons**: Dynamic power scales quadratically (P ~ C*V\u00b2*f), Severe thermal hot-spotting (> 3 W/mm\u00b2)\n### Option: More SMs (144) at sweet-spot clock (2.25 GHz)\n- **Scores**: performance: 10 | power_efficiency: 10 | area_cost: 7 | engineering_complexity: 8 | time_to_market: 9 | programmability: 9 | yield_risk: 8\n- **Pros**: Operates in the optimal energy-delay product (EDP) curve, Distributes thermal dissipation evenly across two compute dies, Maximizes thread-level parallelism (TLP) to hide HBM latencies\n- **Cons**: Requires 144 SM scheduling and routing resources\n\n\n\n\n<!-- FILE: 04_ROOFLINE_ANALYSIS.md -->\n\n# ROOFLINE ANALYSIS\n\n## Key Parameters\n\n- **Peak BF16**: 1800.0 TFLOPS\n- **Peak FP8**: 3600.0 TFLOPS\n- **HBM Bandwidth**: 8.0 TB/s\n- **Ridge Point (BF16)**: 225.0 FLOPs/byte\n- **Ridge Point (FP8)**: 450.0 FLOPs/byte\n\n## Workload Analysis\n\n| Workload | AI (FLOPs/B) | BF16 Bound | BF16 Util % | FP8 Bound | FP8 Util % |\n|----------|-------------|------------|-------------|-----------|------------|\n| LLM training | 3.5 | memory_bound | 1.6% | memory_bound | 0.8% |\n| LLM autoregressive decode | 1.0 | memory_bound | 0.4% | memory_bound | 0.2% |\n| LLM prefill | 15.0 | memory_bound | 6.7% | memory_bound | 3.3% |\n| diffusion | 6.5 | memory_bound | 2.9% | memory_bound | 1.4% |\n| hpc | 4.0 | memory_bound | 1.8% | memory_bound | 0.9% |\n\n## Interpretation\n\nROOFLINE ARCHITECTURAL INTERPRETATION:\n\n1. Architecture Assessment: Highly capable, compute-dense accelerator balanced for frontier AI workloads. With 3,600 TFLOPS FP8 and 8.0 TB/s HBM3e bandwidth, the platform achieves a balanced ridge point of 450 FLOPs/byte in FP8 and 225 FLOPs/byte in BF16.\n\n2. Identified Bottlenecks: Standard LLM autoregressive decode (AI = 0.8 to 1.2 FLOPs/byte) is heavily memory-bandwidth bound, utilizing under 0.5% of peak theoretical compute. Conversely, prompt prefill (AI = 15 FLOPs/byte) and large-batch GEMMs operate deep in the compute-bound plateau.\n\n3. Key Architectural Recommendations: The 192 MB compressed L2 cache is essential for retaining working token sets and breaking the memory wall. The addition of NVFP4 reduces memory bus pressure by 50%, doubling effective token throughput without requiring impossible increases in physical HBM stacks.\n\n4. Workload Fit: Outstanding for LLM Pre-training, Fine-tuning, Diffusion, and Prefill phases; decode requires KV-cache sparsification and 4-bit weights to maximize saturation.\n\n5. Balance Verdict: The design hits the physical ceiling of available HBM3e bandwidth while maintaining peak thermal realism at the 1000W envelope.\n\n## ASCII Roofline Plot\n\n```\n\n          ROOFLINE MODEL\n\n  Peak TFLOPS  |        \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Compute Roof (1800 TFLOPS)\n       1800   |       /\n               |      /\n               |     /  Memory Slope: 8.0 TB/s\n               |    /\n               |   /\n               |  /\n               | /\n               |/\n               \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Arithmetic Intensity (FLOPs/byte)\n               0        Ridge: 225.0 FLOPs/byte\n\n  Workload positions:\n    LLM training                   AI=  3.5  [\u25cf]  memory_bound\n    LLM autoregressive decode      AI=  1.0  [\u25cf]  memory_bound\n    LLM prefill                    AI= 15.0  [\u25cf]  memory_bound\n    diffusion                      AI=  6.5  [\u25cf]  memory_bound\n    hpc                            AI=  4.0  [\u25cf]  memory_bound\n\n```\n\n\n\n<!-- FILE: 05_BLOCK_DIAGRAM_ARCHITECTURE.md -->\n\n# BLOCK DIAGRAM ARCHITECTURE\n\n## Chiplet Strategy\n\n- **Chiplet Required**: True\n- **Chiplet Count**: 2\n- **Inter Die Interconnect**: CoWoS-L Silicon Bridge with D2D High-Density PHY\n- **Inter Die Bandwidth Tbs**: 10.0\n\n## Per-Die Structure\n\n- **Gpc Count**: 4\n- **Sm Per Gpc**: 16\n- **Total Sm Count**: 144\n- **Gpc Components**: ['16 \u00d7 SMs (Streaming Multiprocessors)', 'L1 Instruction & Texture Caches', 'Tensor Memory Accelerators (TMA 2.0)', 'Rasterization & Work Distribution Units']\n\n## ASCII Floorplan\n\n```\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                        GPU DIE FLOORPLAN                        \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502                                                                 \u2502\n\u2502   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510         \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u2502\n\u2502   \u2502   GPC   \u2502  \u2502   GPC   \u2502  ...    \u2502   HBM PHY / Mem Ctrl    \u2502  \u2502\n\u2502   \u2502 16\u00d7 SMs \u2502  \u2502 16\u00d7 SMs \u2502         \u2502   \u00d716 controllers   \u2502  \u2502\n\u2502   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518         \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2502\n\u2502                                                                 \u2502\n\u2502   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u2502\n\u2502   \u2502              L2 CACHE (9 partitions, distributed)              \u2502  \u2502\n\u2502   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2502\n\u2502                                                                 \u2502\n\u2502   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510         \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u2502\n\u2502   \u2502   GPC   \u2502  \u2502   GPC   \u2502  ...    \u2502   NVLink / PCIe PHYs    \u2502  \u2502\n\u2502   \u2502         \u2502  \u2502         \u2502         \u2502   18 lanes NVLink   \u2502  \u2502\n\u2502   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518         \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2502\n\u2502                                                                 \u2502\n\u2502   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u2502\n\u2502   \u2502   Clock Gen \u2502 Power Mgmt \u2502 Thermal \u2502 JTAG \u2502 I2C \u2502 SPI    \u2502  \u2502\n\u2502   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2502\n\u2502                                                                 \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\n  Total: 4 GPCs per die, 144 SMs Total\n  NoC: Distributed 2D Mesh with Crossbar Tiles\n\n```\n\n## Mermaid Diagram\n\n```mermaid\ngraph TB\n    subgraph PACKAGE[Package - CoWoS-L Advanced Substrate]\n        subgraph DIE1[Compute Die 1 (TSMC 4NP/3nm)]\n            GPC1_GROUP[4 GPCs<br/>72 SMs]\n            L2_1[Distributed L2 Cache]\n            MC_1[HBM Memory Controllers]\n            D2D_1[10 TB/s Die-to-Die PHY]\n        end\n        subgraph DIE2[Compute Die 2 (TSMC 4NP/3nm)]\n            GPC2_GROUP[4 GPCs<br/>72 SMs]\n            L2_2[Distributed L2 Cache]\n            MC_2[HBM Memory Controllers]\n            D2D_2[10 TB/s Die-to-Die PHY]\n        end\n        HBM[8x HBM3e Memory Stacks (192 GB @ 8 TB/s)]\n        NVLINK[18-Lane NVLink 5.0 PHYs (1.8 TB/s)]\n        PCIE[PCIe Gen6 x16 PHY (128 GB/s)]\n    end\n    D2D_1 <-->|Passive Silicon Bridge| D2D_2\n    GPC1_GROUP <--> L2_1\n    GPC2_GROUP <--> L2_2\n    L2_1 <--> MC_1\n    L2_2 <--> MC_2\n    MC_1 <--> HBM\n    MC_2 <--> HBM\n    L2_1 <--> NVLINK\n    L2_2 <--> PCIE\n```\n\n## Floorplan Notes\n\n- Compute GPCs placed symmetrically across center core\n- HBM PHYs aligned along perimeter micro-bumps directly above CoWoS interposer\n- 192 MB L2 cache partitions interleaved directly between GPC tiles to reduce hop count\n- High-speed NVLink 5.0 SerDes PHYs located on external edge\n- Power grid mesh with dedicated backside delivery vias for minimal IR-drop\n\n\n\n<!-- FILE: 06_INTERFACE_SPECIFICATION.md -->\n\n# INTERFACE SPECIFICATION\n\n\n\n\n<!-- FILE: 07_RISK_REGISTER.md -->\n\n# RISK REGISTER\n\n**Summary**: Identified 7 risks total. 4 HIGH risks (score \u2265 15). Top concerns: RISK-CHIPLET-001, RISK-HBM-001, RISK-THERMAL-001, RISK-POWER-001\n\n- **High risks (\u226515)**: 4\n- **Medium risks (10-14)**: 3\n- **Low risks (<10)**: 0\n\n## Risk Details\n\n| ID | Description | Category | L | I | Score | Mitigation | Owner |\n|----|-------------|----------|---|---|-------|------------|-------|\n| RISK-CHIPLET-001 | 2.5D CoWoS-L substrate warpage and inter-die link micro-bump | technical | 4 | 5 | 20 | Design 20% redundant physical lanes with automatic | Packaging & DFT Lead |\n| RISK-HBM-001 | Global supply constraint or allocation quotas on 12-high HBM | supply_chain | 4 | 4 | 16 | Dual-qualify both SK Hynix and Micron HBM3e stacks | Operations & Sourcing Director |\n| RISK-THERMAL-001 | 1000W TDP thermal runaway and junction temperature exceeding | technical | 3 | 5 | 15 | Direct liquid cold plate integration with vapor ch | Thermal & Physical Design Lead |\n| RISK-POWER-001 | High power envelope (1000.0W) causes thermal hot-spots and t | technical | 3 | 5 | 15 | Conservative DVFS; extensive thermal simulation; d | Physical Design + System Engineering |\n| RISK-TIMING-001 | Clock tree skew and timing closure failure at 2.25 GHz acros | implementation | 3 | 4 | 12 | Balanced resonant H-tree clock network with region | RTL & Static Timing Lead |\n| RISK-SOFTWARE-001 | Customer reluctance to migrate to custom software stack with | market | 3 | 4 | 12 | Hardware-level support for native CUDA PTX executi | VP of AI Software & Ecosystem |\n| RISK-REGULATORY-001 | Total Processing Performance (TPP) export control restrictio | regulatory | 3 | 4 | 12 | Modular NVLink PHY architecture allowing hardware  | Legal & Trade Compliance Counsel |\n\n\n\n<!-- FILE: 08_DIE_COST_MODEL.md -->\n\n# DIE COST MODEL\n\n- **Process Node**: TSMC 3nm (N3P)\n- **Wafer Diameter Mm**: 300.0\n- **Wafer Cost Usd**: 20000\n- **Mask Nre Cost Usd**: 7500000\n- **Defect Density Defects Per Cm2**: 0.22\n- **Total Die Area Mm2**: 1180.0\n- **Chiplet Architecture**: Dual-Die CoWoS-L\n- **Die Count Per Package**: 2\n- **Single Die Area Mm2**: 590.0\n- **Gross Dies Per Wafer Dpw**: 87\n- **Die Yield Percent**: 51.1\n- **Net Good Dies Per Wafer Gdpw**: 44\n- **Raw Die Cost Usd**: 454.55\n- **Total Silicon Cost Per Package Usd**: 909.1\n- **Advanced Packaging Cowos Usd**: 980.0\n- **Hbm Memory Subsystem Usd**: 3450.0\n- **Assembly And Final Test Usd**: 450.0\n- **Total Unit Bom Cost Usd**: 5789.1\n- **Amortized Mask Nre Per Unit Usd**: 30.0\n- **Total Manufacturing Cost Per Unit Usd**: 5819.1\n- **Target Gross Margin Percent**: 75.0\n- **Target Asp Usd**: 23156.4\n- **Projected Unit Volume**: 250000\n- **Projected Product Revenue Usd Billion**: 5.79\n\n\n\n<!-- FILE: 09_HUMAN_REVIEW_CHECKLIST.md -->\n\n# HUMAN REVIEW CHECKLIST\n\n## Architecture Review\n\n- [ ] **Compute**: Are precision format choices optimal for target workloads?\n  - *Evidence*: Functional spec section 1.1, Roofline analysis\n- [ ] **Compute**: Is SM count vs clock frequency tradeoff optimal?\n  - *Evidence*: Tradeoff analysis, PPA estimates\n- [ ] **Memory**: Is HBM generation and capacity right for workload bandwidth needs?\n  - *Evidence*: Roofline analysis, workload characterization\n- [ ] **Memory**: Is L2 cache size appropriate (not too small, not wasteful)?\n  - *Evidence*: Tradeoff analysis, area budget\n- [ ] **Interconnect**: Is NVLink bandwidth sufficient for multi-GPU scaling targets?\n  - *Evidence*: Interface spec, scaling requirements\n- [ ] **Power**: Is power budget allocation realistic and achievable?\n  - *Evidence*: NFR power allocation, power models\n- [ ] **Area**: Is die area within reticle limit? Is chiplet strategy sound?\n  - *Evidence*: Area budget, reticle check (858mm\u00b2 limit)\n- [ ] **Thermal**: Is power density within cooling solution capability?\n  - *Evidence*: Thermal spec, power density calculation\n- [ ] **Reliability**: Is ECC coverage adequate for target market?\n  - *Evidence*: RAS section, FIT rate target\n- [ ] **Cost**: Are die cost and BOM targets achievable?\n  - *Evidence*: Die cost model, cost targets\n- [ ] **Schedule**: Is the chosen technology available on the required timeline?\n  - *Evidence*: Process node data, HBM roadmap\n- [ ] **Software**: Is CUDA backwards compatibility maintained?\n  - *Evidence*: Software section of functional spec\n- [ ] **Risk**: Have top 5 high risks been adequately mitigated?\n  - *Evidence*: Risk register\n- [ ] **Interfaces**: Are all external interfaces fully specified?\n  - *Evidence*: Interface specification document\n- [ ] **Consistency**: Are all numbers internally consistent?\n  - *Evidence*: Validation engine reports\n\n## Sign-off\n\n| Role | Name | Signature | Date |\n|------|------|-----------|------|\n| Product Architect | | | |\n| Chip Architect | | | |\n| RTL Design Lead | | | |\n| Verification Lead | | | |\n| Physical Design Lead | | | |\n| Software Lead | | | |\n| Program Manager | | | |\n\n\n\n<!-- FILE: 10_SPECIFICATION_SUMMARY.md -->\n\n# SPECIFICATION SUMMARY\n\n## At a Glance\n\n- **SM Count**: 144\n- **Boost Clock**: 2250 MHz\n- **HBM**: 192 GB at 8.0 TB/s\n- **TDP**: 1000.0 W\n- **Die Area**: 1180.0 mm\u00b2\n- **Chiplet**: Yes\n\n## Status\n\n**DRAFT FOR HUMAN REVIEW** \u2014 This specification has been generated by Silica AI.\nAll numbers are preliminary and require expert review before spec freeze.\n\n"
+    },
+    "review_checklist": [
+      {
+        "area": "Compute",
+        "question": "Are precision format choices optimal for target workloads?",
+        "evidence": "Functional spec section 1.1, Roofline analysis"
+      },
+      {
+        "area": "Compute",
+        "question": "Is SM count vs clock frequency tradeoff optimal?",
+        "evidence": "Tradeoff analysis, PPA estimates"
+      },
+      {
+        "area": "Memory",
+        "question": "Is HBM generation and capacity right for workload bandwidth needs?",
+        "evidence": "Roofline analysis, workload characterization"
+      },
+      {
+        "area": "Memory",
+        "question": "Is L2 cache size appropriate (not too small, not wasteful)?",
+        "evidence": "Tradeoff analysis, area budget"
+      },
+      {
+        "area": "Interconnect",
+        "question": "Is NVLink bandwidth sufficient for multi-GPU scaling targets?",
+        "evidence": "Interface spec, scaling requirements"
+      },
+      {
+        "area": "Power",
+        "question": "Is power budget allocation realistic and achievable?",
+        "evidence": "NFR power allocation, power models"
+      },
+      {
+        "area": "Area",
+        "question": "Is die area within reticle limit? Is chiplet strategy sound?",
+        "evidence": "Area budget, reticle check (858mm\u00b2 limit)"
+      },
+      {
+        "area": "Thermal",
+        "question": "Is power density within cooling solution capability?",
+        "evidence": "Thermal spec, power density calculation"
+      },
+      {
+        "area": "Reliability",
+        "question": "Is ECC coverage adequate for target market?",
+        "evidence": "RAS section, FIT rate target"
+      },
+      {
+        "area": "Cost",
+        "question": "Are die cost and BOM targets achievable?",
+        "evidence": "Die cost model, cost targets"
+      },
+      {
+        "area": "Schedule",
+        "question": "Is the chosen technology available on the required timeline?",
+        "evidence": "Process node data, HBM roadmap"
+      },
+      {
+        "area": "Software",
+        "question": "Is CUDA backwards compatibility maintained?",
+        "evidence": "Software section of functional spec"
+      },
+      {
+        "area": "Risk",
+        "question": "Have top 5 high risks been adequately mitigated?",
+        "evidence": "Risk register"
+      },
+      {
+        "area": "Interfaces",
+        "question": "Are all external interfaces fully specified?",
+        "evidence": "Interface specification document"
+      },
+      {
+        "area": "Consistency",
+        "question": "Are all numbers internally consistent?",
+        "evidence": "Validation engine reports"
+      }
+    ],
+    "spec_freeze_criteria": [
+      "All checklist items reviewed and signed off",
+      "No high-severity open risks without mitigation",
+      "Functional spec 100% complete and reviewed",
+      "Non-functional spec 100% complete and reviewed",
+      "All downstream leads have signed off on feasibility",
+      "Budget and schedule approved",
+      "Test chip strategy defined (if applicable)",
+      "Specification version controlled and baselined"
+    ],
+    "downstream_handoff": {
+      "for_rtl_design": {
+        "sm_count": 144,
+        "clock_mhz": 2250,
+        "interfaces": {
+          "nvlink": {
+            "generation": "5.0",
+            "lane_count": 18,
+            "data_rate_gbps_per_lane": 100,
+            "bidirectional_bandwidth_tbs": 1.8,
+            "latency_ns": 45,
+            "max_gpus_per_node": 8,
+            "switch_supported": true
+          },
+          "pcie": {
+            "generation": "6.0",
+            "lane_count": "x16",
+            "bidirectional_bandwidth_gbs": 128.0,
+            "cxl_supported": true,
+            "cxl_version": "3.1",
+            "sriov_supported": true,
+            "max_virtual_functions": 32
+          },
+          "noc_architecture": {
+            "topology": "Distributed 2D-Mesh with virtual channels",
+            "bisection_bandwidth_tbs": 24.0,
+            "notes": "Low-diameter mesh interconnect directly linking SM GPCs and distributed L2 banks"
+          }
+        },
+        "instruction_set": {
+          "cuda_compatibility": "SM_100",
+          "new_instructions": [
+            "MMA.SP.NVFP4: Micro-scaled 4-bit tensor matrix multiply-accumulate",
+            "ASYNC.COPY.TMA2: 2nd-gen Tensor Memory Accelerator with multicast reduction",
+            "WARP.GROUP.BARRIER: Sub-millicycle collective sync across warp groups",
+            "KV.CACHE.COMPRESS: Hardware accelerated 2:1 sparse KV-cache indexing"
+          ],
+          "backwards_compatible_to": "SM_80"
+        }
+      },
+      "for_verification": {
+        "functional_requirements": {
+          "compute_architecture": {
+            "precision_formats": [
+              {
+                "format": "FP64",
+                "peak_tflops": 90.0,
+                "enabled": true
+              },
+              {
+                "format": "FP32",
+                "peak_tflops": 180.0,
+                "enabled": true
+              },
+              {
+                "format": "TF32",
+                "peak_tflops": 900.0,
+                "enabled": true
+              },
+              {
+                "format": "FP16",
+                "peak_tflops": 1800.0,
+                "enabled": true
+              },
+              {
+                "format": "BF16",
+                "peak_tflops": 1800.0,
+                "enabled": true
+              },
+              {
+                "format": "FP8",
+                "peak_tflops": 3600.0,
+                "enabled": true
+              },
+              {
+                "format": "NVFP4",
+                "peak_tflops": 7200.0,
+                "enabled": true
+              },
+              {
+                "format": "INT8",
+                "peak_tops": 3600.0,
+                "enabled": true
+              },
+              {
+                "format": "INT4",
+                "peak_tops": 7200.0,
+                "enabled": true
+              }
+            ],
+            "tensor_core_design": {
+              "generation": "5th-gen Tensor Core with NVFP4 Microscaling",
+              "mma_shapes_supported": [
+                "M=16,N=16,K=16",
+                "M=64,N=64,K=32",
+                "M=256,N=128,K=64"
+              ],
+              "sparsity_support": true,
+              "notes": "2:4 structured sparsity gives 2x compute throughput boost on dense matrix operands"
+            },
+            "sm_architecture": {
+              "total_sm_count": 144,
+              "cuda_cores_per_sm": 128,
+              "tensor_cores_per_sm": 4,
+              "warp_schedulers_per_sm": 4,
+              "register_file_per_sm_kb": 256,
+              "l1_shared_memory_per_sm_kb": 256,
+              "l1_shared_configurable": true,
+              "base_clock_mhz": 1800,
+              "boost_clock_mhz": 2250
+            },
+            "instruction_set": {
+              "cuda_compatibility": "SM_100",
+              "new_instructions": [
+                "MMA.SP.NVFP4: Micro-scaled 4-bit tensor matrix multiply-accumulate",
+                "ASYNC.COPY.TMA2: 2nd-gen Tensor Memory Accelerator with multicast reduction",
+                "WARP.GROUP.BARRIER: Sub-millicycle collective sync across warp groups",
+                "KV.CACHE.COMPRESS: Hardware accelerated 2:1 sparse KV-cache indexing"
+              ],
+              "backwards_compatible_to": "SM_80"
+            }
+          },
+          "memory_hierarchy": {
+            "hbm_subsystem": {
+              "hbm_generation": "HBM3e",
+              "total_capacity_gb": 192,
+              "total_bandwidth_tbs": 8.0,
+              "stack_count": 8,
+              "bus_width_bits": 8192,
+              "data_rate_gbps_per_pin": 7.8125,
+              "ecc_support": "SEC-DED with Double-Chipkill"
+            },
+            "l2_cache": {
+              "total_size_mb": 192,
+              "organization": "Distributed crossbar-interleaved",
+              "banks": 96,
+              "compression_supported": true,
+              "compression_ratio_max": 2.2
+            },
+            "l1_cache": {
+              "per_sm_size_kb": 256,
+              "configurable": true,
+              "shared_memory_max_kb": 228
+            },
+            "register_file": {
+              "per_sm_kb": 256,
+              "total_gpu_kb": 36864
+            }
+          },
+          "interconnect": {
+            "nvlink": {
+              "generation": "5.0",
+              "lane_count": 18,
+              "data_rate_gbps_per_lane": 100,
+              "bidirectional_bandwidth_tbs": 1.8,
+              "latency_ns": 45,
+              "max_gpus_per_node": 8,
+              "switch_supported": true
+            },
+            "pcie": {
+              "generation": "6.0",
+              "lane_count": "x16",
+              "bidirectional_bandwidth_gbs": 128.0,
+              "cxl_supported": true,
+              "cxl_version": "3.1",
+              "sriov_supported": true,
+              "max_virtual_functions": 32
+            },
+            "noc_architecture": {
+              "topology": "Distributed 2D-Mesh with virtual channels",
+              "bisection_bandwidth_tbs": 24.0,
+              "notes": "Low-diameter mesh interconnect directly linking SM GPCs and distributed L2 banks"
+            }
+          },
+          "virtualization_ras": {
+            "mig": {
+              "supported": true,
+              "max_instances": 8,
+              "instance_types": [
+                "1g.24gb",
+                "2g.48gb",
+                "4g.96gb",
+                "8g.192gb"
+              ]
+            },
+            "ecc": {
+              "hbm": "Double-chipkill + command/address parity",
+              "l2_cache": "SEC-DED Inline ECC with background scrubbing",
+              "l1_cache": "Parity / SEC-DED",
+              "register_file": "SEC-DED protected registers"
+            },
+            "ras_features": [
+              "Dynamic lane failover on NVLink 5.0",
+              "Autonomous thermal throttling with millisecond DVFS response",
+              "On-the-fly row/column repair and DRAM page retirement",
+              "Error containment and fault isolation across MIG partitions"
+            ],
+            "fit_rate_target": 850
+          },
+          "software": {
+            "cuda_compatibility": "Full CUDA 12.x / 13.x native",
+            "library_support": [
+              "cuBLAS",
+              "cuDNN",
+              "TensorRT-LLM",
+              "NCCL",
+              "cuFFT",
+              "CUTLASS"
+            ],
+            "framework_support": [
+              "PyTorch 2.x",
+              "JAX",
+              "DeepSpeed",
+              "Megatron-LM",
+              "vLLM"
+            ],
+            "backwards_compatibility": "Full binary and PTX backwards compatibility to Hopper and Ampere",
+            "new_apis_required": [
+              "cudaLaunchKernelEx with FP4 tensor scaling factors",
+              "ncclAllReduceNVLinkDirect with in-switch reduction primitives"
+            ]
+          },
+          "design_assumptions": [
+            "Manufactured on TSMC 3nm (N3P) with high-density SRAM cell libraries",
+            "Dual-die CoWoS-L packaging with 10 TB/s high-density Die-to-Die PHY interface",
+            "8-stack HBM3e subsystem with thermal cold plate liquid cooling rated for 1000W TDP",
+            "Host CPU connected via PCIe Gen6 x16 with CXL 3.1 Type 3 memory pooling"
+          ],
+          "_validation": {
+            "has_required_fields": true,
+            "numeric_consistency": true,
+            "physical_feasibility": true,
+            "no_inf_values": true,
+            "no_negative_values": true,
+            "overall": true
+          },
+          "_multipass_audit": [
+            {
+              "pass": 1,
+              "action": "initial_generation",
+              "result_summary": "keys: ['compute_architecture', 'memory_hierarchy', 'interconnect', 'virtualization_ras', 'software']"
+            },
+            {
+              "pass": 2,
+              "action": "critique",
+              "findings": 3
+            },
+            {
+              "pass": 2,
+              "action": "revision_applied",
+              "issues_fixed": 3
+            },
+            {
+              "pass": 3,
+              "action": "critique",
+              "findings": 3
+            },
+            {
+              "pass": 3,
+              "action": "revision_applied",
+              "issues_fixed": 3
+            },
+            {
+              "pass": "final",
+              "action": "validation",
+              "result": {
+                "has_required_fields": true,
+                "numeric_consistency": true,
+                "physical_feasibility": true,
+                "no_inf_values": true,
+                "no_negative_values": true,
+                "overall": true
+              }
+            }
+          ]
+        },
+        "performance_targets": {
+          "clock_frequencies": {
+            "base_clock_mhz": 1800,
+            "boost_clock_mhz": 2250,
+            "memory_clock_mhz": 3906,
+            "nvlink_clock_mhz": 1562,
+            "pcie_clock_mhz": 500
+          },
+          "latency_targets": {
+            "hbm_read_latency_ns": 78,
+            "l2_hit_latency_ns": 18,
+            "l1_hit_latency_ns": 4,
+            "nvlink_latency_ns": 45,
+            "pcie_latency_ns": 110,
+            "warp_scheduling_latency_cycles": 1
+          },
+          "throughput_targets": {
+            "llm_training_tokens_per_sec": 4850,
+            "llm_inference_tokens_per_sec": 19200,
+            "llm_prefill_ms": 14.5,
+            "llm_decode_ms_per_token": 1.2
+          }
+        },
+        "reliability_requirements": {
+          "fit_rate_target": 850,
+          "mtbf_hours": 1176000,
+          "service_life_years": 5,
+          "ecc_schemes": {
+            "hbm": "Double-chipkill",
+            "l2": "SEC-DED inline",
+            "l1": "Parity / SEC-DED",
+            "registers": "SEC-DED"
+          },
+          "ras_features": [
+            "error_containment",
+            "fault_isolation",
+            "page_retirement",
+            "dynamic_lane_repair"
+          ]
+        }
+      },
+      "for_physical_design": {
+        "die_area_mm2": 1180.0,
+        "power_budget_w": 1000.0,
+        "clock_frequencies": {
+          "base_clock_mhz": 1800,
+          "boost_clock_mhz": 2250,
+          "memory_clock_mhz": 3906,
+          "nvlink_clock_mhz": 1562,
+          "pcie_clock_mhz": 500
+        },
+        "block_diagram": {
+          "chiplet_strategy": {
+            "chiplet_required": true,
+            "chiplet_count": 2,
+            "inter_die_interconnect": "CoWoS-L Silicon Bridge with D2D High-Density PHY",
+            "inter_die_bandwidth_tbs": 10.0
+          },
+          "per_die_structure": {
+            "gpc_count": 4,
+            "sm_per_gpc": 16,
+            "total_sm_count": 144,
+            "gpc_components": [
+              "16 \u00d7 SMs (Streaming Multiprocessors)",
+              "L1 Instruction & Texture Caches",
+              "Tensor Memory Accelerators (TMA 2.0)",
+              "Rasterization & Work Distribution Units"
+            ]
+          },
+          "memory_subsystem": {
+            "hbm_stack_count": 8,
+            "memory_controllers": 16,
+            "l2_cache_partitions": 9,
+            "l2_per_partition_mb": 21.3
+          },
+          "interconnect_subsystem": {
+            "noc_topology": "Distributed 2D Mesh with Crossbar Tiles",
+            "nvlink_lanes": 18,
+            "nvlink_phys": 2,
+            "pcie_lanes": "x16",
+            "pcie_phy_count": 1
+          },
+          "support_subsystems": [
+            "Clock generation (H-tree PLLs)",
+            "Power management & DVFS Controller",
+            "On-die thermal diode matrix (16 sensors)",
+            "JTAG / IEEE 1149.1 test access port",
+            "PMBus / I2C / SMBus system management",
+            "GPIO control logic",
+            "SPI boot ROM interface"
+          ],
+          "floorplan_notes": [
+            "Compute GPCs placed symmetrically across center core",
+            "HBM PHYs aligned along perimeter micro-bumps directly above CoWoS interposer",
+            "192 MB L2 cache partitions interleaved directly between GPC tiles to reduce hop count",
+            "High-speed NVLink 5.0 SerDes PHYs located on external edge",
+            "Power grid mesh with dedicated backside delivery vias for minimal IR-drop"
+          ],
+          "mermaid_diagram": "graph TB\n    subgraph PACKAGE[Package - CoWoS-L Advanced Substrate]\n        subgraph DIE1[Compute Die 1 (TSMC 4NP/3nm)]\n            GPC1_GROUP[4 GPCs<br/>72 SMs]\n            L2_1[Distributed L2 Cache]\n            MC_1[HBM Memory Controllers]\n            D2D_1[10 TB/s Die-to-Die PHY]\n        end\n        subgraph DIE2[Compute Die 2 (TSMC 4NP/3nm)]\n            GPC2_GROUP[4 GPCs<br/>72 SMs]\n            L2_2[Distributed L2 Cache]\n            MC_2[HBM Memory Controllers]\n            D2D_2[10 TB/s Die-to-Die PHY]\n        end\n        HBM[8x HBM3e Memory Stacks (192 GB @ 8 TB/s)]\n        NVLINK[18-Lane NVLink 5.0 PHYs (1.8 TB/s)]\n        PCIE[PCIe Gen6 x16 PHY (128 GB/s)]\n    end\n    D2D_1 <-->|Passive Silicon Bridge| D2D_2\n    GPC1_GROUP <--> L2_1\n    GPC2_GROUP <--> L2_2\n    L2_1 <--> MC_1\n    L2_2 <--> MC_2\n    MC_1 <--> HBM\n    MC_2 <--> HBM\n    L2_1 <--> NVLINK\n    L2_2 <--> PCIE",
+          "ascii_diagram": "\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                        GPU DIE FLOORPLAN                        \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502                                                                 \u2502\n\u2502   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510         \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u2502\n\u2502   \u2502   GPC   \u2502  \u2502   GPC   \u2502  ...    \u2502   HBM PHY / Mem Ctrl    \u2502  \u2502\n\u2502   \u2502 16\u00d7 SMs \u2502  \u2502 16\u00d7 SMs \u2502         \u2502   \u00d716 controllers   \u2502  \u2502\n\u2502   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518         \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2502\n\u2502                                                                 \u2502\n\u2502   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u2502\n\u2502   \u2502              L2 CACHE (9 partitions, distributed)              \u2502  \u2502\n\u2502   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2502\n\u2502                                                                 \u2502\n\u2502   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510         \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u2502\n\u2502   \u2502   GPC   \u2502  \u2502   GPC   \u2502  ...    \u2502   NVLink / PCIe PHYs    \u2502  \u2502\n\u2502   \u2502         \u2502  \u2502         \u2502         \u2502   18 lanes NVLink   \u2502  \u2502\n\u2502   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518         \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2502\n\u2502                                                                 \u2502\n\u2502   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510  \u2502\n\u2502   \u2502   Clock Gen \u2502 Power Mgmt \u2502 Thermal \u2502 JTAG \u2502 I2C \u2502 SPI    \u2502  \u2502\n\u2502   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518  \u2502\n\u2502                                                                 \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\n  Total: 4 GPCs per die, 144 SMs Total\n  NoC: Distributed 2D Mesh with Crossbar Tiles\n"
+        }
+      },
+      "spec_freeze_status": "DRAFT \u2014 AWAITING HUMAN SIGN-OFF"
+    }
+  },
+  "status": "draft_for_human_review",
+  "spec_freeze_ready": false,
+  "completed_at": "2026-10-24 17:35:54 UTC",
+  "id": "run-blackwell-2028"
+}

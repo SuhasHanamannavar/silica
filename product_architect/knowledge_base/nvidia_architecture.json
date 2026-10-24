@@ -1,0 +1,41 @@
+[
+  {
+    "id": "arch_blackwell_001",
+    "category": "nvidia_architecture",
+    "source": "NVIDIA Blackwell Architecture Whitepaper",
+    "content": "Blackwell GPU Architecture:\n- 5th-generation Tensor Cores with NVFP4 support\n- 208B transistors across two reticle-limited dies\n- TSMC 4NP custom process node\n- HBM3e memory: up to 192GB at 8 TB/s bandwidth\n- NVLink 5.0: 1.8 TB/s bidirectional, 100 Gbps/lane\n- 192 MB L2 cache with 50x capacity compression\n- 1000W TDP for B200 SXM module\n- 25x energy efficiency improvement over Hopper per AI operation\n- Dual-die chiplet design on CoWoS-L packaging",
+    "metadata": {
+      "generation": "blackwell",
+      "year": 2024
+    }
+  },
+  {
+    "id": "arch_hopper_001",
+    "category": "nvidia_architecture",
+    "source": "NVIDIA Hopper Architecture Whitepaper",
+    "content": "Hopper H100 GPU Architecture:\n- 4th-generation Tensor Cores with FP8 Transformer Engine\n- 80B transistors, 814 mm2 die, TSMC 4N process\n- HBM3 memory: 80GB at 3.35 TB/s bandwidth\n- NVLink 4.0: 900 GB/s bidirectional\n- 50 MB L2 cache\n- 700W TDP for SXM module\n- 132 SMs, 16,896 FP32 CUDA cores\n- 256 KB register file per SM, 228 KB L1/shared memory per SM",
+    "metadata": {
+      "generation": "hopper",
+      "year": 2022
+    }
+  },
+  {
+    "id": "arch_ampere_001",
+    "category": "nvidia_architecture",
+    "source": "NVIDIA Ampere Architecture Whitepaper",
+    "content": "Ampere A100 GPU Architecture:\n- 3rd-generation Tensor Cores with TF32, BF16, FP16, INT8, INT4\n- 54B transistors, 826 mm2 die, TSMC 7N process\n- HBM2e memory: 40GB/80GB at 1.55/2.0 TB/s\n- NVLink 3.0: 600 GB/s bidirectional\n- 40 MB L2 cache\n- 400W TDP for SXM4\n- 108 SMs, 6,912 FP32 CUDA cores\n- MIG (Multi-Instance GPU): up to 7 instances",
+    "metadata": {
+      "generation": "ampere",
+      "year": 2020
+    }
+  },
+  {
+    "id": "arch_sm_design_001",
+    "category": "nvidia_architecture",
+    "source": "NVIDIA SM Architecture Analysis",
+    "content": "NVIDIA Streaming Multiprocessor (SM) Evolution:\n- Turing/Ada: 4 processing blocks per SM, each with 32 FP32 cores, 1 warp scheduler\n- Hopper: 4 sub-partitions per SM, each with 32 FP32 cores, 1 warp scheduler, 1 Tensor Core\n- Register file: 256 KB per SM (Hopper), 64K x 32-bit registers\n- L1/Shared memory: configurable, up to 228 KB on Hopper\n- Warp size: 32 threads\n- Key SM design principles: maximize thread-level parallelism, hide memory latency through context switching, balance compute and memory resources",
+    "metadata": {
+      "component": "sm"
+    }
+  }
+]

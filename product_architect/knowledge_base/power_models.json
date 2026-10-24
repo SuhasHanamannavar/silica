@@ -1,0 +1,11 @@
+[
+  {
+    "id": "power_gpu_allocation",
+    "category": "power_models",
+    "source": "NVIDIA Analysis + Die Shots",
+    "content": "Typical High-End GPU Power Budget Allocation (1000W TDP):\n- Compute cores (SM array): 40-50% (400-500W)\n  - CUDA cores, Tensor Cores, register files, schedulers\n- Memory PHY + Controllers: 20-25% (200-250W)\n  - HBM PHYs, memory controllers, PHY PLLs\n- L2 Cache: 10-15% (100-150W)\n  - SRAM arrays, access logic\n- NoC/Interconnect: 8-12% (80-120W)\n  - On-chip network, crossbars, buffers\n- NVLink/PCIe PHYs: 8-12% (80-120W)\n  - High-speed SerDes, PLLs, transmitters/receivers\n- Clock generation & distribution: 3-5% (30-50W)\n- Power management & thermal: 2-3% (20-30W)\n\nPower density: High-end GPU compute regions reach 3-5 W/mm2\nLeakage power: 5-15% of total at advanced nodes\nActivity factors: 0.15-0.25 for logic, 0.05-0.15 for memories",
+    "metadata": {
+      "reference_design": "high_end_gpu"
+    }
+  }
+]

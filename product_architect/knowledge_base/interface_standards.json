@@ -1,0 +1,29 @@
+[
+  {
+    "id": "if_pcie6",
+    "category": "interface_standards",
+    "source": "PCI-SIG",
+    "content": "PCIe Gen 6 Specification:\n- Data rate: 64 GT/s per lane (PAM4 encoding)\n- Bandwidth per lane: ~8 GB/s bidirectional\n- x16 slot: ~128 GB/s bidirectional (256 GB/s total full duplex)\n- CXL 3.1 support with CXL.mem and CXL.cache\n- Forward error correction (FEC) with FLIT mode\n- Availability: 2025+",
+    "metadata": {
+      "interface": "pcie_gen6"
+    }
+  },
+  {
+    "id": "if_nvlink5",
+    "category": "interface_standards",
+    "source": "NVIDIA",
+    "content": "NVLink 5.0 Specification:\n- Data rate: 100 Gbps per lane (PAM4)\n- 18 lanes per link\n- Bandwidth: 1.8 TB/s bidirectional per GPU\n- Latency: ~50 ns\n- 8-way multi-GPU support within node\n- Switch-based scaling for larger systems (NVSwitch)\n- Error correction, retransmission, flow control",
+    "metadata": {
+      "interface": "nvlink5"
+    }
+  },
+  {
+    "id": "if_cxl3",
+    "category": "interface_standards",
+    "source": "CXL Consortium",
+    "content": "CXL 3.0/3.1 Specification:\n- Built on PCIe Gen 6 PHY\n- CXL.io, CXL.cache, CXL.mem protocols\n- Memory pooling, sharing, expansion\n- Fabric capabilities for multi-host\n- Latency: ~100-200 ns\n- Key use case: Disaggregated memory in AI datacenters",
+    "metadata": {
+      "interface": "cxl3"
+    }
+  }
+]

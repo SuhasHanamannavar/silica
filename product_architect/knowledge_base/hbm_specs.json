@@ -1,0 +1,29 @@
+[
+  {
+    "id": "hbm_hbm4",
+    "category": "hbm_specs",
+    "source": "JEDEC + SK Hynix + Industry Analysis",
+    "content": "HBM4 Memory Specification:\n- Data rate: 6.4 Gbps/pin (target), up to 8.0 Gbps/pin\n- Bus width: 2048-bit per stack (doubled from 1024-bit in HBM3e)\n- Bandwidth per stack: ~1.6 - 2.0 TB/s (12-high / 16-high)\n- Capacity per stack: 36GB (12-high), 48GB (16-high)\n- I/O voltage: 1.1V / 0.9V logic base die\n- Base die: FinFET/CMOS 4nm/3nm custom logic die with BIST and test logic\n- Power efficiency: ~30% better than HBM3e (pJ/bit)\n- Availability: 2026 sampling, 2027 HVM\n- Key features: Lower power, higher bandwidth, ECC support, direct chip-on-wafer bonding",
+    "metadata": {
+      "generation": "hbm4"
+    }
+  },
+  {
+    "id": "hbm_hbm3e",
+    "category": "hbm_specs",
+    "source": "JEDEC + SK Hynix + Industry Analysis",
+    "content": "HBM3e Memory Specification:\n- Data rate: 8.0 - 9.6 Gbps/pin\n- Bandwidth per stack: ~1.0 - 1.2 TB/s (12-high, 1024-bit)\n- Capacity per stack: 24GB (12-high), 36GB (16-high)\n- I/O voltage: 1.1V\n- Stack height: 8-high, 12-high, 16-high\n- Availability: High volume production 2024+\n- Used in: NVIDIA Blackwell B200 (8 stacks = 192GB at 8 TB/s)",
+    "metadata": {
+      "generation": "hbm3e"
+    }
+  },
+  {
+    "id": "hbm_hbm3",
+    "category": "hbm_specs",
+    "source": "JEDEC + SK Hynix + Industry Analysis",
+    "content": "HBM3 Memory Specification:\n- Data rate: 6.4 Gbps/pin\n- Bandwidth per stack: ~819 GB/s (12-high, 1024-bit)\n- Capacity per stack: 16GB (8-high), 24GB (12-high)\n- I/O voltage: 1.1V\n- Stack height: 8-high or 12-high\n- Availability: High volume production 2022+\n- Used in: NVIDIA Hopper H100 (5 active stacks = 80GB at 3.35 TB/s)",
+    "metadata": {
+      "generation": "hbm3"
+    }
+  }
+]

@@ -442,6 +442,96 @@ def execute_agent_run(pid, rtl_override=None, max_recovery=2, rid=None):
     return legacy
 
 # ---------------------------------------------------------------------------
+# Product Architect Module (NVIDIA-Caliber 9-Agent Pipeline)
+# ---------------------------------------------------------------------------
+ARCHITECT_DIR = os.path.join(ROOT, "data", "architect")
+os.makedirs(ARCHITECT_DIR, exist_ok=True)
+
+try:
+    from product_architect import ProductArchitectOrchestrator, LLMBackend, KnowledgeBase
+    HAS_PRODUCT_ARCHITECT = True
+    _ARCH_ORCH = ProductArchitectOrchestrator()
+    _ARCH_ERR = None
+except Exception as _e:
+    HAS_PRODUCT_ARCHITECT = False
+    _ARCH_ERR = str(_e)
+    _ARCH_ORCH = None
+
+ARCHITECT_PRESETS = [
+    {
+        "id": "blackwell_flagship_1000w",
+        "name": "Blackwell-Class 1000W Flagship Superchip",
+        "product_brief": "Flagship dual-die AI training and inference GPU for 2026-2028 frontier clusters, optimized for trillion-parameter LLMs, dense mixture-of-experts, and agentic reasoning loops.",
+        "target_market": "Datacenter & Hyperscale Cloud Infrastructure",
+        "key_workloads": ["LLM training", "LLM autoregressive decode", "LLM prefill", "diffusion", "hpc"],
+        "power_budget_w": 1000.0,
+        "process_node": "TSMC 3nm (N3P)",
+        "competitors": ["NVIDIA Blackwell B200", "AMD Instinct MI300X", "Google TPU v5p"]
+    },
+    {
+        "id": "agentic_llm_700w",
+        "name": "High-Efficiency 700W Agentic LLM Accelerator",
+        "product_brief": "Liquid-cooled 700W enterprise GPU engineered specifically for ultra-low latency autoregressive token generation, real-time tool calling, and long-context KV-cache retention.",
+        "target_market": "Enterprise Cloud & AI Service Providers",
+        "key_workloads": ["LLM autoregressive decode", "LLM prefill", "general ai compute"],
+        "power_budget_w": 700.0,
+        "process_node": "TSMC 4NP",
+        "competitors": ["NVIDIA Hopper H100", "AMD MI350", "AWS Trainium2"]
+    },
+    {
+        "id": "sovereign_hpc_500w",
+        "name": "Sovereign AI & Scientific Compute 500W Platform",
+        "product_brief": "Standard rack air/liquid cooled 500W accelerator targeting sovereign AI datacenters, high-precision FP64 scientific simulations, and air-cooled enterprise racks.",
+        "target_market": "Sovereign Datacenters & National Supercomputing",
+        "key_workloads": ["hpc", "LLM training", "diffusion"],
+        "power_budget_w": 500.0,
+        "process_node": "TSMC 4nm",
+        "competitors": ["NVIDIA H200 PCIe", "Intel Gaudi 3", "AMD MI300A"]
+    }
+]
+
+ARCHITECT_RUNS = {}
+
+def list_architect_runs():
+    runs = []
+    if os.path.isdir(ARCHITECT_DIR):
+        for fname in sorted(os.listdir(ARCHITECT_DIR), reverse=True):
+            if fname.endswith(".json"):
+                fp = os.path.join(ARCHITECT_DIR, fname)
+                try:
+                    data = jread(fp, {})
+                    runs.append({
+                        "id": data.get("id", fname[:-5]),
+                        "status": data.get("status", "draft_for_human_review"),
+                        "product_brief": data.get("inputs", {}).get("product_brief", "Custom Architecture"),
+                        "target_market": data.get("inputs", {}).get("target_market", "Datacenter"),
+                        "power_budget_w": data.get("inputs", {}).get("power_budget_w", 700),
+                        "process_node": data.get("inputs", {}).get("process_node", "TSMC 3nm"),
+                        "started_at": data.get("started_at"),
+                        "completed_at": data.get("completed_at"),
+                        "spec_freeze_ready": data.get("spec_freeze_ready", False),
+                        "frozen_at": data.get("frozen_at")
+                    })
+                except Exception:
+                    pass
+    return runs
+
+def get_architect_run(run_id):
+    if run_id in ARCHITECT_RUNS:
+        return ARCHITECT_RUNS[run_id]
+    fp = os.path.join(ARCHITECT_DIR, f"{run_id}.json")
+    if os.path.isfile(fp):
+        data = jread(fp, {})
+        ARCHITECT_RUNS[run_id] = data
+        return data
+    return None
+
+def save_architect_run(run_id, data):
+    ARCHITECT_RUNS[run_id] = data
+    fp = os.path.join(ARCHITECT_DIR, f"{run_id}.json")
+    jwrite(fp, data)
+
+# ---------------------------------------------------------------------------
 # HTTP handler
 # ---------------------------------------------------------------------------
 class Handler(BaseHTTPRequestHandler):
@@ -472,6 +562,25 @@ class Handler(BaseHTTPRequestHandler):
             self._send(401, {"error": "unauthorized", "login": "/api/login"}); return
         if p == "/api/health":
             self._send(200, {"ok": True, "tools": TOOLS, "tools_available": TOOLS_AVAILABLE})
+        elif p == "/api/architect/health":
+            self._send(200, {
+                "ok": HAS_PRODUCT_ARCHITECT,
+                "error": _ARCH_ERR,
+                "module": "silica_product_architect",
+                "specialist_agents": 9,
+                "presets_available": len(ARCHITECT_PRESETS)
+            })
+        elif p == "/api/architect/presets":
+            self._send(200, {"presets": ARCHITECT_PRESETS})
+        elif p == "/api/architect/runs":
+            self._send(200, {"runs": list_architect_runs()})
+        elif p.startswith("/api/architect/runs/"):
+            rid = p.split("/")[-1]
+            run_data = get_architect_run(rid)
+            if run_data:
+                self._send(200, run_data)
+            else:
+                self._send(404, {"error": "architect run not found"})
         elif p == "/api/agents/health":
             from silica_agents.hf_serving import HFServingAdapter
             hf = HFServingAdapter()
@@ -587,6 +696,51 @@ class Handler(BaseHTTPRequestHandler):
             _run_fn = execute_agent_run if HAS_AGENTS else execute_run
             threading.Thread(target=_run_fn, args=(pid, rtl), kwargs={"rid": rid} if HAS_AGENTS else {}, daemon=True).start()
             self._send(200, {"status": "started", "project": pid, "run_id": rid, "agent_pipeline": HAS_AGENTS})
+        elif p == "/api/architect/run":
+            if not HAS_PRODUCT_ARCHITECT or not _ARCH_ORCH:
+                return self._send(500, {"error": f"Product Architect module not available: {_ARCH_ERR}"})
+            inputs = {
+                "product_brief": payload.get("product_brief") or "Flagship AI training and inference GPU for frontier models",
+                "target_market": payload.get("target_market") or "Datacenter",
+                "key_workloads": payload.get("key_workloads") or ["LLM training", "LLM autoregressive decode", "diffusion"],
+                "power_budget_w": float(payload.get("power_budget_w") or 1000.0),
+                "process_node": payload.get("process_node") or "TSMC 3nm (N3P)",
+                "competitors": payload.get("competitors") or ["NVIDIA Blackwell B200", "AMD Instinct MI300X"]
+            }
+            use_multipass = bool(payload.get("use_multipass", True))
+            rid = uuid.uuid4().hex[:8]
+            pipeline_result = _ARCH_ORCH.run_full_pipeline(inputs, use_multipass=use_multipass)
+            pipeline_result["id"] = rid
+            save_architect_run(rid, pipeline_result)
+            return self._send(200, pipeline_result)
+        elif p.startswith("/api/architect/runs/") and p.endswith("/freeze"):
+            parts = p.split("/")
+            rid = parts[4] if len(parts) > 4 else ""
+            run_data = get_architect_run(rid)
+            if not run_data:
+                return self._send(404, {"error": "architect run not found"})
+            signoff_lead = payload.get("signoff_lead", "Human Strategic Director")
+            if _ARCH_ORCH:
+                run_data = _ARCH_ORCH.freeze_specification(run_data, signoff_lead=signoff_lead)
+            else:
+                run_data["status"] = "SPEC_FROZEN"
+                run_data["spec_freeze_ready"] = True
+                run_data["signoff_lead"] = signoff_lead
+            save_architect_run(rid, run_data)
+            return self._send(200, run_data)
+        elif p.startswith("/api/architect/runs/") and p.endswith("/feedback"):
+            parts = p.split("/")
+            rid = parts[4] if len(parts) > 4 else ""
+            run_data = get_architect_run(rid)
+            if not run_data:
+                return self._send(404, {"error": "architect run not found"})
+            feedback = payload.get("feedback", {})
+            if _ARCH_ORCH:
+                run_data = _ARCH_ORCH.apply_human_feedback(run_data, feedback)
+            else:
+                run_data["human_feedback"] = feedback
+            save_architect_run(rid, run_data)
+            return self._send(200, run_data)
         else:
             self._send(404, {"error": "unknown endpoint"})
 

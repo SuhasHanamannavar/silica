@@ -1,0 +1,42 @@
+[
+  {
+    "id": "node_tsmc_2nm",
+    "category": "process_node_data",
+    "source": "TSMC Public Data + Industry Analysis",
+    "content": "TSMC 2nm (N2/N2P) Process:\n- Wafer cost: ~,000 per wafer\n- Mask cost (full set): ~-12M\n- Defect density: ~0.20-0.24 defects/cm2\n- Gate-All-Around (GAA) Nanosheet architecture\n- Backside power delivery network (BSPDN) on N2P\n- Transistor density: ~1.15x N3E\n- Performance: ~1.15x N3E at same power, or ~0.7x power at same speed\n- Reticle limit: 858 mm2 (33mm x 26mm)\n- Availability: High volume production 2026+",
+    "metadata": {
+      "node": "2nm",
+      "foundry": "tsmc"
+    }
+  },
+  {
+    "id": "node_tsmc_3nm",
+    "category": "process_node_data",
+    "source": "TSMC Public Data + Industry Analysis",
+    "content": "TSMC 3nm (N3E/N3P) Process:\n- Wafer cost: ~,000\n- Mask cost (full set): ~-8M\n- Defect density: ~0.20-0.25 defects/cm2\n- Transistor density: ~1.7x N5\n- Performance: ~1.1x N5 at same power, or ~0.5x power at same speed\n- Minimum pitch: FinFET, contacted poly pitch ~45nm\n- Reticle limit: 858 mm2 (33mm x 26mm)\n- Availability: High volume production 2024+",
+    "metadata": {
+      "node": "3nm",
+      "foundry": "tsmc"
+    }
+  },
+  {
+    "id": "node_tsmc_4nm",
+    "category": "process_node_data",
+    "source": "TSMC Public Data + Industry Analysis",
+    "content": "TSMC 4nm (N4/N4P/N4X) Process:\n- Wafer cost: ~,000\n- Mask cost (full set): ~-5M\n- Defect density: ~0.28-0.32 defects/cm2\n- Transistor density: ~1.2x N5\n- Performance: ~1.07x N5 at same power\n- NVIDIA 4NP: custom variant for GPU workloads\n- Reticle limit: 858 mm2\n- Availability: High volume production 2023+",
+    "metadata": {
+      "node": "4nm",
+      "foundry": "tsmc"
+    }
+  },
+  {
+    "id": "node_tsmc_5nm",
+    "category": "process_node_data",
+    "source": "TSMC Public Data + Industry Analysis",
+    "content": "TSMC 5nm (N5/N5P) Process:\n- Wafer cost: ~,000\n- Mask cost (full set): ~.5-4.7M\n- Defect density: ~0.32-0.38 defects/cm2\n- Transistor density: ~1.8x N7\n- Performance: ~1.15x N7 at same power, or ~0.7x power at same speed\n- Reticle limit: 858 mm2\n- Availability: High volume production 2020+",
+    "metadata": {
+      "node": "5nm",
+      "foundry": "tsmc"
+    }
+  }
+]
