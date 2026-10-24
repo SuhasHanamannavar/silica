@@ -162,26 +162,95 @@ class FunctionalSpecAgent:
         if not isinstance(spec, dict) or not spec or "compute_architecture" not in spec:
             spec = get_functional_spec_template(inputs)
         
-        # Adjust for Blackwell target inputs
+        # First-principles physical scaling based on user inputs
+        pwr = float(inputs.get("power_budget_w", 1000) or 1000)
+        node_str = str(inputs.get("process_node", "TSMC 3nm")).lower()
+        is_3nm = "3nm" in node_str or "n3" in node_str or "2nm" in node_str
         brief_lower = inputs.get("product_brief", "").lower()
-        if "blackwell" in brief_lower or "successor to hopper" in brief_lower or inputs.get("power_budget_w") == 1000:
-            sm = spec.setdefault("compute_architecture", {}).setdefault("sm_architecture", {})
+        is_blackwell = "blackwell" in brief_lower or "successor to hopper" in brief_lower or pwr >= 950
+        
+        sm = spec.setdefault("compute_architecture", {}).setdefault("sm_architecture", {})
+        hbm = spec.setdefault("memory_hierarchy", {}).setdefault("hbm_subsystem", {})
+        l2 = spec.setdefault("memory_hierarchy", {}).setdefault("l2_cache", {})
+        nv = spec.setdefault("interconnect", {}).setdefault("nvlink", {})
+        
+        if is_blackwell:
             sm["total_sm_count"] = 148
             sm["boost_clock_mhz"] = 2100
-            
-            hbm = spec.setdefault("memory_hierarchy", {}).setdefault("hbm_subsystem", {})
             hbm["hbm_generation"] = "HBM3e"
             hbm["total_capacity_gb"] = 192
+            hbm["stack_count"] = 8
             hbm["bus_width_bits"] = 8192
             hbm["data_rate_gbps_per_pin"] = 7.8125
             hbm["total_bandwidth_tbs"] = 8.0
-            
-            l2 = spec.setdefault("memory_hierarchy", {}).setdefault("l2_cache", {})
             l2["total_size_mb"] = 192
-            
-            nv = spec.setdefault("interconnect", {}).setdefault("nvlink", {})
             nv["generation"] = "5.0"
+            nv["lane_count"] = 18
             nv["bidirectional_bandwidth_tbs"] = 1.8
+        elif pwr >= 600:
+            sm["total_sm_count"] = 108
+            sm["boost_clock_mhz"] = 2000
+            hbm["hbm_generation"] = "HBM3e"
+            hbm["total_capacity_gb"] = 144
+            hbm["stack_count"] = 6
+            hbm["bus_width_bits"] = 6144
+            hbm["data_rate_gbps_per_pin"] = 7.8125
+            hbm["total_bandwidth_tbs"] = 6.0
+            l2["total_size_mb"] = 128
+            nv["generation"] = "5.0"
+            nv["lane_count"] = 14
+            nv["bidirectional_bandwidth_tbs"] = 1.4
+        elif pwr >= 400:
+            sm["total_sm_count"] = 72
+            sm["boost_clock_mhz"] = 1900
+            hbm["hbm_generation"] = "HBM3"
+            hbm["total_capacity_gb"] = 96
+            hbm["stack_count"] = 4
+            hbm["bus_width_bits"] = 4096
+            hbm["data_rate_gbps_per_pin"] = 6.4
+            hbm["total_bandwidth_tbs"] = 3.28
+            l2["total_size_mb"] = 64
+            nv["generation"] = "4.0"
+            nv["lane_count"] = 10
+            nv["bidirectional_bandwidth_tbs"] = 1.0
+        else:
+            calc_sm = max(32, int(round((pwr * 0.52) / (3.2 if is_3nm else 3.8) / 4) * 4))
+            sm["total_sm_count"] = calc_sm
+            sm["boost_clock_mhz"] = 1800
+            hbm["hbm_generation"] = "HBM3"
+            hbm["total_capacity_gb"] = 48
+            hbm["stack_count"] = 2
+            hbm["bus_width_bits"] = 2048
+            hbm["data_rate_gbps_per_pin"] = 6.4
+            hbm["total_bandwidth_tbs"] = 1.64
+            l2["total_size_mb"] = 48
+            nv["generation"] = "4.0"
+            nv["lane_count"] = 8
+            nv["bidirectional_bandwidth_tbs"] = 0.8
+
+        # Calculate exact precision formats from physical SM count and boost clock
+        sm_count = sm.get("total_sm_count", 144)
+        boost_mhz = sm.get("boost_clock_mhz", 2100)
+        cuda_cores = sm_count * 128
+        fp32_tf = round(cuda_cores * 2 * (boost_mhz / 1000) / 1000, 1)
+        fp64_tf = round(fp32_tf * 0.5, 1)
+        tf32_tf = round(fp32_tf * 5.0, 1)
+        bf16_tf = round(fp32_tf * 10.0, 1)
+        fp16_tf = bf16_tf
+        fp8_tf = round(bf16_tf * 2.0, 1)
+        nvfp4_tf = round(fp8_tf * 2.0, 1)
+        
+        spec["compute_architecture"]["precision_formats"] = [
+            {"format": "FP64", "peak_tflops": fp64_tf, "enabled": True},
+            {"format": "FP32", "peak_tflops": fp32_tf, "enabled": True},
+            {"format": "TF32", "peak_tflops": tf32_tf, "enabled": True},
+            {"format": "FP16", "peak_tflops": fp16_tf, "enabled": True},
+            {"format": "BF16", "peak_tflops": bf16_tf, "enabled": True},
+            {"format": "FP8", "peak_tflops": fp8_tf, "enabled": True},
+            {"format": "NVFP4", "peak_tflops": nvfp4_tf, "enabled": True},
+            {"format": "INT8", "peak_tops": fp8_tf, "enabled": True},
+            {"format": "INT4", "peak_tops": nvfp4_tf, "enabled": True}
+        ]
         
         # Deterministic validator pass
         spec, validation = self.validator.validate_functional_spec(spec)

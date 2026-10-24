@@ -75,9 +75,14 @@ class DieCostModeler:
         raw_die_cost = round(wafer_cost / good_dies_per_wafer, 2)
         total_silicon_cost = round(raw_die_cost * chiplet_count, 2)
         
-        # Packaging
+        # Packaging & Memory BOM physics
         pkg_cost = 980.0 if chiplet_count > 1 else 520.0
-        hbm_cost = 3450.0  # 192GB HBM3e
+        stack_count = 8 if total_die_area > 800.0 else (6 if total_die_area > 600.0 else 4)
+        if isinstance(area_or_spec, dict):
+            hbm_info = area_or_spec.get("memory_hierarchy", {}).get("hbm_subsystem", {})
+            if hbm_info.get("stack_count"):
+                stack_count = int(hbm_info.get("stack_count"))
+        hbm_cost = float(stack_count * 430.0)
         assembly_and_test = 450.0
         
         total_bom = round(total_silicon_cost + pkg_cost + hbm_cost + assembly_and_test, 2)

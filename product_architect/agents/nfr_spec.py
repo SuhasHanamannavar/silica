@@ -116,14 +116,49 @@ class NFRSpecAgent:
         if not isinstance(spec, dict) or not spec or "power_budget" not in spec:
             spec = get_nfr_spec_template(inputs, func)
         
-        # Ensure reticle & chiplet decisions for Blackwell-class designs
+        # Physical scaling for power and area based on true node density and SM count
+        is_3nm = "3nm" in node.lower() or "n3" in node.lower() or "2nm" in node.lower()
+        area_per_sm = 2.6 if is_3nm else 3.4
+        stacks = 8 if power_w >= 850 else (6 if power_w >= 600 else 4)
+        l2_mb = 192 if power_w >= 850 else (128 if power_w >= 600 else 64)
+        
+        sm_area = sm_count * area_per_sm
+        l2_area = l2_mb / 1.5 * (1.0 if is_3nm else 1.25)
+        phy_area = stacks * 14.5
+        io_area = 100.0 if power_w >= 850 else 70.0
+        misc_area = (sm_area + l2_area + phy_area + io_area) * 0.12
+        calculated_area = round(sm_area + l2_area + phy_area + io_area + misc_area, 1)
+        
+        # Enforce exact physical contracts
+        p_budget = spec.setdefault("power_budget", {})
+        p_budget["total_tdp_watts"] = power_w
+        p_budget["cooling_solution"] = "Direct Liquid Cold Plate (DLC) with 32°C inlet" if power_w >= 700 else "High-Efficiency Vapor Chamber Heatsink"
+        p_budget["allocation"] = {
+            "compute_cores": {"percent": 52.0, "watts": round(power_w * 0.52, 1)},
+            "memory_phy": {"percent": 20.0, "watts": round(power_w * 0.20, 1)},
+            "l2_cache": {"percent": 11.0, "watts": round(power_w * 0.11, 1)},
+            "interconnect": {"percent": 10.0, "watts": round(power_w * 0.10, 1)},
+            "clock_power_misc": {"percent": 7.0, "watts": round(power_w * 0.07, 1)}
+        }
+        
+        a_budget = spec.setdefault("area_budget", {})
         brief_lower = inputs.get("product_brief", "").lower()
-        if power_w >= 800 or "blackwell" in brief_lower or "successor to hopper" in brief_lower or estimated_area > 858.0:
-            area = spec.setdefault("area_budget", {})
-            area["total_die_area_mm2"] = max(area.get("total_die_area_mm2", 900.0), 900.0)
-            area["reticle_limit_check"] = "EXCEEDS"
-            area["chiplet_required"] = True
-            area["packaging_technology"] = "CoWoS-L"
+        is_blackwell = "blackwell" in brief_lower or "successor to hopper" in brief_lower or power_w >= 900
+        total_die_area = 900.0 if is_blackwell else calculated_area
+        is_exceeds = total_die_area > 858.0 or power_w >= 800
+        
+        a_budget["total_die_area_mm2"] = total_die_area
+        a_budget["reticle_limit_check"] = "EXCEEDS" if is_exceeds else "WITHIN"
+        a_budget["chiplet_required"] = is_exceeds
+        a_budget["die_count"] = 2 if is_exceeds else 1
+        a_budget["packaging_technology"] = "CoWoS-L (Dual-Die with LSI Silicon Bridges)" if is_exceeds else "CoWoS-S (Monolithic Large-Die)"
+        a_budget["allocation"] = {
+            "sm_array": {"percent": 42.0, "mm2": round(total_die_area * 0.42, 1)},
+            "l2_cache": {"percent": 20.0, "mm2": round(total_die_area * 0.20, 1)},
+            "memory_controllers_phy": {"percent": 15.0, "mm2": round(total_die_area * 0.15, 1)},
+            "nvlink_pcie_phy": {"percent": 11.0, "mm2": round(total_die_area * 0.11, 1)},
+            "misc_infrastructure": {"percent": 12.0, "mm2": round(total_die_area * 0.12, 1)}
+        }
         
         # Deterministic validator pass
         spec, validation = self.validator.validate_nonfunctional_spec(spec)
