@@ -8,7 +8,7 @@ import sys
 import uuid
 import time
 from datetime import datetime, timezone
-from urllib.parse import urlparse, unquote
+from urllib.parse import urlparse, unquote, parse_qs
 from http.server import BaseHTTPRequestHandler
 
 # Add root directory to sys.path so product_architect can be imported
@@ -80,15 +80,29 @@ class handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         self._send(204, "")
 
-    def do_GET(self):
+    def _resolve_path(self) -> str:
         u = urlparse(self.path)
-        p = unquote(u.path)
-        
-        # Strip trailing slashes
+        qs = parse_qs(u.query)
+        if "route_path" in qs and qs["route_path"]:
+            p = qs["route_path"][0]
+        else:
+            p = None
+            for h in ("x-vercel-matched-path", "x-matched-path", "x-forwarded-uri", "x-original-url"):
+                val = self.headers.get(h)
+                if val:
+                    p = urlparse(val).path
+                    break
+            if not p:
+                p = u.path
+        p = unquote(p)
         if p.endswith("/") and len(p) > 1:
             p = p[:-1]
+        return p
+
+    def do_GET(self):
+        p = self._resolve_path()
             
-        if p in ("/api/health", "/api/architect/health"):
+        if p in ("/api", "/api/health", "/api/architect/health"):
             return self._send(200, {
                 "status": "ok",
                 "engine": "Silica Product Architect Vercel Serverless",
@@ -121,6 +135,12 @@ class handler(BaseHTTPRequestHandler):
                 return self._send(200, _RUNS_CACHE[rid])
             return self._send(404, {"error": "run not found"})
             
+        elif p in ("/api/projects", "/api/projects/"):
+            return self._send(200, {"projects": []})
+
+        elif p in ("/api/runs", "/api/runs/"):
+            return self._send(200, {"runs": []})
+
         else:
             return self._send(200, {
                 "status": "ok",
@@ -129,10 +149,7 @@ class handler(BaseHTTPRequestHandler):
             })
 
     def do_POST(self):
-        u = urlparse(self.path)
-        p = unquote(u.path)
-        if p.endswith("/") and len(p) > 1:
-            p = p[:-1]
+        p = self._resolve_path()
             
         length = int(self.headers.get("Content-Length", 0))
         body = self.rfile.read(length) if length else b"{}"

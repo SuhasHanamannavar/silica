@@ -4,10 +4,14 @@
   "functions": {
     "api/index.py": {
       "maxDuration": 60
+    },
+    "api/architect/run.py": {
+      "maxDuration": 60
     }
   },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index.py" }
+    { "source": "/api", "destination": "/api/index?route_path=/api" },
+    { "source": "/api/(.*)", "destination": "/api/index?route_path=/api/$1" }
   ],
   "headers": [
     {

@@ -186,7 +186,7 @@ class LLMBackend:
             }
         )
         
-        with urllib.request.urlopen(req, timeout=45) as resp:
+        with urllib.request.urlopen(req, timeout=8) as resp:
             body = resp.read().decode("utf-8")
             res_json = json.loads(body)
             return res_json["choices"][0]["message"]["content"]
