@@ -7,3 +7,6 @@ data/silica_sft/
 aws_instance_info.json
 scratch/
 .env
+
+.vercel
+.env*
