@@ -1,0 +1,38 @@
+[
+  {
+    "id": "wl_llm_training",
+    "category": "workload_characteristics",
+    "source": "NVIDIA Analysis + Academic Papers",
+    "content": "LLM Training Workload Characteristics:\n- Arithmetic intensity: ~3-5 FLOPs/byte (moderate)\n- Dominant operation: Matrix multiplication (GEMM)\n- Batch sizes: Large (256-4096)\n- Sequence lengths: 4K-128K tokens\n- Precision: Mixed precision (FP16/BF16 with FP32 accumulation, FP8 Transformer Engine)\n- Bottleneck: Balanced between compute and memory for large batches\n- Tensor Core utilization: High (80-95%) for well-optimized kernels\n- Communication: Heavy all-reduce, all-gather, reduce-scatter in distributed training\n- Key architectural needs: High FP16/BF16 compute, high memory bandwidth, fast interconnect (NVLink)",
+    "metadata": {
+      "workload": "llm_training"
+    }
+  },
+  {
+    "id": "wl_llm_inference_decode",
+    "category": "workload_characteristics",
+    "source": "NVIDIA Analysis + Industry Benchmarks",
+    "content": "LLM Autoregressive Decode (Inference) Characteristics:\n- Arithmetic intensity: ~0.5-1.5 FLOPs/byte (VERY LOW)\n- CRITICAL INSIGHT: Operates at ~1 FLOP per byte of memory traffic\n- This is SEVERELY memory-bound on all modern GPUs\n- Dominant operation: Matrix-vector multiplication (GEMV), not GEMM\n- Tensor Core utilization: VERY LOW (often <10%) because shapes don't match\n- Batch sizes: Small to medium (1-256) for interactive use\n- Precision: FP8, NVFP4, INT4 for throughput\n- Bottleneck: HBM bandwidth is the primary constraint\n- Key architectural needs: EXTREME memory bandwidth, large on-chip caches, efficient low-precision formats, KV cache compression\n- Roofline: Ridge point of H100 is ~295 FLOPs/byte; decode at ~1 FLOP/byte uses only ~0.3% of peak compute",
+    "metadata": {
+      "workload": "llm_inference_decode"
+    }
+  },
+  {
+    "id": "wl_llm_prefill",
+    "category": "workload_characteristics",
+    "source": "NVIDIA Analysis + Industry Benchmarks",
+    "content": "LLM Prefill Phase Characteristics:\n- Arithmetic intensity: ~10-20 FLOPs/byte\n- Dominant operation: Matrix-matrix multiplication (GEMM) on prompt tokens\n- Tensor Core utilization: High (70-90%)\n- Precision: FP8, FP16, BF16\n- Bottleneck: Compute-bound for long sequences\n- Key architectural needs: High compute throughput, good FP8/FP16 performance",
+    "metadata": {
+      "workload": "llm_prefill"
+    }
+  },
+  {
+    "id": "wl_diffusion",
+    "category": "workload_characteristics",
+    "source": "NVIDIA Analysis",
+    "content": "Diffusion Model Workload Characteristics:\n- Arithmetic intensity: ~5-10 FLOPs/byte\n- Dominant operations: Convolutions, attention, GEMMs\n- Precision: FP16, BF16, FP8\n- Tensor Core utilization: Moderate to high\n- Bottleneck: Balanced, shifts with image resolution\n- Key architectural needs: Good FP16 compute, memory bandwidth, attention acceleration",
+    "metadata": {
+      "workload": "diffusion"
+    }
+  }
+]

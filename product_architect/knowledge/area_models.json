@@ -1,0 +1,11 @@
+[
+  {
+    "id": "area_gpu_allocation",
+    "category": "area_models",
+    "source": "Die Shot Analysis (WikiChip, etc.)",
+    "content": "Typical High-End GPU Area Budget Allocation:\n- SM array (compute cores): 35-45% of die area\n  - Each SM: ~4-6 mm2 on TSMC 4nm (varies by generation)\n- L2 Cache: 15-25% of die area\n  - SRAM density: ~0.2-0.3 Mbit/mm2 at advanced nodes\n- Memory controllers + PHY: 10-15% of die area\n  - Each 32-bit memory controller slice: ~2-3 mm2\n- NoC/Interconnect fabric: 8-12% of die area\n- NVLink/PCIe PHYs: 8-12% of die area\n- Clock/Power/Test/Other: 5-10% of die area\n\nReticle limit: 858 mm2 (33mm x 26mm maximum single die)\nChiplet strategy required beyond ~800 mm2 for yield reasons\nTypical GPU die sizes:\n- Hopper H100: 814 mm2 (near reticle limit)\n- Ampere A100: 826 mm2\n- Blackwell GB100: ~600 mm2 per die x 2 dies (chiplet)",
+    "metadata": {
+      "reference_design": "high_end_gpu"
+    }
+  }
+]

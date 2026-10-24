@@ -26,9 +26,16 @@ class RooflineModeler:
         "graphics": 3.0,
     }
     
-    def __init__(self, llm_backend, knowledge_base):
-        self.llm = llm_backend
-        self.kb = knowledge_base
+    def __init__(self, arg1=None, arg2=None, validator=None):
+        from product_architect.validators import SpecValidator
+        if hasattr(arg1, "validate_roofline"):
+            self.validator = arg1
+            self.llm = arg2
+            self.kb = None
+        else:
+            self.llm = arg1
+            self.kb = arg2
+            self.validator = validator or SpecValidator()
     
     def run(self, functional_spec: Dict, workloads: list, **kwargs) -> Dict:
         """Run deterministic roofline analysis."""
@@ -48,34 +55,26 @@ class RooflineModeler:
         workload_results = []
         for wl in workloads:
             ai = self._estimate_ai(wl)
-            
-            # BF16 analysis
-            attainable_bf16 = min(peak_bf16, bandwidth * ai)
-            bound_bf16 = "memory_bound" if ai < ridge_bf16 else "compute_bound"
-            util_bf16 = attainable_bf16 / peak_bf16 * 100 if peak_bf16 > 0 else 0
-            
-            # FP8 analysis
-            attainable_fp8 = min(peak_fp8, bandwidth * ai)
-            bound_fp8 = "memory_bound" if ai < ridge_fp8 else "compute_bound"
-            util_fp8 = attainable_fp8 / peak_fp8 * 100 if peak_fp8 > 0 else 0
+            bf16_val = self.validator.validate_roofline(peak_bf16, bandwidth, ai)
+            fp8_val = self.validator.validate_roofline(peak_fp8, bandwidth, ai)
             
             workload_results.append({
                 "workload": wl,
                 "arithmetic_intensity_flops_per_byte": round(ai, 2),
                 "bf16": {
                     "peak_tflops": peak_bf16,
-                    "attainable_tflops": round(attainable_bf16, 1),
-                    "bound_type": bound_bf16,
-                    "peak_utilization_percent": round(util_bf16, 1),
+                    "attainable_tflops": bf16_val["attainable_tflops"],
+                    "bound_type": bf16_val["bound_type"],
+                    "peak_utilization_percent": bf16_val["peak_utilization_percent"],
                 },
                 "fp8": {
                     "peak_tflops": peak_fp8,
-                    "attainable_tflops": round(attainable_fp8, 1),
-                    "bound_type": bound_fp8,
-                    "peak_utilization_percent": round(util_fp8, 1),
+                    "attainable_tflops": fp8_val["attainable_tflops"],
+                    "bound_type": fp8_val["bound_type"],
+                    "peak_utilization_percent": fp8_val["peak_utilization_percent"],
                 },
-                "bandwidth_needed_for_full_util_tbs": round(peak_bf16 / ai, 2) if ai > 0 else float('inf'),
-                "bandwidth_gap_tbs": round(max(0, peak_bf16 / ai - bandwidth), 2) if ai > 0 else 0,
+                "bandwidth_needed_for_full_util_tbs": bf16_val["bandwidth_needed_for_full_util_tbs"],
+                "bandwidth_gap_tbs": bf16_val["bandwidth_gap_tbs"],
             })
         
         # Generate interpretation

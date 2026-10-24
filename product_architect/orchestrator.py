@@ -1,69 +1,60 @@
 import json
 import time
-from datetime import datetime
-from typing import Dict, Any, Optional, Callable
+from datetime import datetime, timezone
+from typing import Dict, Any, Optional, Callable, List
 
-try:
-    from .agents import (
-        MarketAnalyzer,
-        FunctionalSpecGenerator,
-        NonFunctionalSpecGenerator,
-        ArchitecturalTradeoffAnalyst,
-        RooflineModeler,
-        BlockDiagramArchitect,
-        InterfaceSpecifier,
-        RiskAssessor,
-        DieCostModeler,
-        DocumentAssembler,
-    )
-    from .multi_pass_engine import MultiPassEngine
-    from .llm_backend import LLMBackend
-    from .knowledge_base import KnowledgeBase
-except ImportError:
-    from agents import (
-        MarketAnalyzer,
-        FunctionalSpecGenerator,
-        NonFunctionalSpecGenerator,
-        ArchitecturalTradeoffAnalyst,
-        RooflineModeler,
-        BlockDiagramArchitect,
-        InterfaceSpecifier,
-        RiskAssessor,
-        DieCostModeler,
-        DocumentAssembler,
-    )
-    from multi_pass_engine import MultiPassEngine
-    from llm_backend import LLMBackend
-    from knowledge_base import KnowledgeBase
+from product_architect.llm_backend import LLMBackend
+from product_architect.knowledge_base import KnowledgeBase
+from product_architect.validators import SpecValidator
+from product_architect.multipass import MultiPassEngine
+from product_architect.agents.functional_spec import FunctionalSpecAgent
+from product_architect.agents.nfr_spec import NFRSpecAgent
+from product_architect.agents.tradeoff_analyst import TradeoffAnalyst
+from product_architect.agents.roofline_modeler import RooflineModeler
+from product_architect.agents.block_diagram import BlockDiagramArchitect
+from product_architect.agents.interface_specifier import InterfaceSpecifier
+from product_architect.agents.risk_assessor import RiskAssessor
+from product_architect.agents.die_cost_modeler import DieCostModeler
+from product_architect.agents.document_assembler import DocumentAssembler
+from product_architect.agents.market_analyzer import MarketAnalyzer
 
 class ProductArchitectOrchestrator:
     """
-    Orchestrates all 9 sub-agents into a complete specification pipeline.
-    Manages dependencies between agents, checkpoints, and human review.
+    NVIDIA-Caliber Orchestrator for Silica Product Architect.
+    Executes the 9 specialist architecture agents in sequence, manages
+    deterministic validation gates, multi-pass critique loops, and human sign-off gates.
     """
     
-    def __init__(self, llm_backend=None, knowledge_base=None):
+    def __init__(self, llm_backend: Optional[LLMBackend] = None, knowledge_base: Optional[KnowledgeBase] = None):
         self.llm = llm_backend or LLMBackend()
         self.kb = knowledge_base or KnowledgeBase()
-        
-        # Initialize all agents
-        self.market_analyzer = MarketAnalyzer(self.llm, self.kb)
-        self.func_spec_gen = FunctionalSpecGenerator(self.llm, self.kb)
-        self.nfr_spec_gen = NonFunctionalSpecGenerator(self.llm, self.kb)
-        self.tradeoff_analyst = ArchitecturalTradeoffAnalyst(self.llm, self.kb)
-        self.roofline_modeler = RooflineModeler(self.llm, self.kb)
-        self.block_diagram = BlockDiagramArchitect()
-        self.interface_specifier = InterfaceSpecifier(self.llm, self.kb)
-        self.risk_assessor = RiskAssessor(self.llm, self.kb)
-        self.die_cost_modeler = DieCostModeler()  # Deterministic
-        self.document_assembler = DocumentAssembler(self.llm)
+        self.validator = SpecValidator()
         self.multipass = MultiPassEngine(self.llm)
+        
+        # Initialize all 9 specialist agents
+        self.market_analyzer = MarketAnalyzer(self.llm, self.kb)
+        self.func_agent = FunctionalSpecAgent(self.llm, self.kb, self.validator)
+        self.nfr_agent = NFRSpecAgent(self.llm, self.kb, self.validator)
+        self.tradeoff_agent = TradeoffAnalyst(self.llm, self.kb)
+        self.roofline_modeler = RooflineModeler(self.validator, self.llm)
+        self.block_diagram = BlockDiagramArchitect()
+        self.iface_agent = InterfaceSpecifier(self.llm, self.kb, self.validator)
+        self.risk_agent = RiskAssessor(self.llm, self.kb)
+        self.cost_modeler = DieCostModeler(self.validator)
+        self.doc_assembler = DocumentAssembler(self.llm)
+        
+        # Backwards compatibility aliases
+        self.func_spec_gen = self.func_agent
+        self.nfr_spec_gen = self.nfr_agent
+        self.tradeoff_analyst = self.tradeoff_agent
+        self.interface_specifier = self.iface_agent
+        self.risk_assessor = self.risk_agent
+        self.die_cost_modeler = self.cost_modeler
+        self.document_assembler = self.doc_assembler
     
-    def run_full_pipeline(self, user_inputs: Dict, 
-                          use_multipass: bool = True,
-                          on_progress: Optional[Callable[[int, int, str], None]] = None) -> Dict:
+    def run(self, user_inputs: Dict[str, Any], use_multipass: bool = True) -> Dict[str, Any]:
         """
-        Run the complete specification pipeline.
+        Run the complete architecture specification pipeline.
         
         user_inputs = {
             "product_brief": str,
@@ -74,7 +65,12 @@ class ProductArchitectOrchestrator:
             "competitors": List[str],
         }
         """
-        pipeline_state = {
+        return self.run_full_pipeline(user_inputs, use_multipass=use_multipass)
+    
+    def run_full_pipeline(self, user_inputs: Dict[str, Any], 
+                          use_multipass: bool = True,
+                          on_progress: Optional[Callable[[int, int, str], None]] = None) -> Dict[str, Any]:
+        pipeline = {
             "inputs": user_inputs,
             "stages": {},
             "audit_trail": [],
@@ -82,9 +78,8 @@ class ProductArchitectOrchestrator:
         }
         
         def _notify(stage_num: int, stage_name: str):
-            msg = f"Stage {stage_num}/9: {stage_name}"
-            print(f"  {msg}...")
-            pipeline_state["audit_trail"].append({
+            print(f"  Stage {stage_num}/9: {stage_name}...")
+            pipeline["audit_trail"].append({
                 "stage": stage_num,
                 "name": stage_name,
                 "timestamp": self._timestamp()
@@ -95,107 +90,107 @@ class ProductArchitectOrchestrator:
                 except Exception:
                     pass
         
-        # Stage 1: Market Analysis
+        # Stage 1: Market & Competitive Analysis
         _notify(1, "Market & Competitive Analysis")
-        market = self.market_analyzer.run(user_inputs)
-        pipeline_state["stages"]["market_analysis"] = market
+        market_result = self.market_analyzer.run(user_inputs)
+        pipeline["stages"]["market_analysis"] = market_result
         
-        # Stage 2: Functional Specification (with multi-pass)
+        # Stage 2: Functional Specification
         _notify(2, "Functional Specification")
         if use_multipass:
-            func = self.multipass.run(
-                self.func_spec_gen, 
-                {"inputs": user_inputs, "market_analysis": market}
+            func_result = self.multipass.refine_spec(
+                self.func_agent, {"inputs": user_inputs, "market_analysis": market_result}
             )
         else:
-            func = self.func_spec_gen.run(user_inputs, market)
-        pipeline_state["stages"]["functional_spec"] = func
+            func_result = self.func_agent.run(user_inputs, market_analysis=market_result)
+        
+        func_spec = func_result.get("spec", func_result) if isinstance(func_result, dict) else func_result
+        stage_func = dict(func_result) if isinstance(func_result, dict) else {}
+        stage_func["spec"] = func_spec
+        # Surface inner keys directly on stage for backward compatibility
+        if isinstance(func_spec, dict):
+            for k, v in func_spec.items():
+                if k not in stage_func:
+                    stage_func[k] = v
+        pipeline["stages"]["functional_spec"] = stage_func
         
         # Stage 3: Non-Functional Specification
         _notify(3, "Non-Functional Specification")
         if use_multipass:
-            nfr = self.multipass.run(
-                self.nfr_spec_gen,
-                {"inputs": user_inputs, "functional_spec": func}
+            nfr_result = self.multipass.refine_spec(
+                self.nfr_agent, {"inputs": user_inputs, "func_spec": func_spec}
             )
         else:
-            nfr = self.nfr_spec_gen.run(user_inputs, func)
-        pipeline_state["stages"]["non_functional_spec"] = nfr
+            nfr_result = self.nfr_agent.run(user_inputs, func_spec=func_spec)
+            
+        nfr_spec = nfr_result.get("spec", nfr_result) if isinstance(nfr_result, dict) else nfr_result
+        stage_nfr = dict(nfr_result) if isinstance(nfr_result, dict) else {}
+        stage_nfr["spec"] = nfr_spec
+        if isinstance(nfr_spec, dict):
+            for k, v in nfr_spec.items():
+                if k not in stage_nfr:
+                    stage_nfr[k] = v
+        pipeline["stages"]["non_functional_spec"] = stage_nfr
         
-        # Stage 4: Tradeoff Analysis
-        _notify(4, "Architectural Tradeoff Analysis")
-        tradeoffs = self.tradeoff_analyst.run(user_inputs, func, nfr)
-        pipeline_state["stages"]["tradeoff_analysis"] = tradeoffs
+        # Stage 4: Architectural Tradeoffs
+        _notify(4, "Architectural Tradeoffs")
+        tradeoff_result = self.tradeoff_agent.run(user_inputs, func_spec, nfr_spec)
+        pipeline["stages"]["tradeoff_analysis"] = tradeoff_result
         
-        # Stage 5: Roofline Analysis (deterministic + interpretation)
+        # Stage 5: Roofline Performance Analysis
         _notify(5, "Roofline Performance Analysis")
-        workloads = user_inputs.get("key_workloads", ["LLM training", "LLM inference"])
-        roofline = self.roofline_modeler.run(func, workloads)
-        pipeline_state["stages"]["roofline_analysis"] = roofline
+        workloads = user_inputs.get("key_workloads", ["LLM training 70B+", "LLM autoregressive decode", "diffusion models"])
+        roofline_result = self.roofline_modeler.run(func_spec, workloads)
+        pipeline["stages"]["roofline_analysis"] = roofline_result
         
         # Stage 6: Block Diagram Architecture
-        _notify(6, "Block Diagram & Floorplan Partitioning")
-        block_diag = self.block_diagram.run(func, nfr)
-        pipeline_state["stages"]["block_diagram"] = block_diag
+        _notify(6, "Block Diagram Architecture")
+        block_result = self.block_diagram.run(func_spec, nfr_spec)
+        pipeline["stages"]["block_diagram"] = block_result
         
         # Stage 7: Interface Specification
-        _notify(7, "Interface Specification (External & Internal)")
-        interfaces = self.interface_specifier.run(func, nfr)
-        pipeline_state["stages"]["interface_spec"] = interfaces
+        _notify(7, "Interface Specification")
+        iface_result = self.iface_agent.run(func_spec, nfr_spec)
+        pipeline["stages"]["interface_spec"] = iface_result
         
         # Stage 8: Risk Assessment
-        _notify(8, "Systemic Risk Assessment & Register")
-        risks = self.risk_assessor.run(func, nfr, tradeoffs)
-        pipeline_state["stages"]["risk_register"] = risks
+        _notify(8, "Systemic Risk Assessment")
+        risk_result = self.risk_agent.run(func_spec, nfr_spec, tradeoff_result)
+        pipeline["stages"]["risk_register"] = risk_result
         
-        # Stage 9: Die Cost Model (deterministic physics & economics)
-        _notify(9, "Physical Die Cost & Yield Modeling")
-        node = user_inputs.get("process_node", "TSMC 3nm")
-        die_cost = self.die_cost_modeler.run(nfr, node)
-        pipeline_state["stages"]["die_cost_model"] = die_cost
+        # Stage 9: Die Cost Modeling
+        _notify(9, "Die Cost & Yield Modeling")
+        cost_result = self.cost_modeler.run(nfr_spec, user_inputs.get("process_node", "TSMC 4nm"))
+        pipeline["stages"]["die_cost_model"] = cost_result
         
-        # Assemble all documents
+        # Assemble Documents
         print("  Assembling specification documents...")
-        all_outputs = {**pipeline_state["stages"]}
-        docs = self.document_assembler.run(all_outputs)
-        pipeline_state["documents"] = docs
+        docs = self.doc_assembler.run(pipeline["stages"])
+        pipeline["documents"] = docs
         
-        pipeline_state["status"] = "draft_for_human_review"
-        pipeline_state["spec_freeze_ready"] = False
-        pipeline_state["completed_at"] = self._timestamp()
+        pipeline["status"] = "draft_for_human_review"
+        pipeline["spec_freeze_ready"] = False
+        pipeline["completed_at"] = self._timestamp()
         
-        return pipeline_state
+        return pipeline
     
-    def apply_human_feedback(self, pipeline_state: Dict, 
-                             feedback: Dict) -> Dict:
-        """
-        Apply human review feedback and update approval state.
-        feedback = {
-            "stage_name": {
-                "approved": bool,
-                "comments": str,
-                "specific_changes": {...}
-            }
-        }
-        """
+    def apply_human_feedback(self, pipeline_state: Dict[str, Any], feedback: Dict[str, Any]) -> Dict[str, Any]:
+        """Apply human strategic review feedback and update signoff state."""
         pipeline_state["human_feedback"] = feedback
-        
         all_approved = all(
             f.get("approved", False) 
             for f in feedback.values()
             if isinstance(f, dict)
         )
-        
         if all_approved and feedback:
             pipeline_state["status"] = "SPEC_FROZEN"
             pipeline_state["spec_freeze_ready"] = True
             pipeline_state["frozen_at"] = self._timestamp()
             if "documents" in pipeline_state and "downstream_handoff" in pipeline_state["documents"]:
                 pipeline_state["documents"]["downstream_handoff"]["spec_freeze_status"] = "FROZEN — APPROVED FOR RTL SIGN-OFF"
-        
         return pipeline_state
 
-    def freeze_specification(self, pipeline_state: Dict, signoff_lead: str = "Chief Architect") -> Dict:
+    def freeze_specification(self, pipeline_state: Dict[str, Any], signoff_lead: str = "Chief Architect") -> Dict[str, Any]:
         """Explicitly freeze the specification package."""
         pipeline_state["status"] = "SPEC_FROZEN"
         pipeline_state["spec_freeze_ready"] = True
@@ -206,5 +201,4 @@ class ProductArchitectOrchestrator:
         return pipeline_state
     
     def _timestamp(self) -> str:
-        from datetime import timezone
         return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")

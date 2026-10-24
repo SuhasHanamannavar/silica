@@ -1,5 +1,9 @@
+"""
+Zero-cost LLM backend: Groq primary (with multi-model routing), CPU-based/deterministic fallback.
+"""
 import json
 import os
+import re
 import time
 from typing import Dict, Any, Optional, List
 import urllib.request
@@ -7,196 +11,204 @@ import urllib.error
 
 class LLMBackend:
     """
-    Multi-model serving backend with:
-    - HF Inference API primary path
-    - Local vLLM deployment path (for production)
-    - Deterministic fallback (no LLM, no hallucination)
-    - Per-task model routing
-    - Structured output enforcement
-    - Audit logging
+    LLM Backend for Silica Product Architect:
+    - Primary: Groq API with task-based model routing
+    - Fallback: Deterministic templates (100% reliable, zero hallucination)
+    - Structured output extraction and audit logging
     """
+    
+    @staticmethod
+    def _get_api_key() -> str:
+        key = os.environ.get("GROQ_API_KEY", "")
+        if not key:
+            # Check local .env file
+            env_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+            if os.path.exists(env_file):
+                try:
+                    with open(env_file, "r", encoding="utf-8") as f:
+                        for line in f:
+                            line = line.strip()
+                            if line.startswith("GROQ_API_KEY="):
+                                key = line.split("=", 1)[1].strip().strip("'\"")
+                                os.environ["GROQ_API_KEY"] = key
+                                break
+                except Exception:
+                    pass
+        return key
     
     MODEL_ROUTING = {
         "functional_spec": {
-            "primary": "Qwen/Qwen2.5-Coder-32B-Instruct",
-            "fallback": "Qwen/Qwen2.5-Coder-14B-Instruct",
+            "provider": "groq",
+            "models": ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "openai/gpt-oss-20b"],
             "max_tokens": 4096,
             "temperature": 0.1,
         },
         "tradeoff_analysis": {
-            "primary": "meta-llama/Llama-3.1-70B-Instruct",
-            "fallback": "mistralai/Mixtral-8x22B-Instruct-v0.1",
+            "provider": "groq",
+            "models": ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "openai/gpt-oss-20b"],
             "max_tokens": 8192,
             "temperature": 0.2,
         },
         "nfr_spec": {
-            "primary": "Qwen/Qwen2.5-Coder-32B-Instruct",
-            "fallback": "Qwen/Qwen2.5-Coder-14B-Instruct",
+            "provider": "groq",
+            "models": ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "openai/gpt-oss-20b"],
             "max_tokens": 4096,
             "temperature": 0.1,
         },
         "risk_assessment": {
-            "primary": "meta-llama/Llama-3.1-70B-Instruct",
-            "fallback": "Qwen/Qwen2.5-Coder-32B-Instruct",
+            "provider": "groq",
+            "models": ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "openai/gpt-oss-20b"],
             "max_tokens": 4096,
             "temperature": 0.2,
         },
-        "document_assembly": {
-            "primary": "Qwen/Qwen2.5-Coder-14B-Instruct",
-            "fallback": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
-            "max_tokens": 8192,
-            "temperature": 0.0,
-        },
         "critique": {
-            "primary": "meta-llama/Llama-3.1-70B-Instruct",
-            "fallback": "mistralai/Mixtral-8x22B-Instruct-v0.1",
+            "provider": "groq",
+            "models": ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "openai/gpt-oss-20b"],
             "max_tokens": 4096,
             "temperature": 0.3,
         },
-        "fast_calculation": {
-            "primary": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
-            "fallback": "deterministic",
-            "max_tokens": 1024,
+        "interface_spec": {
+            "provider": "groq",
+            "models": ["openai/gpt-oss-20b", "llama-3.1-8b-instant", "openai/gpt-oss-120b"],
+            "max_tokens": 4096,
+            "temperature": 0.1,
+        },
+        "document_assembly": {
+            "provider": "groq",
+            "models": ["openai/gpt-oss-20b", "llama-3.1-8b-instant", "openai/gpt-oss-120b"],
+            "max_tokens": 8192,
             "temperature": 0.0,
         },
+        "interpretation": {
+            "provider": "groq",
+            "models": ["openai/gpt-oss-20b", "llama-3.1-8b-instant"],
+            "max_tokens": 2048,
+            "temperature": 0.2,
+        },
+        "fast_calculation": {
+            "provider": "groq",
+            "models": ["openai/gpt-oss-20b", "llama-3.1-8b-instant"],
+            "max_tokens": 1024,
+            "temperature": 0.0,
+        }
     }
     
-    def __init__(self, hf_token: str = None, use_local: bool = False, 
-                 local_endpoint: str = "http://localhost:8000/v1"):
-        self.hf_token = hf_token or os.environ.get("HF_TOKEN", "")
-        self.use_local = use_local
-        self.local_endpoint = local_endpoint
-        self.allow_external = os.environ.get("SILICA_ALLOW_EXTERNAL_LLM", "0") == "1"
+    def __init__(self, groq_key: Optional[str] = None):
+        self.groq_key = groq_key or self._get_api_key()
         self.audit_log: List[Dict[str, Any]] = []
     
-    def call(self, task_type: str, prompt: str, 
-             enforce_json: bool = True,
-             max_retries: int = 2) -> Dict[str, Any]:
-        """
-        Call LLM for a specific task type with automatic routing and fallback.
-        Returns: {text, model, latency_s, source, structured_output?, error?}
-        """
+    def call(self, task_type: str, prompt: str, enforce_json: bool = True) -> Dict[str, Any]:
         t0 = time.time()
-        config = self.MODEL_ROUTING.get(task_type, self.MODEL_ROUTING["fast_calculation"])
+        config = self.MODEL_ROUTING.get(task_type, self.MODEL_ROUTING["interpretation"])
         
         if enforce_json:
-            prompt = self._wrap_for_json_output(prompt)
+            prompt = prompt + "\n\nIMPORTANT: Output ONLY valid JSON. No markdown fences, no explanation. Start with '{' or '['."
         
-        models_to_try = [config["primary"], config["fallback"]]
         last_error = None
         
-        for model in models_to_try:
-            if model == "deterministic":
-                result = self._deterministic_fallback(task_type, prompt)
-                self._log_audit(task_type, model, time.time()-t0, "deterministic_fallback")
-                return result
-            
-            try:
-                if self.use_local:
-                    text = self._call_local(model, prompt, config)
-                elif self.allow_external and self.hf_token:
-                    text = self._call_hf_api(model, prompt, config)
-                else:
-                    result = self._deterministic_fallback(task_type, prompt)
-                    self._log_audit(task_type, "silica-deterministic-v1", 
-                                   time.time()-t0, "deterministic_fallback")
-                    return result
-                
-                output = {
-                    "text": text,
-                    "model": model,
-                    "latency_s": round(time.time() - t0, 2),
-                    "source": "local_vllm" if self.use_local else "hf_inference_api",
-                }
-                
-                if enforce_json:
-                    structured = self._extract_json(text)
-                    if structured:
-                        output["structured_output"] = structured
-                    else:
-                        last_error = "JSON extraction failed"
-                        continue
-                
-                self._log_audit(task_type, model, time.time()-t0, "success")
-                return output
-                
-            except Exception as e:
-                last_error = str(e)
-                continue
+        if self.groq_key and config.get("provider") == "groq":
+            candidate_models = config.get("models", ["openai/gpt-oss-120b", "openai/gpt-oss-20b"])
+            for model_name in candidate_models:
+                try:
+                    text = self._call_groq(model_name, prompt, config)
+                    latency = round(time.time() - t0, 3)
+                    output: Dict[str, Any] = {
+                        "text": text,
+                        "model": model_name,
+                        "provider": "groq",
+                        "latency_s": latency,
+                        "source": "groq_api"
+                    }
+                    if enforce_json:
+                        structured = self._extract_json(text)
+                        if structured is not None:
+                            output["structured_output"] = structured
+                        else:
+                            output["json_extraction_failed"] = True
+                            output["raw_text_sample"] = text[:500]
+                    self._log(task_type, f"groq/{model_name}", latency, "success")
+                    return output
+                except Exception as e:
+                    last_error = str(e)
+                    continue
         
-        # All models failed — use deterministic fallback
-        result = self._deterministic_fallback(task_type, prompt)
-        result["error"] = last_error
-        result["fallback_reason"] = last_error
-        self._log_audit(task_type, "silica-deterministic-v1", 
-                       time.time()-t0, f"fallback_due_to: {last_error}")
-        return result
-    
-    def _call_hf_api(self, model: str, prompt: str, config: Dict) -> str:
-        url = f"https://api-inference.huggingface.co/models/{model}"
-        data = json.dumps({
-            "inputs": prompt,
-            "parameters": {
-                "max_new_tokens": config["max_tokens"],
-                "temperature": config["temperature"],
-                "return_full_text": False,
-                "do_sample": config["temperature"] > 0,
+        # Fallback to deterministic template
+        from product_architect.templates import get_deterministic_template
+        fallback_res = get_deterministic_template(task_type, prompt)
+        fallback_latency = round(time.time() - t0, 4)
+        if isinstance(fallback_res, dict) and "structured_output" in fallback_res:
+            res_dict = fallback_res
+        else:
+            res_dict = {
+                "text": json.dumps(fallback_res) if isinstance(fallback_res, (dict, list)) else str(fallback_res),
+                "structured_output": fallback_res,
+                "model": "silica-deterministic-v1",
+                "provider": "deterministic",
+                "latency_s": fallback_latency,
+                "source": "deterministic_fallback"
             }
-        }).encode()
-        
-        req = urllib.request.Request(
-            url, data=data,
-            headers={
-                "Authorization": f"Bearer {self.hf_token}",
-                "Content-Type": "application/json"
-            }
-        )
-        
-        with urllib.request.urlopen(req, timeout=120) as r:
-            resp = json.loads(r.read().decode())
-        
-        if isinstance(resp, list):
-            return resp[0].get("generated_text", "")
-        return resp.get("generated_text", "")
+        if last_error:
+            res_dict["fallback_reason"] = last_error
+        self._log(task_type, "deterministic_fallback", fallback_latency, f"fallback: {str(last_error)[:100]}")
+        return res_dict
     
-    def _call_local(self, model: str, prompt: str, config: Dict) -> str:
-        """Call local vLLM/Text Generation Inference endpoint."""
-        url = f"{self.local_endpoint}/completions"
-        data = json.dumps({
+    def _deterministic_fallback(self, task_type: str, prompt: str = "") -> Dict[str, Any]:
+        """Direct deterministic fallback helper."""
+        from product_architect.templates import get_deterministic_template
+        tmpl = get_deterministic_template(task_type, prompt)
+        return {
+            "text": json.dumps(tmpl) if isinstance(tmpl, (dict, list)) else str(tmpl),
+            "structured_output": tmpl,
+            "model": "silica-deterministic-v1",
+            "provider": "deterministic",
+            "latency_s": 0.001,
+            "source": "deterministic_fallback"
+        }
+    
+    def _call_groq(self, model: str, prompt: str, config: Dict) -> str:
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        payload = {
             "model": model,
-            "prompt": prompt,
-            "max_tokens": config["max_tokens"],
-            "temperature": config["temperature"],
-        }).encode()
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": config.get("max_tokens", 4096),
+            "temperature": config.get("temperature", 0.1),
+            "stream": False,
+        }
+        data = json.dumps(payload).encode("utf-8")
         
         req = urllib.request.Request(
-            url, data=data,
-            headers={"Content-Type": "application/json"}
+            url,
+            data=data,
+            headers={
+                "Authorization": f"Bearer {self.groq_key}",
+                "Content-Type": "application/json",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Silica/1.0"
+            }
         )
         
-        with urllib.request.urlopen(req, timeout=120) as r:
-            resp = json.loads(r.read().decode())
-        
-        return resp.get("choices", [{}])[0].get("text", "")
-    
-    def _wrap_for_json_output(self, prompt: str) -> str:
-        """Add JSON output enforcement to the prompt."""
-        return prompt + """
-
-IMPORTANT OUTPUT FORMAT:
-Your ENTIRE response must be a single valid JSON object. No markdown, no explanation, no code fences.
-The JSON must be parseable by Python's json.loads().
-If you need to include text with quotes, escape them properly as \".
-Start your response with '{' and end with '}'.
-"""
+        with urllib.request.urlopen(req, timeout=45) as resp:
+            body = resp.read().decode("utf-8")
+            res_json = json.loads(body)
+            return res_json["choices"][0]["message"]["content"]
     
     def _extract_json(self, text: str) -> Optional[Any]:
-        """Extract and parse JSON from model output."""
+        """Robust JSON extraction from model output."""
+        text = text.strip()
+        # Direct
         try:
-            return json.loads(text.strip())
+            return json.loads(text)
         except Exception:
             pass
         
+        # Code fences
+        m = re.search(r"```(?:json)?\s*([\{\[].*?[\}\]])\s*```", text, re.DOTALL)
+        if m:
+            try:
+                return json.loads(m.group(1))
+            except Exception:
+                pass
+        
+        # Object scan
         start_obj = text.find('{')
         end_obj = text.rfind('}')
         if start_obj >= 0 and end_obj > start_obj:
@@ -204,7 +216,8 @@ Start your response with '{' and end with '}'.
                 return json.loads(text[start_obj:end_obj+1])
             except Exception:
                 pass
-
+                
+        # Array scan
         start_arr = text.find('[')
         end_arr = text.rfind(']')
         if start_arr >= 0 and end_arr > start_arr:
@@ -212,30 +225,14 @@ Start your response with '{' and end with '}'.
                 return json.loads(text[start_arr:end_arr+1])
             except Exception:
                 pass
-        
+                
         return None
     
-    def _deterministic_fallback(self, task_type: str, prompt: str) -> Dict[str, Any]:
-        """Template-based deterministic output — no LLM, no hallucination."""
-        try:
-            from product_architect.product_architect_templates import get_deterministic_template
-        except ImportError:
-            from product_architect_templates import get_deterministic_template
-            
-        template = get_deterministic_template(task_type, prompt)
-        return {
-            "text": json.dumps(template) if isinstance(template, (dict, list)) else str(template),
-            "structured_output": template if isinstance(template, (dict, list)) else None,
-            "model": "silica-deterministic-v1",
-            "latency_s": 0.001,
-            "source": "deterministic_fallback",
-        }
-    
-    def _log_audit(self, task_type: str, model: str, latency: float, status: str):
+    def _log(self, task: str, model: str, latency: float, status: str):
         self.audit_log.append({
-            "task_type": task_type,
+            "task": task,
             "model": model,
-            "latency_s": round(latency, 4),
+            "latency_s": latency,
             "status": status,
-            "timestamp": time.time(),
+            "ts": time.time()
         })

@@ -138,15 +138,19 @@ Generate the complete interface specification as JSON:
 }}
 """
     
-    def __init__(self, llm_backend, knowledge_base):
+    def __init__(self, llm_backend=None, knowledge_base=None, validator=None):
         self.llm = llm_backend
         self.kb = knowledge_base
+        from product_architect.validators import SpecValidator
+        self.validator = validator or SpecValidator()
     
     def run(self, functional_spec: Dict, nfr_spec: Dict, **kwargs) -> Dict:
-        context = self.kb.get_context(
-            "HBM NVLink PCIe CXL interface specification electrical",
-            categories=["interface_standards", "hbm_specs"]
-        )
+        context = ""
+        if self.kb:
+            context = self.kb.get_context(
+                "HBM NVLink PCIe CXL interface specification electrical",
+                categories=["interface_standards", "hbm_specs"]
+            )
         
         prompt = self.PROMPT_TEMPLATE.format(
             context=context,
@@ -154,11 +158,16 @@ Generate the complete interface specification as JSON:
             nfr_spec=json.dumps(nfr_spec, indent=2)[:2000],
         )
         
-        result = self.llm.call("functional_spec", prompt, enforce_json=True)
-        out = result.get("structured_output")
+        out = None
+        if self.llm:
+            result = self.llm.call("interface_spec", prompt, enforce_json=True)
+            out = result.get("structured_output")
         if not isinstance(out, dict) or not out:
             out = self._get_fallback_interfaces(functional_spec, nfr_spec)
-        return out
+        
+        # Deterministic validator pass
+        fixed_spec, _ = self.validator.validate_interface_spec(out)
+        return fixed_spec
     
     def _get_fallback_interfaces(self, functional_spec: Dict, nfr_spec: Dict) -> Dict:
         """Deterministic default interface spec."""

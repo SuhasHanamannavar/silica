@@ -107,3 +107,5 @@ Then output a "decisions_summary" array with all 5 decisions.
         if not isinstance(out, dict) or not out:
             out = self.llm._deterministic_fallback("tradeoff_analysis", prompt).get("structured_output", {})
         return out
+
+TradeoffAnalyst = ArchitecturalTradeoffAnalyst

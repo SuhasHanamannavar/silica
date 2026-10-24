@@ -1,0 +1,11 @@
+[
+  {
+    "id": "cost_wafer_2026",
+    "category": "cost_models",
+    "source": "Industry Analysis + Foundry Pricing",
+    "content": "Wafer Costs (2026 estimates):\n- TSMC 2nm: ~,000 per wafer\n- TSMC 3nm (N3P): ~,000 per wafer\n- TSMC 4nm (N4P): ~,000 per wafer\n- TSMC 5nm (N5P): ~,000 per wafer\n- TSMC 7nm: ~,000 per wafer\n\nMask Costs (full set):\n- 2nm: ~-12M\n- 3nm: ~-8M\n- 5nm: ~.5-4.7M\n- 7nm: ~-2.5M\n\nPackaging Costs:\n- CoWoS-L with HBM3e/HBM4: ~-1200 per unit\n- CoWoS-S with HBM3: ~-800 per unit\n- SXM substrate: ~-400\n- HBM stacks: ~-20 per GB (HBM3e/HBM4)",
+    "metadata": {
+      "year": 2026
+    }
+  }
+]

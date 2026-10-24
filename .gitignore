@@ -2,8 +2,8 @@ data/projects/
 __pycache__/
 *.pyc
 server.log
-__pycache__/
 data/silica_sft/
 *.pem
 aws_instance_info.json
 scratch/
+.env

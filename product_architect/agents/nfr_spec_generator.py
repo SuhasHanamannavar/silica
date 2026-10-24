@@ -187,7 +187,7 @@ IMPORTANT:
             
             # Reticle limit check (858 mm² limit)
             area["reticle_limit_check"] = "WITHIN" if total_area <= 858 else "EXCEEDS"
-            area["chiplet_required"] = total_area > 800  # Conservative margin for yield
+            area["chiplet_required"] = total_area > 800 or total_w >= 800 or "dual-die" in str(inputs).lower() or "chiplet" in str(inputs).lower()
             if area["chiplet_required"]:
                 area["chiplet_count_if_required"] = 2
             
