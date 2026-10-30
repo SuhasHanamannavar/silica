@@ -292,4 +292,4 @@ To maintain strict engineering integrity:
 
 ## License
 
-MIT © [Trivikram Kalagi](https://github.com/SuhasHanamannavar/silica) & Contributors
+MIT ©(https://github.com/SuhasHanamannavar/silica)
