@@ -59,8 +59,29 @@ ARCHITECT_PRESETS = [
     }
 ]
 
-# In-memory run cache
+# Persistent run storage (survives container re-use in serverless environment)
+_CACHE_FILE = os.path.join("/tmp", "silica_architect_runs.json") if os.path.exists("/tmp") else "silica_architect_runs.json"
 _RUNS_CACHE = {}
+
+def _load_cache():
+    global _RUNS_CACHE
+    try:
+        if os.path.exists(_CACHE_FILE):
+            with open(_CACHE_FILE, "r", encoding="utf-8") as f:
+                loaded = json.load(f)
+                if isinstance(loaded, dict):
+                    _RUNS_CACHE.update(loaded)
+    except Exception:
+        pass
+
+def _save_cache():
+    try:
+        with open(_CACHE_FILE, "w", encoding="utf-8") as f:
+            json.dump(_RUNS_CACHE, f)
+    except Exception:
+        pass
+
+_load_cache()
 
 class handler(BaseHTTPRequestHandler):
     def _send(self, code: int, data: any, content_type: str = "application/json"):
@@ -115,6 +136,7 @@ class handler(BaseHTTPRequestHandler):
             return self._send(200, {"presets": ARCHITECT_PRESETS})
             
         elif p == "/api/architect/runs":
+            _load_cache()
             runs_list = [
                 {
                     "id": rid,
@@ -177,6 +199,7 @@ class handler(BaseHTTPRequestHandler):
                 pipeline_result = _ORCH.run(inputs, use_multipass=use_multipass)
                 pipeline_result["id"] = rid
                 _RUNS_CACHE[rid] = pipeline_result
+                _save_cache()
                 return self._send(200, pipeline_result)
             except Exception as e:
                 try:
@@ -199,6 +222,7 @@ class handler(BaseHTTPRequestHandler):
                 run_data["spec_freeze_ready"] = True
                 run_data["signoff_lead"] = signoff_lead
             _RUNS_CACHE[rid] = run_data
+            _save_cache()
             return self._send(200, run_data)
             
         elif p.startswith("/api/architect/runs/") and p.endswith("/feedback"):
@@ -211,6 +235,7 @@ class handler(BaseHTTPRequestHandler):
             else:
                 run_data["human_feedback"] = feedback
             _RUNS_CACHE[rid] = run_data
+            _save_cache()
             return self._send(200, run_data)
             
         else:

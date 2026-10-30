@@ -119,11 +119,28 @@ const state = {
   backend:false, backendTools:{}, realRun:null,
 };
 const LS_KEY = 'silica_state_v1';
-function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({projects:state.projects, runs:state.runs})); }catch(e){} }
+function save(){ 
+  try{ 
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      projects: state.projects, 
+      runs: state.runs,
+      architectRun: state.architect ? state.architect.currentRun : null,
+      activeTab: state.architect ? state.architect.activeTab : 'overview'
+    })); 
+  }catch(e){} 
+}
 function load(){
   try{
     const raw = localStorage.getItem(LS_KEY);
-    if(raw){ const d=JSON.parse(raw); state.projects=d.projects||[]; state.runs=d.runs||{}; }
+    if(raw){ 
+      const d = JSON.parse(raw); 
+      state.projects = d.projects || []; 
+      state.runs = d.runs || {}; 
+      if(state.architect) {
+        if(d.architectRun) state.architect.currentRun = d.architectRun;
+        if(d.activeTab) state.architect.activeTab = d.activeTab;
+      }
+    }
   }catch(e){}
   if(state.projects.length===0){ seed(); save(); }
 }
@@ -2120,6 +2137,7 @@ function bindArchitectEvents() {
   document.querySelectorAll('.arch-tab').forEach(t => {
     t.addEventListener('click', () => {
       state.architect.activeTab = t.dataset.tab;
+      save();
       document.querySelectorAll('.arch-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === state.architect.activeTab));
       const contentEl = document.getElementById('arch-tab-content');
       if(contentEl && state.architect.currentRun) {
@@ -2322,6 +2340,7 @@ function bindArchitectEvents() {
           state.architect.isRunning = false;
           state.architect.currentRun = runData;
           state.architect.activeTab = 'pipeline';
+          save();
           toast('Specification Synthesized', 'All 9 stages & 11 architecture deliverables generated.');
           render();
         }, 700);
