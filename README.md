@@ -3,7 +3,7 @@
 
 **"From natural-language specification to verified gate-level netlists with zero mocked data."** — _Silica (Silicon · Architecture · Provenance)_
 
-> Silica is a production-grade autonomous semiconductor engineering platform that automates digital IC design from natural-language specification to verified synthesizable RTL and gate-level netlists. Powered by an 8-specialist multi-agent pipeline and backed by real, open-source EDA binaries (**Verilator v4.038**, **Yosys v0.9**, and **g++ 11.4**) running on cloud infrastructure, Silica produces cycle-accurate simulations, logic area metrics, and autonomous syntax/semantic failure recovery. Every run and agent change is cryptographically tracked using **Entire (entire.io)** checkpoints and deterministic code-graph intelligence.         
+> Silica is a production-grade autonomous semiconductor engineering platform that automates digital IC design from natural-language specification to verified synthesizable RTL and gate-level netlists. Powered by an 8-specialist multi-agent pipeline and backed by real, open-source EDA binaries (**Verilator v4.038**, **Yosys v0.9**, and **g++ 11.4**) running on cloud infrastructure, Silica produces cycle-accurate simulations, logic area metrics, and autonomous syntax/semantic failure recovery. Every run and agent change is cryptographically tracked using **Entire (entire.io)** checkpoints and deterministic code-graph intelligence.           
 
 [![Live Demo](https://img.shields.io/badge/Live-Silica%20on%20Vercel-000000?style=for-the-badge&logo=vercel)](https://silica-kappa.vercel.app)
 [![EDA Workspace](https://img.shields.io/badge/Workspace-Live%20EDA%20Studio-2563eb?style=for-the-badge)](https://silica-kappa.vercel.app/app.html)
