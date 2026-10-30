@@ -1898,3 +1898,38 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
   color: var(--ink-white);
   border-left: 2px solid var(--accent);
 }
+
+/* Product Architect Live Telemetry Stepper */
+.arch-telemetry-pill {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  color: var(--ink-muted);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+.arch-telemetry-pill.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--ink-white);
+}
+.arch-telemetry-pill.done {
+  background: var(--success-soft);
+  border-color: var(--success);
+  color: var(--success);
+}
+.arch-telemetry-pill .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.arch-telemetry-pill.active .dot {
+  animation: blink 1s infinite;
+}

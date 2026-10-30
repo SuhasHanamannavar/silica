@@ -179,7 +179,13 @@ class handler(BaseHTTPRequestHandler):
                 _RUNS_CACHE[rid] = pipeline_result
                 return self._send(200, pipeline_result)
             except Exception as e:
-                return self._send(500, {"error": f"Pipeline execution failed: {str(e)}"})
+                try:
+                    pipeline_result = _ORCH.run(inputs, use_multipass=False)
+                    pipeline_result["id"] = rid
+                    _RUNS_CACHE[rid] = pipeline_result
+                    return self._send(200, pipeline_result)
+                except Exception as e2:
+                    return self._send(500, {"error": f"Pipeline execution failed: {str(e2)}"})
                 
         elif p.startswith("/api/architect/runs/") and p.endswith("/freeze"):
             parts = p.split("/")

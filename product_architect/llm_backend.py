@@ -37,57 +37,63 @@ class LLMBackend:
         return key
     
     MODEL_ROUTING = {
+        "market_analysis": {
+            "provider": "groq",
+            "models": ["qwen/qwen3.8-27b", "openai/gpt-oss-120b"],
+            "max_tokens": 4096,
+            "temperature": 0.1,
+        },
         "functional_spec": {
             "provider": "groq",
-            "models": ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "openai/gpt-oss-20b"],
+            "models": ["qwen/qwen3.8-27b", "openai/gpt-oss-120b"],
             "max_tokens": 4096,
             "temperature": 0.1,
         },
         "tradeoff_analysis": {
             "provider": "groq",
-            "models": ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "openai/gpt-oss-20b"],
-            "max_tokens": 8192,
+            "models": ["qwen/qwen3.8-27b", "openai/gpt-oss-120b"],
+            "max_tokens": 4096,
             "temperature": 0.2,
         },
         "nfr_spec": {
             "provider": "groq",
-            "models": ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "openai/gpt-oss-20b"],
+            "models": ["qwen/qwen3.8-27b", "openai/gpt-oss-120b"],
             "max_tokens": 4096,
             "temperature": 0.1,
         },
         "risk_assessment": {
             "provider": "groq",
-            "models": ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "openai/gpt-oss-20b"],
+            "models": ["qwen/qwen3.8-27b", "openai/gpt-oss-120b"],
             "max_tokens": 4096,
             "temperature": 0.2,
         },
         "critique": {
             "provider": "groq",
-            "models": ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "openai/gpt-oss-20b"],
+            "models": ["qwen/qwen3.8-27b", "openai/gpt-oss-120b"],
             "max_tokens": 4096,
             "temperature": 0.3,
         },
         "interface_spec": {
             "provider": "groq",
-            "models": ["openai/gpt-oss-20b", "llama-3.1-8b-instant", "openai/gpt-oss-120b"],
+            "models": ["qwen/qwen3.8-27b", "openai/gpt-oss-120b"],
             "max_tokens": 4096,
             "temperature": 0.1,
         },
         "document_assembly": {
             "provider": "groq",
-            "models": ["openai/gpt-oss-20b", "llama-3.1-8b-instant", "openai/gpt-oss-120b"],
-            "max_tokens": 8192,
+            "models": ["qwen/qwen3.8-27b", "openai/gpt-oss-120b"],
+            "max_tokens": 4096,
             "temperature": 0.0,
         },
         "interpretation": {
             "provider": "groq",
-            "models": ["openai/gpt-oss-20b", "llama-3.1-8b-instant"],
+            "models": ["qwen/qwen3.8-27b", "openai/gpt-oss-120b"],
             "max_tokens": 2048,
             "temperature": 0.2,
         },
         "fast_calculation": {
             "provider": "groq",
-            "models": ["openai/gpt-oss-20b", "llama-3.1-8b-instant"],
+            "models": ["qwen/qwen3.8-27b", "openai/gpt-oss-120b"],
             "max_tokens": 1024,
             "temperature": 0.0,
         }
@@ -186,8 +192,8 @@ class LLMBackend:
             }
         )
         
-        with urllib.request.urlopen(req, timeout=8) as resp:
-            body = resp.read().decode("utf-8")
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            body = resp.read().decode("utf-8", errors="replace")
             res_json = json.loads(body)
             return res_json["choices"][0]["message"]["content"]
     

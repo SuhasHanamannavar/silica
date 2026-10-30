@@ -77,11 +77,18 @@ class ProductArchitectOrchestrator:
             "started_at": self._timestamp()
         }
         
-        def _notify(stage_num: int, stage_name: str):
-            print(f"  Stage {stage_num}/9: {stage_name}...")
+        def _record_audit(stage_num: int, stage_name: str, res: Any, duration_s: float, default_model: str = "deterministic"):
+            model = default_model
+            provider = "local"
+            if isinstance(res, dict):
+                model = res.get("model_used") or default_model
+                provider = res.get("provider") or ("groq" if "qwen" in str(model) or "llama" in str(model) or "gpt" in str(model) else "deterministic")
             pipeline["audit_trail"].append({
                 "stage": stage_num,
                 "name": stage_name,
+                "model_used": model,
+                "provider": provider,
+                "latency_s": round(duration_s, 2),
                 "timestamp": self._timestamp()
             })
             if on_progress:
@@ -89,14 +96,17 @@ class ProductArchitectOrchestrator:
                     on_progress(stage_num, 9, stage_name)
                 except Exception:
                     pass
-        
+
         # Stage 1: Market & Competitive Analysis
-        _notify(1, "Market & Competitive Analysis")
+        t0 = time.time()
+        print(f"  Stage 1/9: Market & Competitive Analysis...")
         market_result = self.market_analyzer.run(user_inputs)
         pipeline["stages"]["market_analysis"] = market_result
+        _record_audit(1, "Market & Competitive Analysis", market_result, time.time() - t0, "qwen/qwen3.8-27b")
         
         # Stage 2: Functional Specification
-        _notify(2, "Functional Specification")
+        t0 = time.time()
+        print(f"  Stage 2/9: Functional Specification...")
         if use_multipass:
             func_result = self.multipass.refine_spec(
                 self.func_agent, {"inputs": user_inputs, "market_analysis": market_result}
@@ -107,15 +117,16 @@ class ProductArchitectOrchestrator:
         func_spec = func_result.get("spec", func_result) if isinstance(func_result, dict) else func_result
         stage_func = dict(func_result) if isinstance(func_result, dict) else {}
         stage_func["spec"] = func_spec
-        # Surface inner keys directly on stage for backward compatibility
         if isinstance(func_spec, dict):
             for k, v in func_spec.items():
                 if k not in stage_func:
                     stage_func[k] = v
         pipeline["stages"]["functional_spec"] = stage_func
+        _record_audit(2, "Functional Specification", func_result, time.time() - t0, "qwen/qwen3.8-27b")
         
         # Stage 3: Non-Functional Specification
-        _notify(3, "Non-Functional Specification")
+        t0 = time.time()
+        print(f"  Stage 3/9: Non-Functional Specification...")
         if use_multipass:
             nfr_result = self.multipass.refine_spec(
                 self.nfr_agent, {"inputs": user_inputs, "func_spec": func_spec}
@@ -131,37 +142,50 @@ class ProductArchitectOrchestrator:
                 if k not in stage_nfr:
                     stage_nfr[k] = v
         pipeline["stages"]["non_functional_spec"] = stage_nfr
+        _record_audit(3, "Non-Functional Specification", nfr_result, time.time() - t0, "qwen/qwen3.8-27b")
         
         # Stage 4: Architectural Tradeoffs
-        _notify(4, "Architectural Tradeoffs")
+        t0 = time.time()
+        print(f"  Stage 4/9: Architectural Tradeoffs...")
         tradeoff_result = self.tradeoff_agent.run(user_inputs, func_spec, nfr_spec)
         pipeline["stages"]["tradeoff_analysis"] = tradeoff_result
+        _record_audit(4, "Architectural Tradeoffs", tradeoff_result, time.time() - t0, "qwen/qwen3.8-27b")
         
         # Stage 5: Roofline Performance Analysis
-        _notify(5, "Roofline Performance Analysis")
+        t0 = time.time()
+        print(f"  Stage 5/9: Roofline Performance Analysis...")
         workloads = user_inputs.get("key_workloads", ["LLM training 70B+", "LLM autoregressive decode", "diffusion models"])
         roofline_result = self.roofline_modeler.run(func_spec, workloads)
         pipeline["stages"]["roofline_analysis"] = roofline_result
+        _record_audit(5, "Roofline Performance Analysis", roofline_result, time.time() - t0, "deterministic-roofline-physics")
         
         # Stage 6: Block Diagram Architecture
-        _notify(6, "Block Diagram Architecture")
+        t0 = time.time()
+        print(f"  Stage 6/9: Block Diagram Architecture...")
         block_result = self.block_diagram.run(func_spec, nfr_spec)
         pipeline["stages"]["block_diagram"] = block_result
+        _record_audit(6, "Block Diagram Architecture", block_result, time.time() - t0, "deterministic-die-partitioner")
         
         # Stage 7: Interface Specification
-        _notify(7, "Interface Specification")
+        t0 = time.time()
+        print(f"  Stage 7/9: Interface Specification...")
         iface_result = self.iface_agent.run(func_spec, nfr_spec)
         pipeline["stages"]["interface_spec"] = iface_result
+        _record_audit(7, "Interface Specification", iface_result, time.time() - t0, "qwen/qwen3.8-27b")
         
         # Stage 8: Risk Assessment
-        _notify(8, "Systemic Risk Assessment")
+        t0 = time.time()
+        print(f"  Stage 8/9: Systemic Risk Assessment...")
         risk_result = self.risk_agent.run(func_spec, nfr_spec, tradeoff_result)
         pipeline["stages"]["risk_register"] = risk_result
+        _record_audit(8, "Systemic Risk Assessment", risk_result, time.time() - t0, "qwen/qwen3.8-27b")
         
         # Stage 9: Die Cost Modeling
-        _notify(9, "Die Cost & Yield Modeling")
+        t0 = time.time()
+        print(f"  Stage 9/9: Die Cost & Yield Modeling...")
         cost_result = self.cost_modeler.run(nfr_spec, user_inputs.get("process_node", "TSMC 4nm"))
         pipeline["stages"]["die_cost_model"] = cost_result
+        _record_audit(9, "Die Cost & Yield Modeling", cost_result, time.time() - t0, "murphy-yield-model-300mm")
         
         # Assemble Documents
         print("  Assembling specification documents...")

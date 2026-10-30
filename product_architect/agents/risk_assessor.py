@@ -65,6 +65,9 @@ Output as JSON array of risk objects.
         
         result = self.llm.call("risk_assessment", prompt, enforce_json=True)
         risks = result.get("structured_output")
+        model_used = result.get("model_used", "deterministic")
+        provider = result.get("provider", "local")
+        latency_s = result.get("latency_s", 0.0)
         if not isinstance(risks, list) or not risks:
             risks = self.llm._deterministic_fallback("risk_assessment", prompt).get("structured_output", [])
         if not isinstance(risks, list):
@@ -82,6 +85,9 @@ Output as JSON array of risk objects.
             "high_risk_count": sum(1 for r in risks if isinstance(r, dict) and r.get("risk_score", 0) >= 15),
             "medium_risk_count": sum(1 for r in risks if isinstance(r, dict) and 10 <= r.get("risk_score", 0) < 15),
             "low_risk_count": sum(1 for r in risks if isinstance(r, dict) and r.get("risk_score", 0) < 10),
+            "model_used": model_used,
+            "provider": provider,
+            "latency_s": latency_s,
         }
     
     def _add_deterministic_risks(self, risks: list, nfr_spec: Dict):

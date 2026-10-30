@@ -159,14 +159,23 @@ Generate the complete interface specification as JSON:
         )
         
         out = None
+        model_used = "deterministic"
+        provider = "local"
+        latency_s = 0.0
         if self.llm:
             result = self.llm.call("interface_spec", prompt, enforce_json=True)
             out = result.get("structured_output")
+            model_used = result.get("model_used", model_used)
+            provider = result.get("provider", provider)
+            latency_s = result.get("latency_s", latency_s)
         if not isinstance(out, dict) or not out:
             out = self._get_fallback_interfaces(functional_spec, nfr_spec)
         
         # Deterministic validator pass
         fixed_spec, _ = self.validator.validate_interface_spec(out)
+        fixed_spec["model_used"] = model_used
+        fixed_spec["provider"] = provider
+        fixed_spec["latency_s"] = latency_s
         return fixed_spec
     
     def _get_fallback_interfaces(self, functional_spec: Dict, nfr_spec: Dict) -> Dict:
