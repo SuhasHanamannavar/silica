@@ -64,7 +64,7 @@
 
 ---
 
-## 3-Minute Judge Walkthrough
+## 3-Minute Architecture & Platform Walkthrough
 
 1. **Verify Backend Health & Real EDA Engines**:
    - Open [http://13.203.204.240/api/health](http://13.203.204.240/api/health) in your browser.
@@ -213,7 +213,7 @@ Measured on AWS EC2 (`13.203.204.240`, Ubuntu 22.04 LTS, AMD64):
 
 ## neatlogs, Entire & cfo.ai Mandatory Toolchain Breakdown
 
-The hackathon submission explicitly requires deep integration and verification across **neatlogs**, **Entire**, and **cfo.ai**. Below is the complete breakdown covering **Architecture**, **Implementation**, **Runtime**, **Reasoning**, and **Result** for each platform:
+The Silica engineering platform features full production integration across **neatlogs**, **Entire**, and **cfo.ai** for enterprise-grade observability, cryptographic provenance, and financial scalability. Below is the complete breakdown covering **Architecture**, **Implementation**, **Runtime**, **Reasoning**, and **Result** for each platform:
 
 ### 1. neatlogs (Agent Observability & Tracing)
 * **Architecture:** Distributed cloud telemetry and trace capture layer designed for multi-agent autonomous systems. Correlates execution events across all 8 specialist agents in the hardware synthesis workflow.

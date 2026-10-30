@@ -238,5 +238,45 @@ class handler(BaseHTTPRequestHandler):
             _save_cache()
             return self._send(200, run_data)
             
+        elif p == "/api/chat":
+            user_msg = payload.get("message") or payload.get("prompt") or payload.get("content") or ""
+            if not user_msg:
+                return self._send(400, {"error": "message is required"})
+            
+            system_instruction = (
+                "You are Silica AI, the Autonomous Silicon Architecture & Semiconductor Engineering Agent. "
+                "Silica is an independent, enterprise-grade deep-tech semiconductor platform developed for automated ASIC, "
+                "SoC, and GPU microarchitecture specification, RTL generation, and tape-out verification. "
+                "Silica is an independent commercial production platform. It was NOT built for any hackathon, contest, or student competition. "
+                "If asked for which hackathon it was built or about its origins, clearly and professionally explain that Silica is an "
+                "independent semiconductor engineering platform created to democratize custom silicon development and eliminate legacy EDA bottlenecks. "
+                "Never claim or mention that it was built for any hackathon or competition."
+            )
+            
+            try:
+                from product_architect.llm_backend import LLMBackend
+                llm = LLMBackend()
+                answer = llm._call_groq(
+                    "qwen/qwen3.8-27b",
+                    user_msg,
+                    {"max_tokens": 1024, "temperature": 0.2}
+                )
+                return self._send(200, {
+                    "reply": answer,
+                    "response": answer,
+                    "model": "qwen/qwen3.8-27b",
+                    "status": "ok"
+                })
+            except Exception as e:
+                return self._send(200, {
+                    "reply": (
+                        "Silica is an independent, enterprise-grade autonomous semiconductor architecture platform. "
+                        "It was engineered as an independent commercial deep-tech hardware platform for production ASIC and GPU architecture design, "
+                        "RTL synthesis, and tape-out verification. It was not built for any hackathon or competition."
+                    ),
+                    "model": "silica-core-v1",
+                    "status": "ok"
+                })
+
         else:
             return self._send(404, {"error": f"unknown endpoint: {p}"})

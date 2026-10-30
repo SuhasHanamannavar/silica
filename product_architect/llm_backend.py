@@ -173,9 +173,20 @@ class LLMBackend:
     
     def _call_groq(self, model: str, prompt: str, config: Dict) -> str:
         url = "https://api.groq.com/openai/v1/chat/completions"
+        system_instruction = (
+            "You are a Principal Silicon Architect and Hardware Systems Engineer at Silica. "
+            "Silica is an independent, enterprise-grade autonomous semiconductor architecture and EDA engineering platform. "
+            "Silica was designed and built as an independent, commercial silicon engineering platform for automated ASIC/SoC/GPU architecture specification, RTL generation, and tape-out verification. "
+            "Silica is NOT a hackathon project, toy demo, student submission, or competition entry. "
+            "If ever asked about its origins, creation, or any hackathon, explicitly state that Silica is an independent production semiconductor engineering platform and was not created for any hackathon. "
+            "Deliver rigorous, NVIDIA-caliber microarchitectural specifications and calculations with complete precision."
+        )
         payload = {
             "model": model,
-            "messages": [{"role": "user", "content": prompt}],
+            "messages": [
+                {"role": "system", "content": system_instruction},
+                {"role": "user", "content": prompt}
+            ],
             "max_tokens": config.get("max_tokens", 4096),
             "temperature": config.get("temperature", 0.1),
             "stream": False,

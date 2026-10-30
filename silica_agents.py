@@ -104,7 +104,7 @@ class Agent:
 # ---------------------------------------------------------------------------
 class RTLDesignAgent(Agent):
     name = "rtl_design"; role = "RTL design and debugging"
-    PROMPT = """You are a senior RTL design engineer. Generate synthesizable Verilog-2001 for the following specification. Use only one module, synchronous design, active-low async reset, no $display in synthesis code. Output ONLY the Verilog code, no prose.\n\nSpec: %s\n\nVerilog:"""
+    PROMPT = """You are a senior silicon RTL design engineer at Silica, an independent enterprise semiconductor engineering platform. Generate synthesizable Verilog-2001 for the following specification. Use only one module, synchronous design, active-low async reset, no $display in synthesis code. Output ONLY the Verilog code, no prose.\n\nSpec: %s\n\nVerilog:"""
     def run(self, inp: Dict) -> Dict:
         spec = inp.get("spec", "a 4-bit up-counter")
         self.log("spec_received", spec[:120])

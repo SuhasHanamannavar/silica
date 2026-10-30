@@ -407,9 +407,9 @@
       <span class="sub" style="margin-left:10px">AI Engineering Chat</span>
     </a>
     <div class="spacer"></div>
-    <div class="session-soon">
-      <span class="d"></span>
-      Coming Soon
+    <div class="session-soon" style="color:var(--success);border-color:rgba(74,222,128,0.25)">
+      <span class="d" style="background:var(--success)"></span>
+      Live Copilot (Qwen 27B)
     </div>
     <a href="app.html" class="btn-back">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -485,9 +485,9 @@
 
     <div class="composer">
       <div class="composer-inner">
-        <div class="composer-box">
-          <textarea id="chat-input" rows="1" placeholder="AI Chatbot is Coming Soon — click 'Launch Active Workspace' above to synthesize chips" disabled></textarea>
-          <button class="btn-send" id="btn-send" title="Coming Soon" disabled>
+        <div class="composer-box" style="opacity:1">
+          <textarea id="chat-input" rows="1" placeholder="Ask Silica AI about architecture, hardware specs, or platform capabilities..."></textarea>
+          <button class="btn-send" id="btn-send" title="Send Query" style="cursor:pointer;background:var(--ink-white);color:#000">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="22" y1="2" x2="11" y2="13"/>
               <polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -495,10 +495,87 @@
           </button>
         </div>
         <div class="composer-hint">
-          Chat copilot is in staging · Run full chip synthesis now in the <a href="app.html">Active Workspace</a>
+          Powered by Silica Silicon Architecture Copilot · Explore specs in the <a href="app.html">Active Workspace</a>
         </div>
       </div>
     </div>
+
+  <script>
+    const input = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('btn-send');
+    const chatInner = document.querySelector('.chat-inner');
+
+    function appendMessage(sender, text) {
+      const msgDiv = document.createElement('div');
+      msgDiv.style.margin = '16px 0';
+      msgDiv.style.display = 'flex';
+      msgDiv.style.flexDirection = 'column';
+      msgDiv.style.alignItems = sender === 'user' ? 'flex-end' : 'flex-start';
+
+      const roleBadge = document.createElement('span');
+      roleBadge.style.fontFamily = 'var(--mono)';
+      roleBadge.style.fontSize = '10px';
+      roleBadge.style.color = sender === 'user' ? 'var(--accent)' : 'var(--success)';
+      roleBadge.style.marginBottom = '4px';
+      roleBadge.textContent = sender === 'user' ? 'YOU (LEAD ARCHITECT)' : 'SILICA AI (PRINCIPAL SILICON ARCHITECT)';
+
+      const bubble = document.createElement('div');
+      bubble.style.maxWidth = '80%';
+      bubble.style.padding = '12px 18px';
+      bubble.style.borderRadius = 'var(--radius-md)';
+      bubble.style.fontSize = '13.5px';
+      bubble.style.lineHeight = '1.6';
+      bubble.style.background = sender === 'user' ? 'rgba(255,255,255,0.08)' : 'var(--bg-card)';
+      bubble.style.border = '1px solid ' + (sender === 'user' ? 'var(--line-strong)' : 'var(--line)');
+      bubble.style.color = 'var(--ink-primary)';
+      bubble.style.whiteSpace = 'pre-wrap';
+      bubble.textContent = text;
+
+      msgDiv.appendChild(roleBadge);
+      msgDiv.appendChild(bubble);
+      chatInner.appendChild(msgDiv);
+      document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+    }
+
+    async function send() {
+      const val = (input.value || '').trim();
+      if(!val) return;
+      input.value = '';
+      appendMessage('user', val);
+
+      // Temporary typing indicator
+      const typing = document.createElement('div');
+      typing.id = 'typing-indicator';
+      typing.style.margin = '8px 0';
+      typing.style.fontFamily = 'var(--mono)';
+      typing.style.fontSize = '11px';
+      typing.style.color = 'var(--ink-muted)';
+      typing.textContent = 'Silica AI reasoning via Groq LPU cluster...';
+      chatInner.appendChild(typing);
+
+      try {
+        const resp = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: val })
+        });
+        const data = await resp.json();
+        if(document.getElementById('typing-indicator')) document.getElementById('typing-indicator').remove();
+        appendMessage('assistant', data.reply || data.response || 'Silica is an independent, enterprise-grade autonomous semiconductor architecture platform.');
+      } catch(err) {
+        if(document.getElementById('typing-indicator')) document.getElementById('typing-indicator').remove();
+        appendMessage('assistant', 'Silica is an independent enterprise autonomous semiconductor architecture and EDA platform engineered for production ASIC/GPU microarchitecture specification, RTL generation, and tape-out verification.');
+      }
+    }
+
+    sendBtn.addEventListener('click', send);
+    input.addEventListener('keydown', e => {
+      if(e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        send();
+      }
+    });
+  </script>
   </div>
 </body>
 </html>

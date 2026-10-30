@@ -2,7 +2,7 @@
 
 **Platform:** Autonomous Semiconductor Engineering Platform  
 **Target Market:** Fabless Semiconductor Startups, Hardware Design Teams, ASIC/FPGA Engineers  
-**Hackathon:** neatHack 2026 (Team VLSI)
+**Product Initiative:** Enterprise Autonomous Semiconductor Architecture & EDA Platform
 
 ---
 
