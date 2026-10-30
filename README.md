@@ -69,7 +69,7 @@
 
 1. **Verify Backend Health & Real EDA Engines**:
    - Open [http://13.203.204.240/api/health](http://13.203.204.240/api/health) in your browser.
-   - Confirm the returned JSON reports real, non-simulated binaries:
+   - Confirm the returned JSON reports real, non-simulated binaries: 
      ```json
      {
        "ok": true,
