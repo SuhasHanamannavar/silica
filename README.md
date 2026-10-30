@@ -6,7 +6,6 @@
 > Silica is a production-grade autonomous semiconductor engineering platform that automates digital IC design from natural-language specification to verified synthesizable RTL and gate-level netlists. Powered by an 8-specialist multi-agent pipeline and backed by real, open-source EDA binaries (**Verilator v4.038**, **Yosys v0.9**, and **g++ 11.4**) running on cloud infrastructure, Silica produces cycle-accurate simulations, logic area metrics, and autonomous syntax/semantic failure recovery. Every run and agent change is cryptographically tracked using **Entire (entire.io)** checkpoints and deterministic code-graph intelligence.         
 
 [![Live Demo](https://img.shields.io/badge/Live-Silica%20on%20Vercel-000000?style=for-the-badge&logo=vercel)](https://silica-kappa.vercel.app)
-[![Demo Video](https://img.shields.io/badge/YouTube-Demo%20Video-FF0000?style=for-the-badge&logo=youtube)](https://youtu.be/tJKK-oV1QmE)
 [![EDA Workspace](https://img.shields.io/badge/Workspace-Live%20EDA%20Studio-2563eb?style=for-the-badge)](https://silica-kappa.vercel.app/app.html)
 [![GitHub Repo](https://img.shields.io/badge/Source-GitHub%20Repository-181717?style=for-the-badge&logo=github)](https://github.com/SuhasHanamannavar/silica)
 [![Hugging Face](https://img.shields.io/badge/Hugging%20Face-LoRA%20Adapters-FFD21E?style=for-the-badge&logo=huggingface)](https://huggingface.co/SILICAM/silica-rtl-lora-v1)
