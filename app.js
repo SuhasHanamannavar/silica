@@ -2019,9 +2019,9 @@ ${esc(roof.interpretation || 'Balanced datacenter architecture with strong compu
           <div class="faint" style="font-size:11px;margin-top:2px">${isFrozen ? 'Specification frozen on ' + (run.frozen_at || 'now') : 'Ready for signature and freeze'}</div>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
-          <button class="btn sm" id="arch-send-to-rtl-freeze">⚡ Open in RTL Studio →</button>
+          <button class="btn sm" id="arch-send-to-rtl-freeze">Open in RTL Studio →</button>
           <button class="btn ${isFrozen ? '' : 'primary'}" id="arch-btn-freeze" ${isFrozen ? 'disabled' : ''}>
-          ${isFrozen ? '✓ Specification Locked & Frozen' : 'Freeze Specification Gate 🔒'}
+          ${isFrozen ? '✓ Specification Locked & Frozen' : 'Freeze Specification Gate'}
         </button>
         </div>
       </div>
@@ -2050,7 +2050,7 @@ ${esc(roof.interpretation || 'Balanced datacenter architecture with strong compu
         <div class="kicker" style="margin-bottom:10px;padding:0 8px">11 Deliverables Package</div>
         ${docNames.map(name => `
           <button class="arch-doc-nav-item ${name === curDoc ? 'active' : ''}" data-doc-name="${name}">
-            📄 ${esc(name)}
+            ${esc(name)}
           </button>
         `).join('')}
       </div>
@@ -2059,7 +2059,7 @@ ${esc(roof.interpretation || 'Balanced datacenter architecture with strong compu
         <div class="card-head">
           <h3 class="mono" style="font-size:14px">${esc(curDoc)}</h3>
           <div class="actions">
-            <button class="btn sm primary" id="arch-send-to-rtl">⚡ Open in RTL Studio →</button>
+            <button class="btn sm primary" id="arch-send-to-rtl">Open in RTL Studio →</button>
             <button class="btn sm" id="arch-doc-copy">Copy Content</button>
             <button class="btn sm" id="arch-doc-dl">Download .md</button>
           </div>
@@ -2847,7 +2847,7 @@ function bindArchitectTabSpecificEvents() {
       .then(r => r.json())
       .then(frozenRun => {
         state.architect.currentRun = frozenRun;
-        toast('Specification Frozen 🔒', 'Signed off by ' + lead + '. Contract baselined for RTL.');
+        toast('Specification Frozen', 'Signed off by ' + lead + '. Contract baselined for RTL.');
         render();
       })
       .catch(err => toast('Freeze Error', err.message));
@@ -3323,13 +3323,13 @@ function renderRtlEditor() {
     } else if (rtl.lintReport.error_count > 0) {
       statusBadgeHtml = `<span class="rtl-diag-badge error">✕ ${rtl.lintReport.error_count} Errors</span>`;
     } else if (rtl.lintReport.warning_count > 0) {
-      statusBadgeHtml = `<span class="rtl-diag-badge warning">⚠ ${rtl.lintReport.warning_count} Warnings</span>`;
+      statusBadgeHtml = `<span class="rtl-diag-badge warning">Warning: ${rtl.lintReport.warning_count}</span>`;
     }
   }
 
   // Active architecture spec preview string
   const hasSpec = Boolean(rtl.activeSpec && rtl.activeSpec.trim().length);
-  const specSnippet = hasSpec ? rtl.activeSpec.slice(0, 160) + '…' : 'No architecture spec linked yet. Click "⚡ Autonomous RTL from Spec" or send directly from Product Architect.';
+  const specSnippet = hasSpec ? rtl.activeSpec.slice(0, 160) + '…' : 'No architecture spec linked yet. Click "Autonomous RTL from Spec" or send directly from Product Architect.';
 
   let html = `
   <div class="rtl-ide-container">
@@ -3351,14 +3351,14 @@ function renderRtlEditor() {
           ${rtl.isSimulating ? '<span class="d" style="width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block;animation:blink 1s infinite"></span> Simulating…' : '▶ Compile & Run'}
         </button>
         <button class="btn sm" id="rtl-btn-gen-tb" title="View or generate Verilog testbench">Testbench</button>
-        <button class="btn primary" id="rtl-btn-generate">⚡ Autonomous RTL</button>
+        <button class="btn primary" id="rtl-btn-generate">Autonomous RTL</button>
         <button class="btn ${rtl.isLinting ? 'loading' : ''}" id="rtl-btn-lint" ${rtl.isLinting ? 'disabled' : ''}>
-          ${rtl.isLinting ? 'Linting…' : '🔍 Lint (DRC)'}
+          ${rtl.isLinting ? 'Linting…' : 'Lint (DRC)'}
         </button>
         <button class="btn sm" id="rtl-btn-format" title="Auto-format Verilog indentation">Format</button>
         <button class="btn sm" id="rtl-btn-copy" title="Copy code to clipboard">Copy</button>
         <button class="btn sm" id="rtl-btn-dl" title="Download .v source file">Download .v</button>
-        <button class="btn sm" id="rtl-btn-goto-verif" style="background:rgba(52,211,153,0.15);color:#34D399;border-color:rgba(52,211,153,0.35);font-weight:600" title="Transfer active RTL module to Functional Verification Studio">🚀 Verification Studio →</button>
+        <button class="btn sm" id="rtl-btn-goto-verif" style="background:rgba(52,211,153,0.15);color:#34D399;border-color:rgba(52,211,153,0.35);font-weight:600" title="Transfer active RTL module to Functional Verification Studio">Verification Studio →</button>
       </div>
     </div>
 
@@ -3402,7 +3402,7 @@ function renderRtlEditor() {
           </div>
           <div style="font-size:11px;color:var(--ink-secondary);line-height:1.5;max-height:85px;overflow-y:auto;background:rgba(0,0,0,0.3);padding:8px;border-radius:4px;border:1px solid rgba(255,255,255,0.04);white-space:pre-wrap;font-family:var(--mono)">${esc(specSnippet)}</div>
           <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px">
-            <button class="btn sm primary" id="rtl-btn-quick-synth" style="width:100%;font-size:11px">⚡ Synthesize from Spec</button>
+            <button class="btn sm primary" id="rtl-btn-quick-synth" style="width:100%;font-size:11px">Synthesize from Spec</button>
             <button class="btn sm" id="rtl-btn-goto-arch" style="width:100%;font-size:11px">← Edit in Product Architect</button>
           </div>
         </div>
@@ -3475,16 +3475,16 @@ function renderRtlEditor() {
               ▶ Simulation Console & Waveforms ${rtl.isSimulating ? '<span class="rtl-diag-badge sim-running" style="font-size:9px;margin-left:4px">RUNNING…</span>' : (rtl.simResult ? (rtl.simResult.simulation && rtl.simResult.simulation.passed ? '<span class="rtl-diag-badge sim-pass" style="font-size:9px;margin-left:4px">PASS</span>' : '<span class="rtl-diag-badge sim-fail" style="font-size:9px;margin-left:4px">FAIL</span>') : '')}
             </button>
             <button class="rtl-drawer-tab ${rtl.activeTab === 'linter' ? 'active' : ''}" data-drawer-tab="linter">
-              🔍 DRC Diagnostics ${rtl.lintReport ? (rtl.lintReport.ok ? '<span class="rtl-diag-badge pass" style="font-size:9px;margin-left:4px">PASS</span>' : `<span class="rtl-diag-badge error" style="font-size:9px;margin-left:4px">${rtl.lintReport.error_count} ERR</span>`) : ''}
+              DRC Diagnostics ${rtl.lintReport ? (rtl.lintReport.ok ? '<span class="rtl-diag-badge pass" style="font-size:9px;margin-left:4px">PASS</span>' : `<span class="rtl-diag-badge error" style="font-size:9px;margin-left:4px">${rtl.lintReport.error_count} ERR</span>`) : ''}
             </button>
             <button class="rtl-drawer-tab ${rtl.activeTab === 'telemetry' ? 'active' : ''}" data-drawer-tab="telemetry">
-              ⚡ Autonomous Synthesis Telemetry
+              Autonomous Synthesis Telemetry
             </button>
             <button class="rtl-drawer-tab ${rtl.activeTab === 'ppa' ? 'active' : ''}" data-drawer-tab="ppa">
-              📊 PPA & Logic Depth
+              PPA & Logic Depth
             </button>
             <button class="rtl-drawer-tab ${rtl.activeTab === 'spec' ? 'active' : ''}" data-drawer-tab="spec">
-              📜 Architecture Contract
+              Architecture Contract
             </button>
           </div>
 
@@ -3805,7 +3805,7 @@ function renderRtlGenerateModal(rtl) {
       <div class="rtl-modal-card" onclick="event.stopPropagation()">
         <div class="rtl-modal-head">
           <div style="display:flex;align-items:center;gap:10px">
-            <span style="font-size:16px;color:var(--accent)">⚡</span>
+            <span style="font-size:16px;color:var(--accent)"></span>
             <div>
               <h3 style="font-size:14px;color:var(--ink-white);margin:0">Autonomous RTL Synthesis from Spec</h3>
               <div class="faint" style="font-size:11px">Agentic hardware synthesis directly through Groq Qwen 27B LPU Engine</div>
@@ -4684,11 +4684,11 @@ function renderVerification() {
           ${verif.isRunning ? 'Simulating Cycles…' : '▶ Run Full Regression'}
         </button>
         <button class="btn ${verif.isProvingFormal ? 'loading' : ''}" id="verif-btn-formal" ${verif.isProvingFormal ? 'disabled' : ''} title="Run Bounded Model Checking formal proof">
-          ${verif.isProvingFormal ? 'Proving BMC…' : '🔬 Formal BMC'}
+          ${verif.isProvingFormal ? 'Proving BMC…' : 'Formal BMC'}
         </button>
-        <button class="btn sm" id="verif-btn-goto-synth" style="background:rgba(168,85,247,0.15);color:#C084FC;border-color:rgba(168,85,247,0.35);font-weight:600" title="Forward verified RTL to Logic Synthesis Studio">🚀 Logic Synthesis &rarr;</button>
+        <button class="btn sm" id="verif-btn-goto-synth" style="background:rgba(168,85,247,0.15);color:#C084FC;border-color:rgba(168,85,247,0.35);font-weight:600" title="Forward verified RTL to Logic Synthesis Studio">Logic Synthesis &rarr;</button>
         <button class="btn primary ${verif.isSigningOff ? 'loading' : ''}" id="verif-btn-signoff" ${verif.isSigningOff ? 'disabled' : ''} title="Certify coverage closure and compile 12 deliverables">
-          ${verif.isSigningOff ? 'Compiling…' : '📋 Sign-Off Gate'}
+          ${verif.isSigningOff ? 'Compiling…' : 'Sign-Off Gate'}
         </button>
       </div>
     </div>
@@ -5003,7 +5003,7 @@ function renderVerifFormalTab() {
             <div style="font-size:13px;color:var(--ink-white);margin-bottom:6px">Formal BMC has not been executed yet</div>
             <div style="font-size:11px;color:var(--ink-muted);margin-bottom:14px">Click below to mathematically prove reset safety, deadlock freedom, and mutual exclusion invariants.</div>
             <button class="btn primary ${verif.isProvingFormal ? 'loading' : ''}" id="verif-btn-formal-hero">
-              ${verif.isProvingFormal ? 'Solving Invariants…' : '🔬 Solve Formal BMC Invariants'}
+              ${verif.isProvingFormal ? 'Solving Invariants…' : 'Solve Formal BMC Invariants'}
             </button>
           </div>
         `}
@@ -5036,8 +5036,8 @@ function renderVerifDeliverablesTab() {
       <div class="verif-card-head">
         <span>Formal Silicon Verification Deliverables (12 IEEE Artifacts)</span>
         <div style="display:flex;gap:8px">
-          ${delivs ? '<button class="btn sm success" id="verif-btn-dl-all">⬇ Download All (12 Files)</button>' : ''}
-          <button class="btn sm primary" id="verif-btn-generate-delivs">${delivs ? 'Regenerate Deliverables' : '⚡ Compile 12 Deliverables'}</button>
+          ${delivs ? '<button class="btn sm success" id="verif-btn-dl-all">Download All (12 Files)</button>' : ''}
+          <button class="btn sm primary" id="verif-btn-generate-delivs">${delivs ? 'Regenerate Deliverables' : 'Compile 12 Deliverables'}</button>
         </div>
       </div>
       <div class="verif-card-body">
@@ -5470,10 +5470,10 @@ function renderSynthesis() {
           ${synth.isSynthesizing ? 'Synthesizing…' : '▶ Run Yosys Synthesis'}
         </button>
         <button class="btn ${synth.isSimulating ? 'loading' : ''}" id="synth-btn-gls" ${synth.isSimulating ? 'disabled' : ''} title="Run Gate-Level Simulation (GLS) on synthesized netlist">
-          ${synth.isSimulating ? 'Simulating GLS…' : '⚡ Simulate Netlist (GLS)'}
+          ${synth.isSimulating ? 'Simulating GLS…' : 'Simulate Netlist (GLS)'}
         </button>
         <button class="btn primary ${synth.isSigningOff ? 'loading' : ''}" id="synth-btn-signoff" ${synth.isSigningOff ? 'disabled' : ''}>
-          ${synth.isSigningOff ? 'Compiling…' : '📋 Sign-Off Gate'}
+          ${synth.isSigningOff ? 'Compiling…' : 'Sign-Off Gate'}
         </button>
       </div>
     </div>
@@ -5730,7 +5730,7 @@ function renderSynthGlsTab() {
             <div style="font-size:13px;color:var(--ink-white);margin-bottom:6px">Gate-level simulation not yet executed</div>
             <div style="font-size:11px;color:var(--ink-muted);margin-bottom:14px">Click below to verify that the synthesized gate netlist functionally matches the RTL.</div>
             <button class="btn success ${synth.isSimulating ? 'loading' : ''}" id="synth-btn-hero-gls">
-              ${synth.isSimulating ? 'Simulating…' : '⚡ Simulate Synthesized Netlist'}
+              ${synth.isSimulating ? 'Simulating…' : 'Simulate Synthesized Netlist'}
             </button>
           </div>
         `}
@@ -5780,8 +5780,8 @@ function renderSynthDeliverablesTab() {
       <div class="synth-card-head">
         <span>Formal Logic Synthesis Deliverables (12 IEEE Artifacts)</span>
         <div style="display:flex;gap:8px">
-          ${delivs ? '<button class="btn sm success" id="synth-btn-dl-all">⬇ Download All (12 Files)</button>' : ''}
-          <button class="btn sm primary" id="synth-btn-compile-delivs">${delivs ? 'Regenerate Deliverables' : '⚡ Compile 12 Deliverables'}</button>
+          ${delivs ? '<button class="btn sm success" id="synth-btn-dl-all">Download All (12 Files)</button>' : ''}
+          <button class="btn sm primary" id="synth-btn-compile-delivs">${delivs ? 'Regenerate Deliverables' : 'Compile 12 Deliverables'}</button>
         </div>
       </div>
       <div class="synth-card-body">
