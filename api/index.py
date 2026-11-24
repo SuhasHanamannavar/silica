@@ -311,6 +311,61 @@ class handler(BaseHTTPRequestHandler):
             except Exception as e:
                 return self._send(500, {"error": f"Testbench generation failed: {str(e)}"})
 
+        elif p == "/api/verification/plan":
+            code = payload.get("code") or ""
+            top = payload.get("top_module") or None
+            try:
+                from product_architect.verification_engine import VerificationPlanGenerator
+                gen = VerificationPlanGenerator()
+                plan = gen.generate_plan(code, top_module=top)
+                return self._send(200, plan)
+            except Exception as e:
+                return self._send(500, {"error": f"Verification plan generation failed: {str(e)}"})
+
+        elif p == "/api/verification/run":
+            code = payload.get("code") or ""
+            top = payload.get("top_module") or None
+            seeds = int(payload.get("seed_count") or 5)
+            try:
+                from product_architect.verification_engine import RegressionRunner
+                runner = RegressionRunner()
+                res = runner.run_regression(code, top_module=top, seed_count=seeds)
+                return self._send(200, res)
+            except Exception as e:
+                return self._send(500, {"error": f"Regression execution failed: {str(e)}"})
+
+        elif p == "/api/verification/formal":
+            code = payload.get("code") or ""
+            top = payload.get("top_module") or None
+            k = int(payload.get("depth_k") or 20)
+            try:
+                from product_architect.verification_engine import FormalVerificationEngine
+                res = FormalVerificationEngine.run_formal_bmc(code, top_module=top, depth_k=k)
+                return self._send(200, res)
+            except Exception as e:
+                return self._send(500, {"error": f"Formal verification failed: {str(e)}"})
+
+        elif p == "/api/verification/signoff":
+            code = payload.get("code") or ""
+            top = payload.get("top_module") or None
+            regression_data = payload.get("regression_data") or {}
+            formal_data = payload.get("formal_data") or None
+            try:
+                from product_architect.verification_engine import VerificationSignoffManager
+                if not regression_data:
+                    from product_architect.verification_engine import RegressionRunner
+                    runner = RegressionRunner()
+                    regression_data = runner.run_regression(code, top_module=top)
+                deliverables = VerificationSignoffManager.generate_deliverables(code, regression_data, formal_data)
+                return self._send(200, {
+                    "status": "ok",
+                    "module_name": regression_data.get("module_name", "silicon_core"),
+                    "deliverables_count": len(deliverables),
+                    "deliverables": deliverables
+                })
+            except Exception as e:
+                return self._send(500, {"error": f"Verification sign-off failed: {str(e)}"})
+
         elif p == "/api/chat":
             user_msg = payload.get("message") or payload.get("prompt") or payload.get("content") or ""
             if not user_msg:
