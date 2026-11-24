@@ -287,6 +287,30 @@ class handler(BaseHTTPRequestHandler):
             except Exception as e:
                 return self._send(500, {"error": f"Linting failed: {str(e)}"})
 
+        elif p == "/api/rtl/simulate":
+            code = payload.get("code") or ""
+            tb = payload.get("testbench") or None
+            top = payload.get("top_module") or None
+            cycles = int(payload.get("cycles") or 20)
+            try:
+                from product_architect.rtl_engine import RTLSimulationEngine
+                engine = RTLSimulationEngine()
+                sim_res = engine.simulate(code, testbench=tb, top_module=top, max_cycles=cycles)
+                return self._send(200, sim_res)
+            except Exception as e:
+                return self._send(500, {"error": f"Simulation failed: {str(e)}"})
+
+        elif p == "/api/rtl/testbench":
+            code = payload.get("code") or ""
+            top = payload.get("top_module") or None
+            try:
+                from product_architect.rtl_engine import RTLSimulationEngine
+                engine = RTLSimulationEngine()
+                tb_code = engine.generate_testbench(code, top_module=top)
+                return self._send(200, {"status": "ok", "testbench": tb_code})
+            except Exception as e:
+                return self._send(500, {"error": f"Testbench generation failed: {str(e)}"})
+
         elif p == "/api/chat":
             user_msg = payload.get("message") or payload.get("prompt") or payload.get("content") or ""
             if not user_msg:

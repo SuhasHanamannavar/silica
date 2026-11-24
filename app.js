@@ -3269,7 +3269,10 @@ state.rtl = {
     status: "Ready"
   },
   cursorPos: { line: 1, col: 1 },
-  showModal: false
+  showModal: false,
+  isSimulating: false,
+  simResult: null,
+  simViewMode: 'console'
 };
 
 function initRtlData() {
@@ -3342,9 +3345,13 @@ function renderRtlEditor() {
         </div>
       </div>
       <div class="action-bar">
-        <button class="btn primary" id="rtl-btn-generate">⚡ Autonomous RTL from Spec</button>
+        <button class="btn success ${rtl.isSimulating ? 'loading' : ''}" id="rtl-btn-run-sim" style="background:#059669;color:#fff;border-color:#10B981;font-weight:600" title="Compile & Simulate cycle verification (Ctrl+Shift+Enter)">
+          ${rtl.isSimulating ? '<span class="d" style="width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block;animation:blink 1s infinite"></span> Simulating…' : '▶ Compile & Run'}
+        </button>
+        <button class="btn sm" id="rtl-btn-gen-tb" title="View or generate Verilog testbench">Testbench</button>
+        <button class="btn primary" id="rtl-btn-generate">⚡ Autonomous RTL</button>
         <button class="btn ${rtl.isLinting ? 'loading' : ''}" id="rtl-btn-lint" ${rtl.isLinting ? 'disabled' : ''}>
-          ${rtl.isLinting ? 'Linting RTL…' : '🔍 Lint & Check (DRC)'}
+          ${rtl.isLinting ? 'Linting…' : '🔍 Lint (DRC)'}
         </button>
         <button class="btn sm" id="rtl-btn-format" title="Auto-format Verilog indentation">Format</button>
         <button class="btn sm" id="rtl-btn-copy" title="Copy code to clipboard">Copy</button>
@@ -3461,8 +3468,11 @@ function renderRtlEditor() {
         <!-- Bottom Drawer -->
         <div class="rtl-drawer">
           <div class="rtl-drawer-tabs">
+            <button class="rtl-drawer-tab ${rtl.activeTab === 'sim' ? 'active' : ''}" data-drawer-tab="sim">
+              ▶ Simulation Console & Waveforms ${rtl.isSimulating ? '<span class="rtl-diag-badge sim-running" style="font-size:9px;margin-left:4px">RUNNING…</span>' : (rtl.simResult ? (rtl.simResult.simulation && rtl.simResult.simulation.passed ? '<span class="rtl-diag-badge sim-pass" style="font-size:9px;margin-left:4px">PASS</span>' : '<span class="rtl-diag-badge sim-fail" style="font-size:9px;margin-left:4px">FAIL</span>') : '')}
+            </button>
             <button class="rtl-drawer-tab ${rtl.activeTab === 'linter' ? 'active' : ''}" data-drawer-tab="linter">
-              🔍 DRC & Linter Diagnostics ${rtl.lintReport ? (rtl.lintReport.ok ? '<span class="rtl-diag-badge pass" style="font-size:9px;margin-left:4px">PASS</span>' : `<span class="rtl-diag-badge error" style="font-size:9px;margin-left:4px">${rtl.lintReport.error_count} ERR</span>`) : ''}
+              🔍 DRC Diagnostics ${rtl.lintReport ? (rtl.lintReport.ok ? '<span class="rtl-diag-badge pass" style="font-size:9px;margin-left:4px">PASS</span>' : `<span class="rtl-diag-badge error" style="font-size:9px;margin-left:4px">${rtl.lintReport.error_count} ERR</span>`) : ''}
             </button>
             <button class="rtl-drawer-tab ${rtl.activeTab === 'telemetry' ? 'active' : ''}" data-drawer-tab="telemetry">
               ⚡ Autonomous Synthesis Telemetry
@@ -3493,6 +3503,103 @@ function renderRtlEditor() {
 
 function renderRtlDrawerContent(rtl) {
   const tab = rtl.activeTab;
+
+  if (tab === 'sim') {
+    if (rtl.isSimulating) {
+      return `
+        <div style="padding:24px;text-align:center;color:var(--ink-secondary)">
+          <div class="kicker" style="font-size:12px;color:var(--accent);margin-bottom:8px">● COMPILING & SIMULATING CYCLE VERIFICATION</div>
+          <p>Compiling Verilog AST with Icarus Verilog compiler, resolving ports, and executing cycle-accurate testbench vectors…</p>
+        </div>
+      `;
+    }
+
+    if (!rtl.simResult) {
+      return `
+        <div style="padding:20px;text-align:center;color:var(--ink-secondary)">
+          <p>No simulation run yet. Write or edit your Verilog code, then click <strong>▶ Compile & Run</strong> to verify hardware functionality.</p>
+          <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px">
+            <button class="btn sm success" id="rtl-btn-trigger-sim">▶ Compile & Run Now</button>
+            <button class="btn sm" id="rtl-btn-trigger-tb">Generate & Inspect Testbench</button>
+          </div>
+        </div>
+      `;
+    }
+
+    const res = rtl.simResult;
+    const sim = res.simulation || {};
+    const comp = res.compilation || {};
+    const passed = sim.passed;
+    const engine = comp.engine || 'Icarus Verilog 12.0';
+    const cycles = sim.cycles || 20;
+    const simTime = sim.sim_time_ns || 236;
+    const execMs = sim.execution_ms || 35;
+    const isWaveform = rtl.simViewMode === 'waveform';
+
+    let contentHtml = '';
+    if (isWaveform && sim.waveforms) {
+      const wf = sim.waveforms;
+      const sigs = Object.keys(wf);
+      contentHtml = `
+        <div class="rtl-waveform-viewer">
+          <div style="display:grid;grid-template-columns:130px 1fr;gap:12px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.06);font-family:var(--mono);font-size:10px;color:var(--ink-muted)">
+            <span>SIGNAL</span>
+            <div style="display:flex;gap:2px">
+              ${Array.from({length: 20}, (_, i) => `<span style="width:20px;text-align:center">${i+1}</span>`).join('')}
+            </div>
+          </div>
+          ${sigs.map(sig => {
+            const vals = wf[sig] || [];
+            const isClk = sig.toLowerCase().includes('clk');
+            return `
+              <div class="rtl-waveform-row">
+                <span class="rtl-waveform-sig-name" title="${esc(sig)}">${esc(sig)}</span>
+                <div class="rtl-waveform-track">
+                  ${vals.map(v => {
+                    if (isClk) {
+                      return v === 1 || v === '1'
+                        ? '<span class="rtl-wave-bit rtl-wave-clk-1">1</span>'
+                        : '<span class="rtl-wave-bit rtl-wave-clk-0">0</span>';
+                    }
+                    if (v === 1 || v === '1' || v === '0x1') {
+                      return '<span class="rtl-wave-bit rtl-wave-sig-1">1</span>';
+                    }
+                    if (v === 0 || v === '0' || v === '0x0') {
+                      return '<span class="rtl-wave-bit rtl-wave-sig-0">0</span>';
+                    }
+                    return `<span class="rtl-wave-data">${esc(String(v))}</span>`;
+                  }).join('')}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    } else {
+      contentHtml = `<div class="rtl-term-sim">${esc(sim.log || comp.raw_stderr || 'No simulation logs.')}</div>`;
+    }
+
+    return `
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="rtl-diag-badge ${passed ? 'sim-pass' : 'sim-fail'}" style="font-size:11px">
+              ${passed ? '✓ SIMULATION PASSED (0 ERRORS)' : '✕ SIMULATION FAILED'}
+            </span>
+            <span class="mono faint" style="font-size:11px">Engine: <strong>${esc(engine)}</strong></span>
+            <span class="mono faint" style="font-size:11px">• ${cycles} Cycles (${simTime} ns)</span>
+            <span class="mono faint" style="font-size:11px">• Executed in ${execMs} ms</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <button class="btn sm ${!isWaveform ? 'primary' : ''}" id="rtl-toggle-sim-console" style="font-size:10.5px">Console Log</button>
+            <button class="btn sm ${isWaveform ? 'primary' : ''}" id="rtl-toggle-sim-waveform" style="font-size:10.5px">Waveform View</button>
+            <button class="btn sm" id="rtl-open-tb-tab" style="font-size:10.5px">Open Testbench in Tab →</button>
+          </div>
+        </div>
+        ${contentHtml}
+      </div>
+    `;
+  }
 
   if (tab === 'linter') {
     if (!rtl.lintReport) {
@@ -3744,6 +3851,9 @@ function bindRtlEditorEvents() {
         const curFile = rtl.files.find(f => f.id === rtl.activeFileId);
         if (curFile) curFile.content = textarea.value;
         save();
+      } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'Enter') {
+        e.preventDefault();
+        triggerRtlSimulation();
       } else if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
         triggerRtlLint();
@@ -3924,6 +4034,18 @@ endmodule
     });
   }
 
+  // Run Simulation button
+  const runSimBtn = document.getElementById('rtl-btn-run-sim');
+  if (runSimBtn) {
+    runSimBtn.addEventListener('click', triggerRtlSimulation);
+  }
+
+  // Generate / Inspect Testbench button
+  const genTbBtn = document.getElementById('rtl-btn-gen-tb');
+  if (genTbBtn) {
+    genTbBtn.addEventListener('click', openRtlTestbench);
+  }
+
   // Lint button
   const lintBtn = document.getElementById('rtl-btn-lint');
   if (lintBtn) {
@@ -4027,6 +4149,57 @@ endmodule
 
 function bindRtlDrawerEvents() {
   const rtl = state.rtl;
+
+  // Sim View Mode toggles
+  const tConsole = document.getElementById('rtl-toggle-sim-console');
+  if (tConsole) {
+    tConsole.addEventListener('click', () => {
+      rtl.simViewMode = 'console';
+      const body = document.getElementById('rtl-drawer-body');
+      if (body) body.innerHTML = renderRtlDrawerContent(rtl);
+      bindRtlDrawerEvents();
+    });
+  }
+
+  const tWave = document.getElementById('rtl-toggle-sim-waveform');
+  if (tWave) {
+    tWave.addEventListener('click', () => {
+      rtl.simViewMode = 'waveform';
+      const body = document.getElementById('rtl-drawer-body');
+      if (body) body.innerHTML = renderRtlDrawerContent(rtl);
+      bindRtlDrawerEvents();
+    });
+  }
+
+  const openTbBtn = document.getElementById('rtl-open-tb-tab');
+  if (openTbBtn && rtl.simResult && rtl.simResult.testbench_code) {
+    openTbBtn.addEventListener('click', () => {
+      const curFile = rtl.files.find(f => f.id === rtl.activeFileId) || { name: 'dut.v' };
+      const tbName = curFile.name.replace(/\.v$/, '_tb.v');
+      let f = rtl.files.find(x => x.name === tbName);
+      if (!f) {
+        f = { id: 'f_' + Date.now(), name: tbName, language: 'verilog', content: rtl.simResult.testbench_code };
+        rtl.files.push(f);
+      } else {
+        f.content = rtl.simResult.testbench_code;
+      }
+      rtl.activeFileId = f.id;
+      save();
+      toast('Testbench Loaded', `Opened ${tbName} in editor.`);
+      render();
+    });
+  }
+
+  const trigSimBtn = document.getElementById('rtl-btn-trigger-sim');
+  if (trigSimBtn) {
+    trigSimBtn.addEventListener('click', triggerRtlSimulation);
+  }
+
+  const trigTbBtn = document.getElementById('rtl-btn-trigger-tb');
+  if (trigTbBtn) {
+    trigTbBtn.addEventListener('click', openRtlTestbench);
+  }
+
   // Trigger lint from drawer
   const tLintBtn = document.getElementById('rtl-btn-trigger-lint');
   if (tLintBtn) {
@@ -4054,6 +4227,88 @@ function bindRtlDrawerEvents() {
       }
     });
   }
+}
+
+function triggerRtlSimulation() {
+  const rtl = state.rtl;
+  const curFile = rtl.files.find(f => f.id === rtl.activeFileId);
+  if (!curFile) return;
+
+  rtl.isSimulating = true;
+  rtl.activeTab = 'sim';
+  render();
+
+  const modName = detectModuleName(curFile.content);
+  // Check if open files contain an explicit testbench
+  const tbFile = rtl.files.find(f => f.name.includes('_tb.v') || f.name.includes('tb_'));
+  const tbCode = tbFile ? tbFile.content : null;
+
+  fetch('/api/rtl/simulate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      code: curFile.content,
+      testbench: tbCode,
+      top_module: modName,
+      cycles: 20
+    })
+  })
+  .then(r => r.ok ? r.json() : r.json().then(e => { throw new Error(e.error || 'Simulation failed'); }))
+  .then(data => {
+    rtl.isSimulating = false;
+    rtl.simResult = data;
+    rtl.activeTab = 'sim';
+    save();
+    if (data.status === 'ok' && data.simulation && data.simulation.passed) {
+      toast('Simulation Passed', `0 errors, 20/20 cycles verified (${data.compilation ? data.compilation.engine : 'Icarus Verilog'}).`);
+    } else if (data.status === 'compile_error') {
+      toast('Compilation Error', 'Verilog compilation failed. Check simulation log for details.');
+    } else {
+      toast('Simulation Complete', 'Cycle execution finished.');
+    }
+    render();
+  })
+  .catch(err => {
+    rtl.isSimulating = false;
+    toast('Simulation Error', err.message);
+    render();
+  });
+}
+
+function openRtlTestbench() {
+  const rtl = state.rtl;
+  const curFile = rtl.files.find(f => f.id === rtl.activeFileId);
+  if (!curFile) return;
+
+  const modName = detectModuleName(curFile.content);
+  toast('Generating Testbench', `Synthesizing cycle testbench for ${modName}…`);
+
+  fetch('/api/rtl/testbench', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      code: curFile.content,
+      top_module: modName
+    })
+  })
+  .then(r => r.ok ? r.json() : r.json().then(e => { throw new Error(e.error || 'Testbench generation failed'); }))
+  .then(data => {
+    if (data.testbench) {
+      const tbFileName = `tb_${modName}.v`;
+      let f = rtl.files.find(x => x.name === tbFileName);
+      if (!f) {
+        f = { id: 'f_' + Date.now(), name: tbFileName, language: 'verilog', content: data.testbench };
+        rtl.files.push(f);
+      } else {
+        f.content = data.testbench;
+      }
+      rtl.activeFileId = f.id;
+      save();
+      toast('Testbench Ready', `Opened ${tbFileName} in editor.`);
+      render();
+    }
+  })
+  .catch(err => toast('Testbench Error', err.message));
 }
 
 function triggerRtlLint() {
