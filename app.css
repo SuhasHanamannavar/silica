@@ -1933,3 +1933,406 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 .arch-telemetry-pill.active .dot {
   animation: blink 1s infinite;
 }
+
+
+/* ============================================================================
+   RTL DESIGN STUDIO & CODE EDITOR IDE STYLES
+   ============================================================================ */
+.rtl-ide-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: calc(100vh - 120px);
+}
+
+.rtl-ide-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+}
+
+.rtl-ide-head .title-area h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-white);
+  margin-bottom: 2px;
+}
+
+.rtl-ide-head .title-area .sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-secondary);
+}
+
+.rtl-ide-head .action-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rtl-ide-main {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 1080px) {
+  .rtl-ide-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Left Sidebar: File Tree & Spec Context */
+.rtl-sidebar-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.rtl-pane-head {
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--ink-secondary);
+  text-transform: uppercase;
+}
+
+.rtl-file-list {
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rtl-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+
+.rtl-file-item:hover {
+  background: var(--bg-hover);
+  color: var(--ink-primary);
+}
+
+.rtl-file-item.active {
+  background: var(--accent-soft);
+  border-color: rgba(148, 163, 184, 0.25);
+  color: var(--ink-white);
+  font-weight: 500;
+}
+
+.rtl-file-item .file-badge {
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--accent);
+}
+
+.rtl-spec-box {
+  padding: 12px 14px;
+  border-top: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.rtl-spec-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--success);
+  background: var(--success-soft);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.rtl-spec-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-white);
+  margin-bottom: 4px;
+}
+
+.rtl-spec-detail {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-muted);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+/* Center Editor Panel */
+.rtl-editor-card {
+  background: var(--term-bg);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.rtl-editor-tabs {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card-2);
+  border-bottom: 1px solid var(--line);
+  padding: 0 8px;
+  overflow-x: auto;
+  gap: 4px;
+}
+
+.rtl-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-muted);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  white-space: nowrap;
+}
+
+.rtl-tab:hover {
+  color: var(--ink-primary);
+}
+
+.rtl-tab.active {
+  color: var(--ink-white);
+  border-bottom-color: var(--accent);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.rtl-editor-body {
+  display: flex;
+  min-height: 480px;
+  max-height: 560px;
+  background: #060606;
+  position: relative;
+}
+
+.rtl-gutter {
+  width: 48px;
+  padding: 12px 6px;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: #444;
+  user-select: none;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  background: #080808;
+  overflow: hidden;
+}
+
+.rtl-textarea {
+  flex: 1;
+  padding: 12px 14px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ECEFF4;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  resize: none;
+  white-space: pre;
+  tab-size: 2;
+  overflow: auto;
+}
+
+.rtl-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  background: #0C0C0C;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-muted);
+}
+
+.rtl-status-bar .sec {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Bottom Diagnostics Drawer */
+.rtl-drawer {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-top: 16px;
+}
+
+.rtl-drawer-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.rtl-drawer-tab {
+  padding: 9px 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+  cursor: pointer;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+}
+
+.rtl-drawer-tab:hover {
+  color: var(--ink-primary);
+}
+
+.rtl-drawer-tab.active {
+  color: var(--ink-white);
+  border-bottom-color: var(--accent);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.rtl-drawer-content {
+  padding: 14px 18px;
+  max-height: 240px;
+  overflow-y: auto;
+  font-size: 12.5px;
+}
+
+.rtl-diag-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.rtl-diag-table th {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.rtl-diag-table td {
+  padding: 7px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.rtl-diag-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.rtl-diag-badge.error {
+  background: var(--fail-soft);
+  color: var(--fail);
+}
+
+.rtl-diag-badge.warning {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.rtl-diag-badge.pass {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.rtl-diag-badge.info {
+  background: var(--info-soft);
+  color: var(--info);
+}
+
+/* Autonomous Generation Modal */
+.rtl-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.rtl-modal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 620px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.rtl-modal-head {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rtl-modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rtl-modal-foot {
+  padding: 14px 20px;
+  border-top: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}

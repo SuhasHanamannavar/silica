@@ -163,6 +163,23 @@ class handler(BaseHTTPRequestHandler):
         elif p in ("/api/runs", "/api/runs/"):
             return self._send(200, {"runs": []})
 
+        elif p == "/api/rtl/templates":
+            try:
+                from product_architect.rtl_engine import SILICON_TEMPLATES
+                templates_list = [
+                    {
+                        "id": k,
+                        "name": v["name"],
+                        "desc": v["desc"],
+                        "filename": v["filename"],
+                        "code": v["code"]
+                    }
+                    for k, v in SILICON_TEMPLATES.items()
+                ]
+                return self._send(200, {"templates": templates_list})
+            except Exception as e:
+                return self._send(500, {"error": f"Templates error: {str(e)}"})
+
         else:
             return self._send(200, {
                 "status": "ok",
@@ -238,6 +255,38 @@ class handler(BaseHTTPRequestHandler):
             _save_cache()
             return self._send(200, run_data)
             
+        elif p == "/api/rtl/generate":
+            spec = payload.get("spec") or payload.get("specification") or {}
+            module_name = payload.get("module_name") or "silica_accelerator_core"
+            clk = float(payload.get("target_clock_mhz") or 2100.0)
+            
+            try:
+                from product_architect.llm_backend import LLMBackend
+                from product_architect.rtl_engine import AutonomousRTLGenerator
+                llm = LLMBackend()
+                gen = AutonomousRTLGenerator(llm_backend=llm)
+                result = gen.generate_from_spec(spec, module_name=module_name, target_clock_mhz=clk)
+                return self._send(200, result)
+            except Exception as e:
+                try:
+                    from product_architect.rtl_engine import AutonomousRTLGenerator
+                    gen = AutonomousRTLGenerator()
+                    result = gen.generate_from_spec(spec, module_name=module_name, target_clock_mhz=clk)
+                    return self._send(200, result)
+                except Exception as e2:
+                    return self._send(500, {"error": f"RTL generation error: {str(e2)}"})
+
+        elif p == "/api/rtl/lint":
+            code = payload.get("code") or ""
+            top = payload.get("top_module") or None
+            try:
+                from product_architect.rtl_engine import RTLLinter
+                linter = RTLLinter()
+                report = linter.lint(code, top_module=top)
+                return self._send(200, report)
+            except Exception as e:
+                return self._send(500, {"error": f"Linting failed: {str(e)}"})
+
         elif p == "/api/chat":
             user_msg = payload.get("message") or payload.get("prompt") or payload.get("content") or ""
             if not user_msg:
