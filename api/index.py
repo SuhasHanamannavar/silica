@@ -366,6 +366,52 @@ class handler(BaseHTTPRequestHandler):
             except Exception as e:
                 return self._send(500, {"error": f"Verification sign-off failed: {str(e)}"})
 
+        elif p == "/api/synthesis/run":
+            code = payload.get("code") or ""
+            top = payload.get("top_module") or None
+            t_clk = float(payload.get("target_clock_ns") or 2.0)
+            node = payload.get("process_node") or "TSMC 3nm (N3P)"
+            opt = payload.get("opt_strategy") or "balanced"
+            try:
+                from product_architect.synthesis_engine import YosysSynthesisEngine
+                engine = YosysSynthesisEngine()
+                res = engine.synthesize(code, top_module=top, target_clock_ns=t_clk, process_node=node, opt_strategy=opt)
+                return self._send(200, res)
+            except Exception as e:
+                return self._send(500, {"error": f"Synthesis failed: {str(e)}"})
+
+        elif p == "/api/synthesis/simulate":
+            netlist = payload.get("netlist") or ""
+            top = payload.get("top_module") or None
+            cycles = int(payload.get("cycles") or 20)
+            try:
+                from product_architect.synthesis_engine import GateLevelSimulator
+                res = GateLevelSimulator.simulate_gate_netlist(netlist, top_module=top, cycles=cycles)
+                return self._send(200, res)
+            except Exception as e:
+                return self._send(500, {"error": f"Gate-level simulation failed: {str(e)}"})
+
+        elif p == "/api/synthesis/signoff":
+            synth_data = payload.get("synth_data") or {}
+            gls_data = payload.get("gls_data") or None
+            code = payload.get("code") or ""
+            top = payload.get("top_module") or None
+            try:
+                from product_architect.synthesis_engine import SynthesisSignoffManager
+                if not synth_data:
+                    from product_architect.synthesis_engine import YosysSynthesisEngine
+                    engine = YosysSynthesisEngine()
+                    synth_data = engine.synthesize(code, top_module=top)
+                deliverables = SynthesisSignoffManager.generate_deliverables(synth_data, gls_data)
+                return self._send(200, {
+                    "status": "ok",
+                    "module_name": synth_data.get("module_name", "silicon_core"),
+                    "deliverables_count": len(deliverables),
+                    "deliverables": deliverables
+                })
+            except Exception as e:
+                return self._send(500, {"error": f"Synthesis sign-off failed: {str(e)}"})
+
         elif p == "/api/chat":
             user_msg = payload.get("message") or payload.get("prompt") or payload.get("content") or ""
             if not user_msg:

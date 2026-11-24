@@ -2756,3 +2756,190 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
   gap: 6px;
   margin-top: 4px;
 }
+
+
+/* ============================================================================
+   STAGE 4: LOGIC SYNTHESIS STUDIO & GATE-LEVEL SIMULATOR
+   Yosys logic synthesis, standard cell technology mapping, gate sizing,
+   gate-level simulation (GLS), and 12 IEEE synthesis deliverables
+   ============================================================================ */
+
+.synth-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: calc(100vh - 120px);
+}
+
+.synth-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+}
+
+.synth-head .title-area h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-white);
+  margin-bottom: 2px;
+}
+
+.synth-head .title-area .sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-secondary);
+}
+
+.synth-head .action-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.synth-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 10px;
+}
+
+.synth-metric-box {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.synth-metric-box .label {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.synth-metric-box .val {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--ink-white);
+}
+
+.synth-metric-box .subtext {
+  font-size: 10px;
+  color: var(--ink-secondary);
+}
+
+.synth-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 1180px) {
+  .synth-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.synth-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.synth-card-head {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink-primary);
+}
+
+.synth-card-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.synth-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.synth-tag.pass { background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
+.synth-tag.fail { background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+.synth-tag.info { background: rgba(56, 189, 248, 0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.3); }
+.synth-tag.warn { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
+.synth-tag.purple { background: rgba(168, 85, 247, 0.15); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.3); }
+
+.synth-netlist-view {
+  background: #07090E;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.55;
+  color: #A5B4FC;
+  max-height: 480px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+.synth-histogram-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+}
+
+.synth-hist-label {
+  min-width: 90px;
+  color: var(--ink-white);
+}
+
+.synth-hist-track {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.synth-hist-fill {
+  height: 100%;
+  background: #C084FC;
+  border-radius: 4px;
+}
+
+.synth-hist-val {
+  min-width: 32px;
+  text-align: right;
+  color: var(--ink-muted);
+}
