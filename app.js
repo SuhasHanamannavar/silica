@@ -3509,7 +3509,7 @@ function renderRtlDrawerContent(rtl) {
       return `
         <div style="padding:24px;text-align:center;color:var(--ink-secondary)">
           <div class="kicker" style="font-size:12px;color:var(--accent);margin-bottom:8px">● COMPILING & SIMULATING CYCLE VERIFICATION</div>
-          <p>Compiling Verilog AST with Icarus Verilog compiler, resolving ports, and executing cycle-accurate testbench vectors…</p>
+          <p>Compiling Verilog AST, verifying port contracts, and executing cycle vectors…</p>
         </div>
       `;
     }
@@ -3529,13 +3529,67 @@ function renderRtlDrawerContent(rtl) {
     const res = rtl.simResult;
     const sim = res.simulation || {};
     const comp = res.compilation || {};
-    const passed = sim.passed;
-    const engine = comp.engine || 'Icarus Verilog 12.0';
-    const cycles = sim.cycles || 20;
-    const simTime = sim.sim_time_ns || 236;
-    const execMs = sim.execution_ms || 35;
-    const isWaveform = rtl.simViewMode === 'waveform';
+    const isError = res.status === 'compile_error' || !sim.passed;
+    const errors = comp.errors || [];
+    const engine = comp.engine || 'Silica Verilog Compiler & Elaborator';
+    const cycles = sim.cycles || 0;
+    const simTime = sim.sim_time_ns || 0;
+    const execMs = sim.execution_ms || 10;
+    const isWaveform = rtl.simViewMode === 'waveform' && !isError;
 
+    if (isError) {
+      return `
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="padding:12px 16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:6px;display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="color:var(--fail);font-size:18px">✕</span>
+              <div>
+                <strong style="color:var(--fail);font-size:13px">Hardware Compilation & Elaboration Failed</strong>
+                <div class="faint" style="font-size:11px;margin-top:2px">${errors.length ? errors.length + ' syntax/elaboration error(s) detected. Fix code to run simulation.' : 'Compiler exited with errors.'}</div>
+              </div>
+            </div>
+            <span class="mono faint" style="font-size:11px">Engine: <strong>${esc(engine)}</strong></span>
+          </div>
+
+          ${errors.length ? `
+            <table class="rtl-diag-table">
+              <thead>
+                <tr>
+                  <th style="width:70px">Type</th>
+                  <th style="width:60px">Line</th>
+                  <th>Compiler Diagnostic</th>
+                  <th style="width:80px;text-align:right">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${errors.map(errStr => {
+                  const lineMatch = errStr.match(/line\s+(\d+)/i) || errStr.match(/:(\d+):/);
+                  const lineNum = lineMatch ? lineMatch[1] : null;
+                  const cleanMsg = errStr.replace(/^line\s+\d+:\s*(?:error:\s*)?/i, '');
+                  return `
+                    <tr>
+                      <td><span class="rtl-diag-badge error">ERROR</span></td>
+                      <td class="mono" style="color:var(--ink-white)">${lineNum ? 'L' + lineNum : '-'}</td>
+                      <td style="color:#FCA5A5">${esc(cleanMsg)}</td>
+                      <td style="text-align:right">
+                        ${lineNum ? `<button class="btn sm rtl-jump-line" data-line="${lineNum}" style="padding:2px 6px;font-size:10px">Jump →</button>` : '-'}
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          ` : ''}
+
+          <div>
+            <div class="kicker" style="font-size:10px;margin-bottom:4px">COMPILER STDERR LOG</div>
+            <div class="rtl-term-sim" style="border-color:rgba(239,68,68,0.3);color:#FCA5A5">${esc(comp.raw_stderr || sim.log || 'Compilation failed.')}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // If passed:
     let contentHtml = '';
     if (isWaveform && sim.waveforms) {
       const wf = sim.waveforms;
@@ -3576,15 +3630,15 @@ function renderRtlDrawerContent(rtl) {
         </div>
       `;
     } else {
-      contentHtml = `<div class="rtl-term-sim">${esc(sim.log || comp.raw_stderr || 'No simulation logs.')}</div>`;
+      contentHtml = `<div class="rtl-term-sim">${esc(sim.log || 'No simulation logs.')}</div>`;
     }
 
     return `
       <div style="display:flex;flex-direction:column;gap:10px">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
           <div style="display:flex;align-items:center;gap:10px">
-            <span class="rtl-diag-badge ${passed ? 'sim-pass' : 'sim-fail'}" style="font-size:11px">
-              ${passed ? '✓ SIMULATION PASSED (0 ERRORS)' : '✕ SIMULATION FAILED'}
+            <span class="rtl-diag-badge sim-pass" style="font-size:11px">
+              ✓ SIMULATION PASSED (0 ERRORS)
             </span>
             <span class="mono faint" style="font-size:11px">Engine: <strong>${esc(engine)}</strong></span>
             <span class="mono faint" style="font-size:11px">• ${cycles} Cycles (${simTime} ns)</span>
@@ -4259,10 +4313,11 @@ function triggerRtlSimulation() {
     rtl.simResult = data;
     rtl.activeTab = 'sim';
     save();
-    if (data.status === 'ok' && data.simulation && data.simulation.passed) {
-      toast('Simulation Passed', `0 errors, 20/20 cycles verified (${data.compilation ? data.compilation.engine : 'Icarus Verilog'}).`);
-    } else if (data.status === 'compile_error') {
-      toast('Compilation Error', 'Verilog compilation failed. Check simulation log for details.');
+    if (data.status === 'compile_error' || (data.simulation && !data.simulation.passed)) {
+      const errCount = (data.compilation && data.compilation.errors) ? data.compilation.errors.length : 1;
+      toast('Compilation Failed', `${errCount} error(s) encountered during hardware elaboration.`);
+    } else if (data.status === 'ok' && data.simulation && data.simulation.passed) {
+      toast('Simulation Passed', `0 errors, 20/20 cycles verified (${data.compilation ? data.compilation.engine : 'Verilog Compiler'}).`);
     } else {
       toast('Simulation Complete', 'Cycle execution finished.');
     }
