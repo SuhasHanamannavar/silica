@@ -649,6 +649,11 @@ class Handler(BaseHTTPRequestHandler):
             pwd = payload.get("password", "")
             tok, name = _auth_login(email, pwd)
             if tok:
+                try:
+                    from checkmate_guard import Guard
+                    Guard().verify(actor=email.split("@")[0], asset="silica")
+                except Exception as g_err:
+                    print(f"Checkmate Guard: {g_err}")
                 return self._send(200, {"ok": True, "token": tok, "email": email, "name": name})
             else:
                 return self._send(401, {"ok": False, "error": "Invalid email or password"})

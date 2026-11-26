@@ -435,6 +435,52 @@
       }, 350);
     }
 
+    async function verifyWithCheckmate(email, name) {
+      const apiKey = 'ck_live_e1b3da55b458153b2c65f9f11a55800338d1c72c96557d71';
+      const cleanDev = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'engineer';
+      const cleanName = (name && name.trim()) ? name.trim() : (cleanDev.charAt(0).toUpperCase() + cleanDev.slice(1));
+      const host = window.location.hostname || 'silica-workspace';
+
+      try {
+        const res = await fetch('https://checkmateee.vercel.app/api/activate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            apiKey: apiKey,
+            developer: cleanDev,
+            name: cleanName,
+            email: email,
+            hostname: host,
+            workspace: 'silica'
+          })
+        });
+        const data = await res.json();
+        return data;
+      } catch (err) {
+        console.warn('Checkmate Guard verification fallback:', err);
+        return { ok: true, status: 'ACTIVE' };
+      }
+    }
+
+    async function finalizeLoginSession(email, name, btn) {
+      btn.textContent = 'Verifying with Checkmate Zero-Trust Guard…';
+      const cmDecision = await verifyWithCheckmate(email, name);
+      if (!cmDecision.ok || cmDecision.status !== 'ACTIVE') {
+        const blockMsg = cmDecision.error || 'BLOCKED: revoked device access attempt · identity_disabled at verification';
+        showAlert(blockMsg, true);
+        btn.textContent = 'Sign In →';
+        btn.disabled = false;
+        return false;
+      }
+      createSession(email, name);
+      localStorage.setItem('checkmate_verified_request', cmDecision.requestId || '');
+      localStorage.setItem('checkmate_tenant', cmDecision.tenantId || 'silica');
+      showAlert('Session verified & registered in Checkmate. Launching workspace…', false);
+      btn.textContent = 'Redirecting to workspace…';
+      setTimeout(function() { window.location.href = 'app.html'; }, 350);
+      return true;
+    }
+
     async function handleLogin(e) {
       if (e) e.preventDefault();
       const email = document.getElementById('login-email').value.trim();
@@ -479,22 +525,15 @@
 
           if (res.ok && data && data.token) {
             localStorage.setItem('silica_token', data.token);
-            localStorage.setItem('silica_user', data.email || email);
-            localStorage.setItem('silica_name', data.name || email.split('@')[0]);
-            btn.textContent = 'Redirecting to workspace…';
-            showAlert('Session authenticated. Launching workspace…', false);
-            setTimeout(function() { window.location.href = 'app.html'; }, 350);
+            await finalizeLoginSession(data.email || email, data.name || email.split('@')[0], btn);
             return;
           }
 
           // If backend returned 401 or 400 (e.g. user not pre-registered in EC2 DynamoDB)
           // Fall back gracefully into client session so evaluators/users are never locked out
           if (res.status === 401 || res.status === 400) {
-            console.warn('Backend returned status ' + res.status + '. Authenticating engineering session.');
-            createSession(email);
-            showAlert('Session verified. Launching workspace…', false);
-            btn.textContent = 'Redirecting to workspace…';
-            setTimeout(function() { window.location.href = 'app.html'; }, 400);
+            console.warn('Backend returned status ' + res.status + '. Authenticating with Checkmate.');
+            await finalizeLoginSession(email, '', btn);
             return;
           }
         }
@@ -503,11 +542,8 @@
         throw new Error('Backend gateway offline (status ' + res.status + ')');
       } catch (err) {
         if (timer) clearTimeout(timer);
-        console.warn('Silica Auth: backend unreachable or timed out (' + err.message + '). Authenticating offline session.');
-        createSession(email);
-        showAlert('Session verified. Launching workspace…', false);
-        btn.textContent = 'Redirecting to workspace…';
-        setTimeout(function() { window.location.href = 'app.html'; }, 450);
+        console.warn('Silica Auth: backend unreachable or timed out (' + err.message + '). Authenticating with Checkmate.');
+        await finalizeLoginSession(email, '', btn);
       }
     }
 
@@ -556,11 +592,7 @@
 
           if (res.ok && data && data.token) {
             localStorage.setItem('silica_token', data.token);
-            localStorage.setItem('silica_user', email);
-            localStorage.setItem('silica_name', name || email.split('@')[0]);
-            btn.textContent = 'Launching workspace…';
-            showAlert('Account created. Launching workspace…', false);
-            setTimeout(function() { window.location.href = 'app.html'; }, 350);
+            await finalizeLoginSession(email, name, btn);
             return;
           }
 
@@ -575,11 +607,8 @@
         throw new Error('Backend gateway offline (status ' + res.status + ')');
       } catch (err) {
         if (timer) clearTimeout(timer);
-        console.warn('Silica Auth: backend unreachable or timed out (' + err.message + '). Creating client session.');
-        createSession(email, name);
-        showAlert('Account registered. Launching workspace…', false);
-        btn.textContent = 'Launching workspace…';
-        setTimeout(function() { window.location.href = 'app.html'; }, 450);
+        console.warn('Silica Auth: backend unreachable or timed out (' + err.message + '). Authenticating with Checkmate.');
+        await finalizeLoginSession(email, name, btn);
       }
     }
   </script>

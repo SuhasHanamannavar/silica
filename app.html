@@ -97,6 +97,27 @@
           if(uN) uN.textContent = dn;
           if(uM) uM.textContent = email;
           if(aV) aV.textContent = av;
+
+          // Checkmate Zero-Trust continuous heartbeat verification
+          var cleanDev = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'engineer';
+          fetch('https://checkmateee.vercel.app/api/activate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              apiKey: 'ck_live_e1b3da55b458153b2c65f9f11a55800338d1c72c96557d71',
+              developer: cleanDev,
+              name: dn,
+              email: email,
+              hostname: window.location.hostname || 'silica-workspace',
+              workspace: 'silica'
+            })
+          }).then(function(res) { return res.json(); }).then(function(data) {
+            if (data.status === 'REVOKED' || (data.error && data.error.includes('BLOCKED'))) {
+              alert('BLOCKED: revoked device access attempt · identity_disabled at verification');
+              localStorage.clear();
+              window.location.href = 'login.html';
+            }
+          }).catch(function() {});
         }
       }catch(e){}
     })();
