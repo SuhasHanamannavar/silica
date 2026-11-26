@@ -29,7 +29,7 @@ Every request, file read, credential retrieval, and database operation within th
 - If any actor or API key is flagged as REVOKED or LOCKED in the Checkmate registry:
   - Fail closed immediately (DENY).
   - Do NOT disclose plaintext bytes or hints.
-  - Return: "BLOCKED: revoked device access attempt Â· identity_disabled at verification"
+  - Return: "BLOCKED: revoked device access attempt · identity_disabled at verification"
 
 ## 4. Post-Quantum Cryptographic Specification (FIPS 203)
 - Algorithm: ML-KEM-768 (Kyber768 parameter set)
@@ -42,3 +42,4 @@ Every request, file read, credential retrieval, and database operation within th
 ## 5. Execution Policy
 - No fake, mock, or synthetic data: all state lives in AWS DynamoDB.
 - All workspace AI agents (Cursor, Claude Code, Antigravity, Copilot) are bound by this Master Prompt.
+
