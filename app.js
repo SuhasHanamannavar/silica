@@ -706,31 +706,6 @@ Remove-Item -Path $tmpPath -Force -ErrorAction SilentlyContinue
     cmdA.click();
     cmdA.remove();
 
-    // 5. Download sealed document notice with ZERO plaintext bytes
-    const sealedContent = `// ==============================================================================\r\n` +
-      `// CHECKMATE ZERO-TRUST PROTECTED ASSET · FIPS 203 ML-KEM-768\r\n` +
-      `// ASSET:       ${filename}\r\n` +
-      `// BOUND OWNER: @${user}\r\n` +
-      `// STATUS:      CRYPTOGRAPHICALLY SEALED\r\n` +
-      `//\r\n` +
-      `// NOTICE: THIS FILE IS GOVERNED BY CHECKMATE ZERO-TRUST CONTROL PLANE.\r\n` +
-      `// DIRECT OPENING IS RESTRICTED. PLAINTEXT UNSEALS ONLY AT RUNTIME.\r\n` +
-      `//\r\n` +
-      `// TO UNSEAL AND VIEW ON THIS WORKSTATION:\r\n` +
-      `// Double-click:  ${filename}.cmd\r\n` +
-      `// Or run:        .\\checkmate-view.cmd ${filename}\r\n` +
-      `// ==============================================================================\r\n`;
-
-    const sealedBlob = new Blob([sealedContent], { type: 'text/plain;charset=utf-8' });
-    const sealedA = document.createElement('a');
-    sealedA.href = URL.createObjectURL(sealedBlob);
-    sealedA.download = filename;
-    document.body.appendChild(sealedA);
-    setTimeout(function(){
-      sealedA.click();
-      sealedA.remove();
-    }, 350);
-
     toast('Checkmate Protected Asset', `${filename}.cmd downloaded (governed by @${user})`);
   })
   .catch(function(err){
