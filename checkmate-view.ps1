@@ -5,17 +5,13 @@
 [CmdletBinding()]
 param(
   [Parameter(Position=0, Mandatory=$false)]
-  [string]$Path
+  [string]$Path,
+  [Parameter(Position=1, Mandatory=$false)]
+  [string]$Actor
 )
 
 $ControlPlane = if ($env:CHECKMATE_CONTROL_PLANE) { $env:CHECKMATE_CONTROL_PLANE } else { "https://checkmateee.vercel.app" }
 $ApiKey = if ($env:CHECKMATE_API_KEY) { $env:CHECKMATE_API_KEY.Trim() } else { "ck_live_e1b3da55b458153b2c65f9f11a55800338d1c72c96557d71" }
-
-$Developer = if ($env:CHECKMATE_ACTOR) { $env:CHECKMATE_ACTOR } elseif ($env:USERNAME) { $env:USERNAME } else { $env:USER }
-if (-not $Developer) { $Developer = "developer" }
-
-# Clean developer handle
-$CleanDev = $Developer.ToLower() -replace '[^a-z0-9_-]', ''
 
 if ([string]::IsNullOrWhiteSpace($Path) -and $env:CHECKMATE_TARGET) {
   $Path = $env:CHECKMATE_TARGET
@@ -40,6 +36,44 @@ if (-not $FullPath -or -not (Test-Path $FullPath)) {
   Write-Host "[ERROR] Target file not found: $Path" -ForegroundColor Red
   return
 }
+
+# Determine bound developer / actor with strict zero-trust priority
+$Developer = if ($Actor) { $Actor }
+elseif ($env:CHECKMATE_ACTOR) { $env:CHECKMATE_ACTOR }
+else { $null }
+
+# 1. Check if target file contains bound owner metadata
+if (-not $Developer -and $FullPath -and (Test-Path $FullPath)) {
+  try {
+    $HeaderLines = Get-Content -Path $FullPath -TotalCount 20 -ErrorAction SilentlyContinue
+    foreach ($Line in $HeaderLines) {
+      if ($Line -match '(?:BOUND OWNER|CHECKMATE_ACTOR|ACTOR):\s*@?([a-zA-Z0-9_.-]+)') {
+        $Developer = $Matches[1].Split('@')[0]
+        break
+      }
+    }
+  } catch {}
+}
+
+# 2. Check workspace.json
+if (-not $Developer) {
+  $WorkspaceJsonPath = Join-Path $PSScriptRoot ".checkmate\workspace.json"
+  if (Test-Path $WorkspaceJsonPath) {
+    try {
+      $WConf = Get-Content $WorkspaceJsonPath -Raw | ConvertFrom-Json
+      if ($WConf.developer) { $Developer = $WConf.developer }
+    } catch {}
+  }
+}
+
+# 3. Fallback to system environment
+if (-not $Developer) {
+  $Developer = if ($env:USERNAME) { $env:USERNAME } else { $env:USER }
+}
+if (-not $Developer) { $Developer = "developer" }
+
+# Clean developer handle
+$CleanDev = $Developer.ToLower() -replace '[^a-z0-9_-]', ''
 
 $FileName = [System.IO.Path]::GetFileName($FullPath)
 $HostName = if ($env:COMPUTERNAME) { $env:COMPUTERNAME } else { "workstation" }
